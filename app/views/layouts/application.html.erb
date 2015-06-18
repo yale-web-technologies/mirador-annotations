@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TenThousandRooms</title>
+  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+  <%= csrf_meta_tags %>
+  <style>
+      .tableLayer {
+          border: 12px solid red;
+      }
+      .tableList , td, th {
+          padding: 25px;
+          border: 1px solid green;
+      }
+      .tableAnnotation {
+          padding: 25px;
+          border: 1px #0000ff;
+      }
+      .thLayerRed {
+                 background-color: indianred;
+                 color: black;
+                font-size: 175%;
+      }
+      .thLayer {
+          color: black;
+          font-size: 175%;
+      }
+      .thListBlue {
+          background-color: lightskyblue;
+          color: black;
+          font-size: 140%;
+
+      }
+      .thList {
+          color: black;
+          font-size: 140%;
+
+      }
+      .thAnnotationGreen {
+          background-color: lawngreen;
+          color: black;
+          font-size: 125%;
+      }
+      .thAnnotation {
+          color: black;
+          font-size: 125%;
+      }
+  </style
+  </style>
+</head>
+<body>
+
+<%= yield %>
+
+</body>
+</html>

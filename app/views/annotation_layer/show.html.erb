@@ -1,0 +1,45 @@
+<div class="container">
+    <div class="page-header">
+        <h1>Layer: <%= @annotation_layer.label %></h1>
+    </div>
+    <div class="col-sm-12 col-md-12">
+
+        <p id="notice"><%= notice %></p>
+
+        <p>
+            <b>Identifier (URI):</b>
+            <%= @annotation_layer['@id'] %>
+        </p>
+
+        <p>
+            <b>Label:</b>
+            <%= @annotation_layer.label %>
+        </p>
+
+        <p>
+            <b>Motivation:</b>
+            <%= @annotation_layer.motivation %>
+        </p>
+
+        <p>
+            <b>Description:</b>
+            <%= @annotation_layer.description %>
+        </p>
+
+        <p>
+            <b>Attribution:</b>
+            <%= @annotation_layer.attribution %>
+        </p>
+
+        <p>
+            <b>License:</b>
+            <%= @annotation_layer.license %>
+        </p>
+
+
+        <%= link_to 'Edit', edit_annotation_layer_path(@annotation_layer) %> |
+        <%= link_to 'Back', annotation_layers_path %>
+    </div>
+</div>
+
+

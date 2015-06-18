@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  @id: 
+  @type: 
+  'on': 
+  motivation: 
+  within: 
+  layers: MyString
+
+two:
+  @id: 
+  @type: 
+  'on': 
+  motivation: 
+  within: 
+  layers: MyString
