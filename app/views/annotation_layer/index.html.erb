@@ -1,0 +1,66 @@
+<div class="container">
+    <div class="page-header" style="background-color: cornflowerblue;">
+        <h1>Annotation Layers with included lists and their embedded annotations via the LayerListsMap</h1>
+    </div>
+
+    <div class="col-sm-12 col-md-12">
+            <% @annotation_layers.each do |annotation_layer| %>
+            <table class="tableLayer">
+                <tr>
+                    <th class="thLayerRed">Layer:</th>
+                    <th class="thLayer">URI</th>
+                    <th class="thLayer">Label</th>
+                    <th class="thLayer">Motivation</th>
+               </tr>
+                <% layer_id = annotation_layer['@id'] %>
+                <tr>
+                    <td></td>
+                    <td><%= annotation_layer['@id'] %></td>
+                    <td><%= annotation_layer.label %></td>
+                    <td><%= annotation_layer.motivation %></td>
+                </tr>
+                <!-- Get line below to work when relationships are established -->
+                <% #listsMap = annotation_layer.layer_lists_maps %>
+                <% listsMap = LayerListsMap.where(layer_id: layer_id) %>
+                    <% listsMap.each do |listMap| %>
+                        <tr>
+                            <th></th>
+                            <th class="thListBlue">List:</th>
+                            <th class="thList">Layer Id</th>
+                            <th class="thList">List Id</th>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td><%= listMap.sequence %></td>
+                            <td><%= listMap.layer_id %></td>
+                            <td><%= listMap.list_id %></td>
+                        </tr>
+                        <% annoList = AnnotationList.where(list_id: listMap.list_id).first %>
+                        <% annotationResources = JSON.parse(annoList.resources) %>
+                        <% p 'annotationResources = ' + annotationResources.to_s %>
+                        <% resources = annotationResources['resources'] %>
+                    <tr>
+                        <th></th>
+                        <th></th>
+                        <th class="thAnnotationGreen">Annotations:</th>
+                        <th class="thAnnotation"> Resource[chars]</th>
+                    </tr>
+                          <% resources.each do |resource| %>
+                                <% p 'resource = ' + resource.to_s %>
+                                 <% p 'resource[chars] = ' + resource['resource']['chars'].to_s %>
+
+                                <tr>
+                                  <td></td>
+                                  <td></td>
+                                  <td></td>
+                                  <td><%= resource['resource']['chars']%></td>
+                                </tr>
+                           <% end %>
+                    <% end %>
+                <br><br>
+            <% end %>
+        </table>
+        <br/>
+    </div>
+</div>
+
