@@ -35,8 +35,9 @@
                             <td><%= listMap.layer_id %></td>
                             <td><%= listMap.list_id %></td>
                         </tr>
-                        <% annoList = AnnotationList.where(list_id: listMap.list_id).first %>
-                        <% annotationResources = JSON.parse(annoList.resources) %>
+
+                        <% annotationsList = AnnotationList.where(list_id: listMap.list_id).first %>
+                        <% annotationResources = JSON.parse(annotationsList.resources) %>
                         <% p 'annotationResources = ' + annotationResources.to_s %>
                         <% resources = annotationResources['resources'] %>
                     <tr>

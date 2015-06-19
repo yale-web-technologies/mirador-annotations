@@ -14,7 +14,10 @@ TenThousandRooms::Application.routes.draw do
   get '/list/:id', to: 'annotation_list#show', :constraints => { :id => /.*/ }
   get '/lists', to: 'annotation_list#index'
 
+  get '/getAll', to: 'services#getAllCanvasesLayersLists'
+  get '/getCanvasData', to: 'services#getLayersListsForCanvas'
 
+  #get "services/getSolrMappingsForTagSet"
   # You can have the root of your site routed with "root"
   # root 'welcome#index'
 

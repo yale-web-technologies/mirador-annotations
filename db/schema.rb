@@ -11,12 +11,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150617200714) do
+ActiveRecord::Schema.define(version: 20150617221117) do
 
   create_table "annotation_layers", force: :cascade do |t|
-    t.string   "@id"
-    t.string   "@type"
-    t.string   "@context"
+    t.string   "layer_id"
+    t.string   "layer_type"
+    t.string   "context"
     t.string   "label"
     t.string   "motivation"
     t.string   "description"
