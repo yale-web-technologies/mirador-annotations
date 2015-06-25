@@ -17,6 +17,7 @@ class ServicesController < ApplicationController
       listsMap.each do |listMap|
         listHash = Hash.new
         listHash[:sequence] = listMap.sequence
+          p " listMap.list_id: " + listMap.list_id.to_s
           annoList = AnnotationList.where(list_id: listMap.list_id).first
           annotationResources = JSON.parse(annoList.resources)
           annotationHash = Hash.new
@@ -28,6 +29,7 @@ class ServicesController < ApplicationController
             annotationHash[:id] = resource['layer_id']
             annotationHash[:type] = resource['type']
             annotationHash[:resourceContent] = resource['resource']['chars']
+            p  annotationHash[:resourceContent]
             annotationArray.push(annotationHash)
           end
         listHash.store(:annotations, annotationArray)
