@@ -1,7 +1,7 @@
 class AnnotationList < ActiveRecord::Base
 
   attr_accessible  :list_id,
-                   :@type,
+                   :list_type,
                    :resources,
                    :within
 end
