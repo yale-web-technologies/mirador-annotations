@@ -28,7 +28,7 @@ ActiveRecord::Schema.define(version: 20150617221117) do
 
   create_table "annotation_lists", force: :cascade do |t|
     t.string   "list_id"
-    t.string   "@type"
+    t.string   "list_type"
     t.string   "resources"
     t.string   "within"
     t.datetime "created_at", null: false

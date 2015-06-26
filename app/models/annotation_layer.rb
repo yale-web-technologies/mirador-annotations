@@ -2,8 +2,8 @@ class AnnotationLayer < ActiveRecord::Base
   validates :@id, uniqueness: true
   has_many :layer_lists_maps
 
-  attr_accessible  :@id,
-                  :@type,
+  attr_accessible  :list_id,
+                  :list_type,
                   :label,
                   :motivation,
                   :description,
