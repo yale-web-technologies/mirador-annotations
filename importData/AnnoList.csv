@@ -1,0 +1,342 @@
+"1","http://localhost:5000/lists/1","sc:AnnotationList","{""resources"":[{""@id"":""http://localhost:5000/annotation/1"",@type"":""oa:Annotation"",on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",""motivation"":""yale:transcribing"",""resource"":{@id: ""http""localhost:5000/annotations/1"",""@type"":""cnt:ContentAsText"",""format"":""text/plain""}, ""annotatedBy"":{""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",""@type"":""prov:Agent"",""name"":""Roy Lechich""}},{""@id"":""http://localhost:5000/annotation/2"",""@type"":""oa:Annotation"",""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",""motivation"":""yale:transcribing"",""resource"":{""@type"":""cnt:ContentAsText"",@id:""http""localhost:5000/annotations/2"",""format"":""text/plain""},""annotatedBy""{""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",""@type"":""prov:Agent"",""name"":""Roy Lechich""}}]}","http://localhost:5000/layers/1","","",""
+"2","http://localhost:5000/lists/2","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://localhost:5000/annotation/3"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is transcription 1B for fac 1 canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    },
+{""@id"":""http://localhost:5000/annotation/4"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is transcription 2B for fac 1 canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    }
+  ]
+}","http://localhost:5000/layers/1","","",""
+"3","http://localhost:5000/lists/3","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://localhost:5000/annotation/5"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is translation 1 for fac 1 for canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    },
+{""@id"":""http://localhost:5000/annotation/6"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is translation 2 for fac 1 for canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    }
+  ]
+}","http://localhost:5000/layers/2","","",""
+"4","http://localhost:5000/lists/4","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://localhost:5000/annotation/7"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is translation 1B for fac 1 for canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    },
+{""@id"":""http://localhost:5000/annotation/8"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is translation 2B for fac 1 for canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    }
+  ]
+}","http://localhost:5000/layers/2","","",""
+"5","http://localhost:5000/lists/5","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://localhost:5000/annotation/9"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is comment 1 for fac 1 for canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    },
+{""@id"":""http://localhost:5000/annotation/10"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is comment 2 for fac 1 for canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    }
+  ]
+}","http://localhost:5000/layers/3","","",""
+"6","http://localhost:5000/lists/6","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://localhost:5000/annotation/11"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is comment 1B for fac 1 for canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    },
+{""@id"":""http://localhost:5000/annotation/12"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is comment 2B for fac 1 for canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    }
+  ]
+}","http://localhost:5000/layers/3","","",""
+"7","http://localhost:5000/lists/7","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://localhost:5000/annotation/13"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is transcription 1 for fac 2 for canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    },
+{""@id"":""http://localhost:5000/annotation/14"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is transcription 2 for fac 2 for canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    }
+  ]
+}","http://localhost:5000/layers/4","","",""
+"8","http://localhost:5000/lists/8","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://localhost:5000/annotation/15"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is transcription 1B for fac 2 for canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    },
+{""@id"":""http://localhost:5000/annotation/16"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is transcription 2B for canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    }
+  ]
+}","http://localhost:5000/layers/4","","",""
+"9","http://localhost:5000/lists/9","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://localhost:5000/annotation/17"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is translation 1 for fac 2 for canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    },
+{""@id"":""http://localhost:5000/annotation/18"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is translation 2 for fac 2for canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    }
+  ]
+}","http://localhost:5000/layers/5","","",""
+"10","http://localhost:5000/lists/10","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://localhost:5000/annotation/19"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is translation 1B for fac 2 for canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    },
+{""@id"":""http://localhost:5000/annotation/20"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is translation 2B for fac 2 for canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    }
+  ]
+}","http://localhost:5000/layers/5","","",""
+"11","http://localhost:5000/lists/11","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://localhost:5000/annotation/21"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is comment 1 for fac 2 for canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    },
+{""@id"":""http://localhost:5000/annotation/22"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is comment 2 for fac 2 for canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    }
+  ]
+}","http://localhost:5000/layers/6","","",""
+"12","http://localhost:5000/lists/12","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://localhost:5000/annotation/23"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is comment 1B for fac 2 for canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    },
+{""@id"":""http://localhost:5000/annotation/24"",
+""@type"":""oa:Annotation"",
+ ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
+      ""motivation"":""yale:transcribing"",
+      ""resource"":{
+        ""@type"":""cnt:ContentAsText"",
+		""language"":""en"",
+		""chars"":""This is comment 2B for fac 2 for canvas-359#xywh=47,191,1036,1132"",
+		""format"":""text/plain""},
+	  ""annotatedBy"":{
+		""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",
+		""@type"":""prov:Agent"",
+		""name"":""Roy Lechich""}
+    }
+  ]
+}","http://localhost:5000/layers/6","","",""

@@ -4,7 +4,6 @@ class CreateLayerListsMaps < ActiveRecord::Migration
       t.string :layer_id
       t.integer :sequence
       t.string :list_id
-
       t.timestamps null: false
     end
   end
