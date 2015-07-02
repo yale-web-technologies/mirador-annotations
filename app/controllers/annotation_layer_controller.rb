@@ -6,15 +6,24 @@ class AnnotationLayerController < ApplicationController
     @annotation_layers = AnnotationLayer.all
     respond_to do |format|
       format.html #index.html.erb
-      format.json { render json: @annotation_layers }
+      #format.json { render json: @annotation_layers }
+
+      iiif = []
+      @annotation_layers.each do |annotation_layer|
+        iiif << annotation_layer.to_iiif
+      end
+      iiif.to_json
+      format.json {render json: iiif}
     end
   end
 
   # GET /layer/1
   # GET /layer/1.json
   def show
-    @annotation_layer = AnnotationLayer.find(params[:id])
-    authorize! :show, @annotation_layer
+    #@annotation_layer = AnnotationLayer.find(params[:id])
+    @ru = request.original_url
+    @annotation_layer = AnnotationLayer.where(layer_id: @ru).first
+    #authorize! :show, @annotation_layer
     respond_to do |format|
       format.html # show.html.erb
       format.json { render json: @annotation_layer.to_iiif }

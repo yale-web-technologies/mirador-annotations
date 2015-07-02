@@ -14,6 +14,7 @@ gem 'therubyracer'
 gem 'devise', '~> 3.4.0'   # or later
 gem 'omniauth'
 gem 'omniauth-cas'
+gem 'uuid'
 
 group :development, :test do
   # Use sqlite3 as the database for Active Record for dev

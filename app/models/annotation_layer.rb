@@ -1,32 +1,31 @@
 class AnnotationLayer < ActiveRecord::Base
-  validates :@id, uniqueness: true
+  validates :layer_id, uniqueness: true
   has_many :layer_lists_maps
-
-  attr_accessible  :list_id,
-                  :list_type,
+  attr_accessible :layer_id,
+                  :layer_type,
                   :label,
                   :motivation,
                   :description,
                   :license
-  def to_iiif
-    iiif = attributes.clone
-    iiif.delete('_id')
-    iiif.delete('description') if description.nil? or description.empty?
-    iiif.delete('attribution') if attribution.nil? or attribution.empty?
-    iiif.delete('license') if license.nil? or license.empty?
-    iiif.delete('motivation') if motivation.nil? or motivation.empty?
-    iiif['@context'] = ["http://iiif.io/api/presentation/2/context.json"]
-    iiif
-  end
 
   def to_iiif
     iiif = attributes.clone
-    iiif.delete('_id')
-    iiif.delete('description') if description.nil? or description.empty?
+    iiif['@id'] = layer_id
+    iiif['@type'] = layer_type
+    iiif['@context'] = "http://iiif.io/api/presentation/2/context.json"
 
+    iiif.delete('id')
+    iiif.delete('layer_id')
+    iiif.delete('layer_type')
+    iiif.delete('otherContent')
+    iiif.delete('description') if description.nil? or description.empty?
     iiif.delete('license') if license.nil? or license.empty?
     iiif.delete('motivation') if motivation.nil? or motivation.empty?
-    iiif['@context'] = ["http://iiif.io/api/presentation/1/context.json"]
+    iiif.delete('created_at')
+    iiif.delete('updated_at')
+
+    iiif['otherContent'] = otherContent.split(",")
+    p  iiif['otherContent'].to_s
     iiif
   end
 

@@ -1,23 +1,23 @@
 TenThousandRooms::Application.routes.draw do
 
-    #devise_for :users, :controllers => { :omniauth_callbacks => "users/omniauth_callbacks", registrations: 'registrations' }
+  #devise_for :users, :controllers => { :omniauth_callbacks => "users/omniauth_callbacks", registrations: 'registrations' }
 
-    get "welcome/index"
+  get "welcome/index"
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
-  #resources :annotation_layer, path: 'layers', defaults: {format: :json}
-  #resources :annotation_layer, path: 'layer', defaults: {format: :json}
-  get 'index', to: 'annotation_layer#index'
+  resources :annotation_layer, path: 'layers',defaults: {format: :json}
+  resources :annotation_layer, path: 'layer', defaults: {format: :json}
 
-  resources :annotation_lists, path: 'list'
-  get '/list/:id', to: 'annotation_list#show', :constraints => { :id => /.*/ }
-  get '/lists', to: 'annotation_list#index'
+  resources :annotation_list, path: 'lists',defaults: {format: :json}
+  resources :annotation_list, path: 'list',defaults: {format: :json}
 
-  get '/getAll', to: 'services#getAllCanvasesLayersLists'
-  get '/getCanvasData', to: 'services#getLayersListsForCanvas'
+  resources :annotation, path: 'annotations',defaults: {format: :json}
+  resources :annotation, path: 'annotation',defaults: {format: :json}
 
-  #get "services/getSolrMappingsForTagSet"
+  #get '/getAll', to: 'services#getAllCanvasesLayersLists'
+  #get '/getCanvasData', to: 'services#getLayersListsForCanvas'
+
   # You can have the root of your site routed with "root"
   # root 'welcome#index'
 
