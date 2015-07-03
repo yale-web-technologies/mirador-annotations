@@ -17,14 +17,14 @@ class AnnotationLayer < ActiveRecord::Base
     iiif.delete('id')
     iiif.delete('layer_id')
     iiif.delete('layer_type')
-    iiif.delete('otherContent')
+    iiif.delete('othercontent')
     iiif.delete('description') if description.nil? or description.empty?
     iiif.delete('license') if license.nil? or license.empty?
     iiif.delete('motivation') if motivation.nil? or motivation.empty?
     iiif.delete('created_at')
     iiif.delete('updated_at')
 
-    iiif['otherContent'] = otherContent.split(",")
+    iiif['otherContent'] = othercontent.split(",")
     p  iiif['otherContent'].to_s
     iiif
   end

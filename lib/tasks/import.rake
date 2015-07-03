@@ -30,14 +30,14 @@ namespace :import do
       motivation = row[5]
       #description = row[6]
       license = row[7]
-      otherContent = row[8]
+      othercontent = row[8]
       puts row.inspect
-      puts "Layer_id: ",layer_id,"Label: ",label, "otherContent: ", otherContent
-      @annotationLayer = AnnotationLayer.create(layer_id: layer_id, layer_type: layer_type, label: label, otherContent: otherContent, motivation: motivation, license: license)
+      puts "Layer_id: ",layer_id,"Label: ",label, "othercontent: ", othercontent
+      @annotationLayer = AnnotationLayer.create(layer_id: layer_id, layer_type: layer_type, label: label, othercontent: othercontent, motivation: motivation, license: license)
       puts @annotationLayer.attribute_names.to_s
       puts @annotationLayer.attributes.to_s
       @annotationLayer.save!(options={validate: false})
-      puts "annoLayer.otherContent = ", @annotationLayer.otherContent
+      puts "annoLayer.othercontent = ", @annotationLayer.othercontent
       puts "annoLayer.label = ", @annotationLayer.label
     end
   end

@@ -6,7 +6,7 @@ class CreateAnnotationLayers < ActiveRecord::Migration
       t.string :label
       t.string :motivation
       t.string :description
-      t.string :otherContent
+      t.string :othercontent
       t.string :license
 
       t.timestamps null: false
