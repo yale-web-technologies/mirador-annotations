@@ -3,9 +3,9 @@
 one:
   @id: 
   @context: 
-  otherContent: MyString
+  othercontent: MyString
 
 two:
   @id: 
   @context: 
-  otherContent: MyString
+  othercontent: MyString
