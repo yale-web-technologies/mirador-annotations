@@ -1,6 +1,6 @@
-"1","http://localhost:5000/lists/1","sc:AnnotationList","{""resources"":[{""@id"":""http://localhost:5000/annotation/1"",@type"":""oa:Annotation"",on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",""motivation"":""yale:transcribing"",""resource"":{@id: ""http""localhost:5000/annotations/1"",""@type"":""cnt:ContentAsText"",""format"":""text/plain""}, ""annotatedBy"":{""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",""@type"":""prov:Agent"",""name"":""Roy Lechich""}},{""@id"":""http://localhost:5000/annotation/2"",""@type"":""oa:Annotation"",""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",""motivation"":""yale:transcribing"",""resource"":{""@type"":""cnt:ContentAsText"",@id:""http""localhost:5000/annotations/2"",""format"":""text/plain""},""annotatedBy""{""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",""@type"":""prov:Agent"",""name"":""Roy Lechich""}}]}","http://localhost:5000/layers/1","","",""
-"2","http://localhost:5000/lists/2","sc:AnnotationList","{""resources"":[
-  {""@id"":""http://localhost:5000/annotation/3"",
+"1","http://ten-thousand-rooms.herokuapp.com/lists/1","sc:AnnotationList","{""resources"":[{""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/1"",@type"":""oa:Annotation"",on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",""motivation"":""yale:transcribing"",""resource"":{@id: ""http""ten-thousand-rooms.herokuapp.com/annotations/1"",""@type"":""cnt:ContentAsText"",""format"":""text/plain""}, ""annotatedBy"":{""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",""@type"":""prov:Agent"",""name"":""Roy Lechich""}},{""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/2"",""@type"":""oa:Annotation"",""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",""motivation"":""yale:transcribing"",""resource"":{""@type"":""cnt:ContentAsText"",@id:""http""ten-thousand-rooms.herokuapp.com/annotations/2"",""format"":""text/plain""},""annotatedBy""{""@id"":""http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001"",""@type"":""prov:Agent"",""name"":""Roy Lechich""}}]}","http://ten-thousand-rooms.herokuapp.com/layers/1","","",""
+"2","http://ten-thousand-rooms.herokuapp.com/lists/2","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/3"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -14,7 +14,7 @@
 		""@type"":""prov:Agent"",
 		""name"":""Roy Lechich""}
     },
-{""@id"":""http://localhost:5000/annotation/4"",
+{""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/4"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -29,9 +29,9 @@
 		""name"":""Roy Lechich""}
     }
   ]
-}","http://localhost:5000/layers/1","","",""
-"3","http://localhost:5000/lists/3","sc:AnnotationList","{""resources"":[
-  {""@id"":""http://localhost:5000/annotation/5"",
+}","http://ten-thousand-rooms.herokuapp.com/layers/1","","",""
+"3","http://ten-thousand-rooms.herokuapp.com/lists/3","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/5"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -45,7 +45,7 @@
 		""@type"":""prov:Agent"",
 		""name"":""Roy Lechich""}
     },
-{""@id"":""http://localhost:5000/annotation/6"",
+{""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/6"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -60,9 +60,9 @@
 		""name"":""Roy Lechich""}
     }
   ]
-}","http://localhost:5000/layers/2","","",""
-"4","http://localhost:5000/lists/4","sc:AnnotationList","{""resources"":[
-  {""@id"":""http://localhost:5000/annotation/7"",
+}","http://ten-thousand-rooms.herokuapp.com/layers/2","","",""
+"4","http://ten-thousand-rooms.herokuapp.com/lists/4","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/7"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -76,7 +76,7 @@
 		""@type"":""prov:Agent"",
 		""name"":""Roy Lechich""}
     },
-{""@id"":""http://localhost:5000/annotation/8"",
+{""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/8"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -91,9 +91,9 @@
 		""name"":""Roy Lechich""}
     }
   ]
-}","http://localhost:5000/layers/2","","",""
-"5","http://localhost:5000/lists/5","sc:AnnotationList","{""resources"":[
-  {""@id"":""http://localhost:5000/annotation/9"",
+}","http://ten-thousand-rooms.herokuapp.com/layers/2","","",""
+"5","http://ten-thousand-rooms.herokuapp.com/lists/5","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/9"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -107,7 +107,7 @@
 		""@type"":""prov:Agent"",
 		""name"":""Roy Lechich""}
     },
-{""@id"":""http://localhost:5000/annotation/10"",
+{""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/10"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -122,9 +122,9 @@
 		""name"":""Roy Lechich""}
     }
   ]
-}","http://localhost:5000/layers/3","","",""
-"6","http://localhost:5000/lists/6","sc:AnnotationList","{""resources"":[
-  {""@id"":""http://localhost:5000/annotation/11"",
+}","http://ten-thousand-rooms.herokuapp.com/layers/3","","",""
+"6","http://ten-thousand-rooms.herokuapp.com/lists/6","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/11"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -138,7 +138,7 @@
 		""@type"":""prov:Agent"",
 		""name"":""Roy Lechich""}
     },
-{""@id"":""http://localhost:5000/annotation/12"",
+{""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/12"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -153,9 +153,9 @@
 		""name"":""Roy Lechich""}
     }
   ]
-}","http://localhost:5000/layers/3","","",""
-"7","http://localhost:5000/lists/7","sc:AnnotationList","{""resources"":[
-  {""@id"":""http://localhost:5000/annotation/13"",
+}","http://ten-thousand-rooms.herokuapp.com/layers/3","","",""
+"7","http://ten-thousand-rooms.herokuapp.com/lists/7","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/13"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -169,7 +169,7 @@
 		""@type"":""prov:Agent"",
 		""name"":""Roy Lechich""}
     },
-{""@id"":""http://localhost:5000/annotation/14"",
+{""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/14"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -184,9 +184,9 @@
 		""name"":""Roy Lechich""}
     }
   ]
-}","http://localhost:5000/layers/4","","",""
-"8","http://localhost:5000/lists/8","sc:AnnotationList","{""resources"":[
-  {""@id"":""http://localhost:5000/annotation/15"",
+}","http://ten-thousand-rooms.herokuapp.com/layers/4","","",""
+"8","http://ten-thousand-rooms.herokuapp.com/lists/8","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/15"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -200,7 +200,7 @@
 		""@type"":""prov:Agent"",
 		""name"":""Roy Lechich""}
     },
-{""@id"":""http://localhost:5000/annotation/16"",
+{""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/16"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -215,9 +215,9 @@
 		""name"":""Roy Lechich""}
     }
   ]
-}","http://localhost:5000/layers/4","","",""
-"9","http://localhost:5000/lists/9","sc:AnnotationList","{""resources"":[
-  {""@id"":""http://localhost:5000/annotation/17"",
+}","http://ten-thousand-rooms.herokuapp.com/layers/4","","",""
+"9","http://ten-thousand-rooms.herokuapp.com/lists/9","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/17"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -231,7 +231,7 @@
 		""@type"":""prov:Agent"",
 		""name"":""Roy Lechich""}
     },
-{""@id"":""http://localhost:5000/annotation/18"",
+{""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/18"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -246,9 +246,9 @@
 		""name"":""Roy Lechich""}
     }
   ]
-}","http://localhost:5000/layers/5","","",""
-"10","http://localhost:5000/lists/10","sc:AnnotationList","{""resources"":[
-  {""@id"":""http://localhost:5000/annotation/19"",
+}","http://ten-thousand-rooms.herokuapp.com/layers/5","","",""
+"10","http://ten-thousand-rooms.herokuapp.com/lists/10","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/19"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -262,7 +262,7 @@
 		""@type"":""prov:Agent"",
 		""name"":""Roy Lechich""}
     },
-{""@id"":""http://localhost:5000/annotation/20"",
+{""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/20"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -277,9 +277,9 @@
 		""name"":""Roy Lechich""}
     }
   ]
-}","http://localhost:5000/layers/5","","",""
-"11","http://localhost:5000/lists/11","sc:AnnotationList","{""resources"":[
-  {""@id"":""http://localhost:5000/annotation/21"",
+}","http://ten-thousand-rooms.herokuapp.com/layers/5","","",""
+"11","http://ten-thousand-rooms.herokuapp.com/lists/11","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/21"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -293,7 +293,7 @@
 		""@type"":""prov:Agent"",
 		""name"":""Roy Lechich""}
     },
-{""@id"":""http://localhost:5000/annotation/22"",
+{""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/22"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -308,9 +308,9 @@
 		""name"":""Roy Lechich""}
     }
   ]
-}","http://localhost:5000/layers/6","","",""
-"12","http://localhost:5000/lists/12","sc:AnnotationList","{""resources"":[
-  {""@id"":""http://localhost:5000/annotation/23"",
+}","http://ten-thousand-rooms.herokuapp.com/layers/6","","",""
+"12","http://ten-thousand-rooms.herokuapp.com/lists/12","sc:AnnotationList","{""resources"":[
+  {""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/23"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -324,7 +324,7 @@
 		""@type"":""prov:Agent"",
 		""name"":""Roy Lechich""}
     },
-{""@id"":""http://localhost:5000/annotation/24"",
+{""@id"":""http://ten-thousand-rooms.herokuapp.com/annotation/24"",
 ""@type"":""oa:Annotation"",
  ""on"":""http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1132"",
       ""motivation"":""yale:transcribing"",
@@ -339,4 +339,4 @@
 		""name"":""Roy Lechich""}
     }
   ]
-}","http://localhost:5000/layers/6","","",""
+}","http://ten-thousand-rooms.herokuapp.com/layers/6","","",""
