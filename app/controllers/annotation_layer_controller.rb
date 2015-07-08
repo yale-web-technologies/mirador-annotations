@@ -1,4 +1,6 @@
 class AnnotationLayerController < ApplicationController
+  skip_before_action :verify_authenticity_token
+  respond_to :html, :json
 
   # GET /layer
   # GET /layer.json
@@ -20,27 +22,26 @@ class AnnotationLayerController < ApplicationController
   # GET /layer/1
   # GET /layer/1.json
   def show
-    #@annotation_layer = AnnotationLayer.find(params[:id])
-    @ru = request.original_url
-    @annotation_layer = AnnotationLayer.where(layer_id: @ru).first
+    @annotation_layer = AnnotationLayer.find(params[:id])
     #authorize! :show, @annotation_layer
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @annotation_layer.to_iiif }
+      #format.json { render json: @annotation_layer.to_iiif }
     end
   end
 
-  # GET /layer/new
-  # GET /layer/new.json
+  # GET /layer/newby
+  # GET /layer/newby.json
   def new
-    new_id = UUID.generate
-    @annotation_layer = AnnotationLayer.new(:@id => base_uri + 'layers/' + new_id)
-    @annotation_layer.id = new_id
-    authorize! :create, @annotation_layer
-    respond_to do |format|
-      format.html # new.html.erb
-      format.json { render json: @annotation_layer.to_iiif }
-    end
+    #new_id = UUID.generate
+   # @annotation_layer = AnnotationLayer.newby(:layerid => base_uri + 'layers/' + new_id)
+    #@annotation_layer.id = new_id
+    #authorize! :create, @annotation_layer
+    #respond_to do |format|
+      #p 'format = ' + format.to_s
+      #format.html
+      #format.json { render json: @annotation_layer.to_iiif }
+    #end
   end
 
   # GET /layer/1/edit
@@ -51,17 +52,34 @@ class AnnotationLayerController < ApplicationController
   # POST /layer
   # POST /layer.json
   def create
-    @annotation_layer = AnnotationLayer.new(params[:annotation_layer])
-    @annotation_layer.id = params[:annotation_layer][:id]
+    p 'params[layer] = ' + params['layer']
+    @layerIn = JSON.parse(params['layer'])
+    @layer = Hash.new
+    @layer['layer_id'] = @layerIn['@id']
+    @layer['layer_type'] = @layerIn['@type']
 
-    authorize! :create, @annotation_layer
+    @layer['label'] = @layerIn['label']
+    @layer['motivation'] = @layerIn['motivation']
+    @layer['description'] = @layerIn['description']
+    @layer['license'] = @layerIn['license']
+
+    #@layer['othercontent'] = @layerIn['otherContent']
+    @layer['othercontent'] = 'howdy!'
+    #p '@layer.layer_id = ' + @layer['layer_id']
+    p '@layerIn.otherContent = ' + @layerIn['otherContent'].to_s
+    p '@layer.othercontent = ' + @layer['othercontent'].to_s
+
+    p @layer.to_s
+
+    @annotation_layer = AnnotationLayer.new(@layer)
+    #authorize! :create, @annotation_layer
     respond_to do |format|
       if @annotation_layer.save
-        format.html { redirect_to @annotation_layer, notice: 'Annotation layer was successfully created.' }
-        format.json { render json: @annotation_layer.to_iiif, status: :created, location: @annotation_layer }
-      else
-        format.html { render action: "new" }
-        format.json { render json: @annotation_layer.errors, status: :unprocessable_entity }
+        #format.html { redirect_to @annotation_layer, notice: 'Annotation layer was successfully created.' }
+        format.json { render json: @annotation_layer, status: :created, location: @annotation_layer }
+      #else
+        #format.html { render action: "new" }
+        #format.json { render json: @annotation_layer.errors, status: :unprocessable_entity }
       end
     end
   end
