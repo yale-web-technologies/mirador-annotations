@@ -67,7 +67,7 @@ class AnnotationController < ApplicationController
   def validate_annotation annotation
     valid = true
     p '@type = ' + annotation['@type'].to_s
-    if !annotation['@type'].to_s.downcase!.eql? 'os:annotation'
+    if !annotation['@type'].to_s.downcase!.eql? 'oa:annotation'
       @problem = "invalid '@type'"
       valid = false
     end
