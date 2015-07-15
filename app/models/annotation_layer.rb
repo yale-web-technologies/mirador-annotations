@@ -6,9 +6,22 @@ class AnnotationLayer < ActiveRecord::Base
                   :label,
                   :motivation,
                   :description,
-                  :license
+                  :license,
+                  :othercontent
 
   def to_iiif
+    # get the layer's list records via the sequencing map table to build otherContent
+    @otherContentArr = Array.new
+    @listIds = LayerListsMap.where(layer_id:layer_id).order(:sequence)
+p @listIds.count.to_s
+      @listIds.each do |listId|
+        @list = AnnotationList.where(list_id: listId.list_id).first
+        @idJson = Hash.new
+        @idJson['@id'] = @list.list_id
+        p 'idJson = ' + @idJson.to_s
+        @otherContentArr.push(@idJson)
+      end
+
     iiif = attributes.clone
     iiif['@id'] = layer_id
     iiif['@type'] = layer_type
@@ -24,9 +37,10 @@ class AnnotationLayer < ActiveRecord::Base
     iiif.delete('created_at')
     iiif.delete('updated_at')
 
-    iiif['otherContent'] = othercontent.split(",")
-    p  iiif['otherContent'].to_s
+    #iiif['otherContent'] = othercontent.split(",")
+    iiif['otherContent'] = @otherContentArr
     iiif
   end
+
 
 end
