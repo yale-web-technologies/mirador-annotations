@@ -26,7 +26,6 @@ class AnnotationList < ActiveRecord::Base
     iiif.delete('created_at')
     iiif.delete('updated_at')
     iiif['@id'] = list_id
-    iiif['@type'] = "sc:AnnotationList"
     iiif['@context'] = "http://iiif.io/api/presentation/2/context.json"
     iiif['within'] = LayerListsMap.getLayersForList list_id
     iiif['resources'] = @resourcesArr

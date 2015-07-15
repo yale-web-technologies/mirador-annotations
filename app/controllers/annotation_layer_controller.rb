@@ -22,7 +22,12 @@ class AnnotationLayerController < ApplicationController
   # GET /layer/1
   # GET /layer/1.json
   def show
-    @annotation_layer = AnnotationLayer.find(params[:id])
+    p 'params[:id] = ' + params[:id]
+    #@annotation_layer = AnnotationLayer.find(params[:id])
+
+    @ru = request.original_url
+    @annotation_layer = AnnotationLayer.where(layer_id: @ru).first
+
     #authorize! :show, @annotation_layer
     respond_to do |format|
       format.html # show.html.erb
@@ -54,20 +59,27 @@ class AnnotationLayerController < ApplicationController
   def create
     @layerIn = JSON.parse(params['layer'])
     @layer = Hash.new
-    @layer['layer_id'] = @layerIn['@id']
+    #@layer['layer_id'] = @layerIn['@id']
+    @ru = request.original_url
+    @ru += '/'   if !@ru.end_with? '/'
+    @layer['layer_id'] = @ru + SecureRandom.uuid
+
+    p 'layer_id = ' + @layer['layer_id']
+
+
     @layer['layer_type'] = @layerIn['@type']
     @layer['label'] = @layerIn['label']
     @layer['motivation'] = @layerIn['motivation']
-    @layer['description'] = @layerIn['description']
+    #@layer['description'] = @layerIn['description']
     @layer['license'] = @layerIn['license']
-    @layer['othercontent'] = @layerIn['otherContent']
+    #@layer['othercontent'] = @layerIn['otherContent']
     @annotation_layer = AnnotationLayer.new(@layer)
 
     #authorize! :create, @annotation_layer
     respond_to do |format|
       if @annotation_layer.save
         format.html { redirect_to @annotation_layer, notice: 'Annotation layer was successfully created.' }
-        format.json { render json: @annotation_layer, status: :created, location: @annotation_layer }
+        format.json { render json: @annotation_layer.to_iiif, status: :created, location: @annotation_layer }
       else
         format.html { render action: "new" }
         format.json { render json: @annotation_layer.errors, status: :unprocessable_entity }
