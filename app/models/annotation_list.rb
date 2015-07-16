@@ -20,7 +20,7 @@ class AnnotationList < ActiveRecord::Base
     iiif = attributes.clone
     iiif.delete('id')
     iiif.delete('list_id')
-    iiif.delete('list_type')
+    #iiif.delete('list_type')
     iiif.delete('resources')
     iiif.delete('within')
     iiif.delete('created_at')
