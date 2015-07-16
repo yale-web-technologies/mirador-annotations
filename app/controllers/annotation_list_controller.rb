@@ -36,7 +36,8 @@ class AnnotationListController < ApplicationController
     @ru = request.original_url
     @ru += '/'   if !@ru.end_with? '/'
     @list['list_id'] = @ru + SecureRandom.uuid
-    @within =   JSON.parse(params['list'].to_s)['within']
+    @list['list_type'] = JSON.parse(params['list'].to_s)['@type']
+    @within =            JSON.parse(params['list'].to_s)['within']
     LayerListsMap.setMap @within,@list['list_id']
     @annotation_list = AnnotationList.new(@list)
     #authorize! :create, @annotation_list
