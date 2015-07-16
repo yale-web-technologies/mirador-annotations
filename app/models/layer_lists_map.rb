@@ -32,5 +32,4 @@ class LayerListsMap < ActiveRecord::Base
     end
     within
   end
-
 end

@@ -47,7 +47,15 @@ class AnnotationController < ApplicationController
       @annotation_id = @ru + SecureRandom.uuid
       @annotationOut = Hash.new
       @annotationOut['annotation_id'] = @annotation_id
+      @annotationOut['annotation_type'] = @annotationIn['@type']
+      @annotationOut['motivation'] = @annotationIn['motivation']
+      @annotationOut['on'] = @annotationIn['on']
+      @annotationOut['canvas'] = @annotationIn['canvas']
+      @annotationOut['label'] = @annotationIn['label']
+      @annotationOut['description'] = @annotationIn['description']
+      @annotationOut['annotated_by'] = @annotationIn['annotatedBy'].to_json
       @annotationOut['resource']  = @annotationIn.to_json
+      @annotationOut['resource']  = @annotationIn['resource'].to_json
       @annotationOut['active'] = true
       @annotationOut['version'] = 1
       ListAnnotationsMap.setMap @annotationIn['within'], @annotation_id
@@ -66,7 +74,6 @@ class AnnotationController < ApplicationController
   end
   def validate_annotation annotation
     valid = true
-    p '@type = ' + annotation['@type'].to_s
     if !annotation['@type'].to_s.downcase!.eql? 'oa:annotation'
       @problem = "invalid '@type'"
       valid = false

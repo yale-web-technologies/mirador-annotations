@@ -9,7 +9,6 @@ class AnnotationLayerController < ApplicationController
     respond_to do |format|
       format.html #index.html.erb
       #format.json { render json: @annotation_layers }
-
       iiif = []
       @annotation_layers.each do |annotation_layer|
         iiif << annotation_layer.to_iiif
@@ -63,10 +62,6 @@ class AnnotationLayerController < ApplicationController
     @ru = request.original_url
     @ru += '/'   if !@ru.end_with? '/'
     @layer['layer_id'] = @ru + SecureRandom.uuid
-
-    p 'layer_id = ' + @layer['layer_id']
-
-
     @layer['layer_type'] = @layerIn['@type']
     @layer['label'] = @layerIn['label']
     @layer['motivation'] = @layerIn['motivation']
