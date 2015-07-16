@@ -1,22 +1,31 @@
 class Annotation < ActiveRecord::Base
   attr_accessible :annotation_id,
+                  :annotation_type,
                   :resource,
                   :active,
                   :version,
-                  :within
+                  :description,
+                  :label,
+                  :annotated_by,
+                  :motivation,
+                  :on,
+                  :canvas,
+                  :resource,
+                  :active,
+                  :version
 
   def to_iiif
     iiif = Hash.new
     iiif['@id'] = annotation_id
+    iiif['@type'] = annotation_type
     iiif['@context'] = "http://iiif.io/api/presentation/2/context.json"
+    iiif['@motivation'] = motivation
+    iiif['@label'] = label if !label.nil?
     iiif['within'] = ListAnnotationsMap.getListsForAnnotation annotation_id
-    iiif.merge(JSON.parse(resource))
-  end
-
-  def validate_annotation annotation
-    if !annotation['type']=='sc:annotation'
-      p 'now what? bad type: ' + annotation['type']
-    end
+    iiif['resource'] = JSON.parse(resource)
+    iiif['annnotatedBy'] = JSON.parse(annotated_by)
+    iiif['on'] = on
+    iiif
   end
 
 end
