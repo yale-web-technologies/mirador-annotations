@@ -17,8 +17,12 @@ class AnnotationList < ActiveRecord::Base
       @annoJson['@type'] = @Anno.annotation_type
       @annoJson['@context'] = "http://iiif.io/api/presentation/2/context.json"
       @annoJson['@motivation'] = @Anno.motivation
+      @annoJson['@label'] = @Anno.label
+      p 'anno label = ' + @Anno.label
+
       @annoJson['resource'] = JSON.parse(@Anno.resource)
       @annoJson['annotatedBy'] = JSON.parse(@Anno.annotated_by)
+      @annoJson['on'] = @Anno.on
       @resourcesArr.push(@annoJson)
       #@resourceJson = @idJson.merge(JSON.parse(@Anno.resource))
      # @resourcesArr.push(@resourceJson)

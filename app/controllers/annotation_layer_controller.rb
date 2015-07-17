@@ -8,7 +8,6 @@ class AnnotationLayerController < ApplicationController
     @annotation_layers = AnnotationLayer.all
     respond_to do |format|
       format.html #index.html.erb
-      #format.json { render json: @annotation_layers }
       iiif = []
       @annotation_layers.each do |annotation_layer|
         iiif << annotation_layer.to_iiif
@@ -21,12 +20,8 @@ class AnnotationLayerController < ApplicationController
   # GET /layer/1
   # GET /layer/1.json
   def show
-    p 'params[:id] = ' + params[:id]
-    #@annotation_layer = AnnotationLayer.find(params[:id])
-
     @ru = request.original_url
     @annotation_layer = AnnotationLayer.where(layer_id: @ru).first
-
     #authorize! :show, @annotation_layer
     respond_to do |format|
       format.html # show.html.erb
@@ -34,31 +29,11 @@ class AnnotationLayerController < ApplicationController
     end
   end
 
-  # GET /layer/newby
-  # GET /layer/newby.json
-  def new
-    #new_id = UUID.generate
-   # @annotation_layer = AnnotationLayer.newby(:layerid => base_uri + 'layers/' + new_id)
-    #@annotation_layer.id = new_id
-    #authorize! :create, @annotation_layer
-    #respond_to do |format|
-      #p 'format = ' + format.to_s
-      #format.html
-      #format.json { render json: @annotation_layer.to_iiif }
-    #end
-  end
-
-  # GET /layer/1/edit
-  def edit
-    @annotation_layer = AnnotationLayer.find(params[:id])
-  end
-
   # POST /layer
   # POST /layer.json
   def create
     @layerIn = JSON.parse(params['layer'])
     @layer = Hash.new
-    #@layer['layer_id'] = @layerIn['@id']
     @ru = request.original_url
     @ru += '/'   if !@ru.end_with? '/'
     @layer['layer_id'] = @ru + SecureRandom.uuid
@@ -67,7 +42,6 @@ class AnnotationLayerController < ApplicationController
     @layer['motivation'] = @layerIn['motivation']
     #@layer['description'] = @layerIn['description']
     @layer['license'] = @layerIn['license']
-    #@layer['othercontent'] = @layerIn['otherContent']
     @annotation_layer = AnnotationLayer.new(@layer)
 
     #authorize! :create, @annotation_layer
