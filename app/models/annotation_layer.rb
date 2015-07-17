@@ -30,7 +30,7 @@ class AnnotationLayer < ActiveRecord::Base
     iiif['@context'] = "http://iiif.io/api/presentation/2/context.json"
     iiif['label'] = label if !label.empty?
     iiif['motivation'] = motivation if !motivation.empty?
-    iiif['license'] = label if !license.empty?
+    iiif['license'] = license if !license.empty?
     #iiif['otherContent'] = othercontent.split(",")
     iiif['otherContent'] = @otherContentArr
     iiif
