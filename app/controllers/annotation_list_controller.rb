@@ -57,4 +57,20 @@ class AnnotationListController < ApplicationController
       end
     end
   end
+
+  # DELETE /list/1
+  # DELETE /list/1.json
+  def destroy
+    @ru = request.original_url
+    @annotationList = AnnotationList.where(list_id: @ru).first
+
+    #authorize! :delete, @annotation_list
+    LayerListsMap.deleteListFromLayer @annotationList.list_id
+    @annotationList.destroy
+    respond_to do |format|
+      format.html { redirect_to annotation_layers_url }
+      format.json { head :no_content }
+    end
+  end
+
 end

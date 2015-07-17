@@ -15,8 +15,8 @@ TenThousandRooms::Application.routes.draw do
   resources :annotation, path: 'annotations',defaults: {format: :json}
   resources :annotation, path: 'annotation',defaults: {format: :json}
 
-  #get '/getAll', to: 'services#getAllCanvasesLayersLists'
-  #get '/getCanvasData', to: 'services#getLayersListsForCanvas'
+  get '/getAll', to: 'services#getAllCanvasesLayersLists'
+  get '/getCanvasData', to: 'services#getLayersListsForCanvas'
 
 
 end

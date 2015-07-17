@@ -31,4 +31,11 @@ class ListAnnotationsMap < ActiveRecord::Base
     within
   end
 
+  def self.deleteAnnotationFromList anno_id
+    @annotationLists = self.where(annotation_id: anno_id)
+    @annotationLists.each do |annoList|
+      annoList.destroy
+    end
+  end
+
 end

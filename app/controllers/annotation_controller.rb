@@ -72,6 +72,22 @@ class AnnotationController < ApplicationController
       end
     end
   end
+
+  # DELETE /annotation/1
+  # DELETE /annotation/1.json
+  def destroy
+    @ru = request.original_url
+    @annotation = Annotation.where(annotation_id: @ru).first
+
+    #authorize! :delete, @annotation
+    ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
+    @annotation.destroy
+    respond_to do |format|
+      format.html { redirect_to annotation_layers_url }
+      format.json { head :no_content }
+    end
+  end
+
   def validate_annotation annotation
     valid = true
     if !annotation['@type'].to_s.downcase!.eql? 'oa:annotation'
