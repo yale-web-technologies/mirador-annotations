@@ -75,8 +75,9 @@ class AnnotationLayerController < ApplicationController
   # DELETE /layer/1
   # DELETE /layer/1.json
   def destroy
-    @annotation_layer = AnnotationLayer.find(params[:id])
-    authorize! :delete, @annotation_layer
+    @ru = request.original_url
+    @annotation_layer = AnnotationLayer.where(layer_id: @ru).first
+    #authorize! :delete, @annotation_layer
     @annotation_layer.destroy
     respond_to do |format|
       format.html { redirect_to annotation_layers_url }

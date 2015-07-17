@@ -32,4 +32,12 @@ class LayerListsMap < ActiveRecord::Base
     end
     within
   end
+
+  def self.deleteListFromLayer list_id
+    @annotationLayers = self.where(list_id: list_id)
+    @annotationLayers.each do |annoLayer|
+      annoLayer.destroy
+    end
+  end
+
 end
