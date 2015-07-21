@@ -100,10 +100,6 @@ class AnnotationListController < ApplicationController
 
   def validate_annotationList annotationList
     valid = true
-    #if annotationList['@id'].nil?
-    #  @problem = "missing @id"
-    #  valid = false
-    #end
     if !annotationList['@type'].to_s.downcase!.eql? 'sc:annotationlist-o-rama'
       @problem = "invalid '@type'"
       valid = false
