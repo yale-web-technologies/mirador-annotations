@@ -77,27 +77,7 @@ class AnnotationController < ApplicationController
   # PUT /layer/1.json
   def update
     @ru = request.original_url
- #   p 'ru: ' + @ru.to_s
-    #params.each { |key,value|
-      #p key.to_s, value.to_s
- #     p 'Key =  ' + key.to_s + '  Value = ' + value.to_s
-    #}
-    #p params.inspect
-
-    #p 'annotation value = ' + params['annotation'].to_json
-
     @annotationIn = JSON.parse(params['annotation'].to_json)
-
-    p '@id = ' + @annotationIn['@id']
-    p '@type = ' + @annotationIn['@type']
-    p 'motivation = ' + @annotationIn['motivation']
-    p 'within = ' + @annotationIn['within'].to_s
-    p 'label = ' + @annotationIn['label']
-    p 'resource = ' + @annotationIn['resource'].to_json
-    p 'annotatedBy = ' + @annotationIn['annotatedBy'].to_json
-    p 'on = ' + @annotationIn['on']
-    p 'canvas = ' + @annotationIn['canvas']
-
     @problem = ''
     if !validate_annotation @annotationIn
       errMsg = "Annotation record not valid and could not be updated: " + @problem

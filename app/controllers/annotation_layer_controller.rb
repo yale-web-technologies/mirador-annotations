@@ -60,12 +60,6 @@ class AnnotationLayerController < ApplicationController
   # PUT /layer/1.json
   def update
     @annotationLayerIn = JSON.parse(params['annotationLayer'].to_json)
-
-    p '@id = ' + @annotationLayerIn['@id']
-    p '@type = ' + @annotationLayerIn['@type']
-    p 'label = ' + @annotationLayerIn['label']
-    p 'license = ' + @annotationLayerIn['license']
-
     @problem = ''
     if !validate_annotationLayer @annotationLayerIn
       errMsg = "AnnotationLayer record not valid and could not be updated: " + @problem
@@ -110,10 +104,6 @@ class AnnotationLayerController < ApplicationController
 
   def validate_annotationLayer annotationLayer
     valid = true
-    #if annotationLayer['@id'].nil?
-    #  @problem = "missing @id"
-    #  valid = false
-    #end
     if !annotationLayer['@type'].to_s.downcase!.eql? 'sc:layer'
       @problem = "invalid '@type'"
       valid = false
