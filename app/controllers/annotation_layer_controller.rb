@@ -59,15 +59,36 @@ class AnnotationLayerController < ApplicationController
   # PUT /layer/1
   # PUT /layer/1.json
   def update
-    @annotation_layer = AnnotationLayer.find(params[:id])
-    authorize! :update, @annotation_layer
-    respond_to do |format|
-      if @annotation_layer.update_attributes(params[:annotation_layer])
-        format.html { redirect_to @annotation_layer, notice: 'Annotation layer was successfully updated.' }
-        format.json { head :no_content }
-      else
-        format.html { render action: "edit" }
-        format.json { render json: @annotation_layer.errors, status: :unprocessable_entity }
+    @annotationLayerIn = JSON.parse(params['annotationLayer'].to_json)
+
+    p '@id = ' + @annotationLayerIn['@id']
+    p '@type = ' + @annotationLayerIn['@type']
+    p 'label = ' + @annotationLayerIn['label']
+    p 'license = ' + @annotationLayerIn['license']
+
+    @problem = ''
+    if !validate_annotationLayer @annotationLayerIn
+      errMsg = "AnnotationLayer record not valid and could not be updated: " + @problem
+      render :json => { :error => errMsg },
+             :status => :unprocessable_entity
+    else
+      @annotationLayer = AnnotationLayer.where(layer_id: @annotationLayerIn['@id']).first
+      #authorize! :update, @annotation
+      respond_to do |format|
+        if @annotationLayer.update_attributes(
+            :layer_id => @annotationLayerIn['@id'],
+            :layer_type => @annotationLayerIn['@type'],
+            :label => @annotationLayerIn['label'],
+            :motivation => @annotationLayerIn['motivation'],
+            :license => @annotationLayerIn['license'],
+            :description => @annotationLayerIn['description']
+        )
+          format.html { redirect_to @annotationLayer, notice: 'AnnotationLayer was successfully updated.' }
+          format.json { head :no_content }
+        else
+          format.html { render action: "edit" }
+          format.json { render json: @annotationLayer.errors, status: :unprocessable_entity }
+        end
       end
     end
   end
@@ -87,11 +108,21 @@ class AnnotationLayerController < ApplicationController
 
   protected
 
-  def base_uri
-    # Generate annotation ID as URI,  server + "/annotation/" + UUID
-    base_uri = Rails.configuration.annotation_server.url
-    base_uri += '/' unless base_uri.ends_with?('/')
-    base_uri
+  def validate_annotationLayer annotationLayer
+    valid = true
+    #if annotationLayer['@id'].nil?
+    #  @problem = "missing @id"
+    #  valid = false
+    #end
+    if !annotationLayer['@type'].to_s.downcase!.eql? 'sc:layer'
+      @problem = "invalid '@type'"
+      valid = false
+    end
+    if annotationLayer['label'].nil?
+      @problem = "missing 'label'"
+      valid = false
+    end
+    valid
   end
 
 

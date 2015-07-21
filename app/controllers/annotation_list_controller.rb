@@ -37,8 +37,6 @@ class AnnotationListController < ApplicationController
     @ru = request.original_url
     @ru += '/'   if !@ru.end_with? '/'
     @list['list_id'] = @ru + SecureRandom.uuid
-    #@list['list_type'] = JSON.parse(params['list'].to_s)['@type']
-    #@within =            JSON.parse(params['list'].to_s)['within']
     @list['list_type'] = @listIn['@type']
     p  @listIn['label'].to_s
     @list['label'] = @listIn['label']
@@ -58,6 +56,33 @@ class AnnotationListController < ApplicationController
     end
   end
 
+  def update
+    @annotationListIn = JSON.parse(params['annotationList'].to_json)
+    @problem = ''
+    if !validate_annotationList @annotationListIn
+      errMsg = "AnnotationList record not valid and could not be updated: " + @problem
+      render :json => { :error => errMsg },
+             :status => :unprocessable_entity
+    else
+      #annotation = Annotation.find(params[:id])
+      @annotationList = AnnotationList.where(list_id: @annotationListIn['@id']).first
+      #authorize! :update, @annotationList
+      respond_to do |format|
+        if @annotationList.update_attributes(
+            :list_type => @annotationListIn['@type'],
+            :label => @annotationListIn['label'],
+            :description => @annotationListIn['description']
+        )
+          format.html { redirect_to @annotationList, notice: 'AnnotationList was successfully updated.' }
+          format.json { head :no_content }
+        else
+          format.html { render action: "edit" }
+          format.json { render json: @annotationList.errors, status: :unprocessable_entity }
+        end
+      end
+    end
+  end
+
   # DELETE /list/1
   # DELETE /list/1.json
   def destroy
@@ -73,4 +98,20 @@ class AnnotationListController < ApplicationController
     end
   end
 
+  def validate_annotationList annotationList
+    valid = true
+    #if annotationList['@id'].nil?
+    #  @problem = "missing @id"
+    #  valid = false
+    #end
+    if !annotationList['@type'].to_s.downcase!.eql? 'sc:annotationlist-o-rama'
+      @problem = "invalid '@type'"
+      valid = false
+    end
+    if annotationList['label'].nil?
+      @problem = "missing 'label'"
+      valid = false
+    end
+    valid
+  end
 end
