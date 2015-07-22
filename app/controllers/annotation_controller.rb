@@ -54,7 +54,7 @@ class AnnotationController < ApplicationController
       @annotationOut['label'] = @annotationIn['label']
       @annotationOut['description'] = @annotationIn['description']
       @annotationOut['annotated_by'] = @annotationIn['annotatedBy'].to_json
-      @annotationOut['resource']  = @annotationIn.to_json
+      #@annotationOut['resource']  = @annotationIn.to_json
       @annotationOut['resource']  = @annotationIn['resource'].to_json
       @annotationOut['active'] = true
       @annotationOut['version'] = 1
@@ -87,6 +87,9 @@ class AnnotationController < ApplicationController
       #annotation = Annotation.find(params[:id])
       @annotation = Annotation.where(annotation_id: @annotationIn['@id']).first
       #authorize! :update, @annotation
+      # rewrite the ListAnnotationsMap for this annotation: first delete, then re-write based on ['within']
+      ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
+      ListAnnotationsMap.setMap @annotationIn['within'], @annotation.annotation_id
       respond_to do |format|
         if @annotation.update_attributes(
             :annotation_type => @annotationIn['@type'],
@@ -138,6 +141,13 @@ class AnnotationController < ApplicationController
     if annotation['within'].nil?
       @problem = "missing 'within' element"
       valid = false
+    end
+    annotation['within'].each do |list_id|
+      @annotation_list = AnnotationList.where(list_id: list_id).first
+      if @annotation_list.nil?
+        @problem = "'within' element: Annotation List " + list_id + " does not exist"
+        valid = false
+      end
     end
     if annotation['resource'].nil?
       @problem = "missing 'resource' element"

@@ -32,26 +32,32 @@ class AnnotationListController < ApplicationController
   # POST /list
   # POST /list.json
   def create
-    @listIn = JSON.parse(params['list'])
-    @list = Hash.new
-    @ru = request.original_url
-    @ru += '/'   if !@ru.end_with? '/'
-    @list['list_id'] = @ru + SecureRandom.uuid
-    @list['list_type'] = @listIn['@type']
-    p  @listIn['label'].to_s
-    @list['label'] = @listIn['label']
-    @list['description'] = @listIn['description']
-    @within =  @listIn['within']
-    LayerListsMap.setMap @within,@list['list_id']
-    @annotation_list = AnnotationList.new(@list)
-    #authorize! :create, @annotation_list
-    respond_to do |format|
-      if @annotation_list.save
-        format.html { redirect_to @annotation_list, notice: 'Annotation list was successfully created.' }
-        format.json { render json: @annotation_list.to_iiif, status: :created, location: @annotation_list }
-      else
-        format.html { render action: "new" }
-        format.json { render json: @annotation_list.errors, status: :unprocessable_entity }
+    @annotationListIn = JSON.parse(params['list'])
+    @problem = ''
+    if !validate_annotationList @annotationListIn
+      errMsg = "AnnotationList record not valid and could not be updated: " + @problem
+      render :json => { :error => errMsg },
+             :status => :unprocessable_entity
+    else
+      @list = Hash.new
+      @ru = request.original_url
+      @ru += '/'   if !@ru.end_with? '/'
+      @list['list_id'] = @ru + SecureRandom.uuid
+      @list['list_type'] = @annotationListIn['@type']
+      @list['label'] = @annotationListIn['label']
+      @list['description'] = @annotationListIn['description']
+      @within =  @annotationListIn['within']
+      LayerListsMap.setMap @within,@list['list_id']
+      @annotation_list = AnnotationList.new(@list)
+      #authorize! :create, @annotation_list
+      respond_to do |format|
+        if @annotation_list.save
+          format.html { redirect_to @annotation_list, notice: 'Annotation list was successfully created.' }
+          format.json { render json: @annotation_list.to_iiif, status: :created, location: @annotation_list }
+        else
+          format.html { render action: "new" }
+          format.json { render json: @annotation_list.errors, status: :unprocessable_entity }
+        end
       end
     end
   end
@@ -64,9 +70,11 @@ class AnnotationListController < ApplicationController
       render :json => { :error => errMsg },
              :status => :unprocessable_entity
     else
-      #annotation = Annotation.find(params[:id])
       @annotationList = AnnotationList.where(list_id: @annotationListIn['@id']).first
       #authorize! :update, @annotationList
+      # rewrite the ListAnnotationsMap for this annotation: first delete, then re-write based on ['within']
+      LayerListsMap.deleteListFromLayer @annotationList.list_id
+      LayerListsMap.setMap @annotationListIn['within'],@annotationList.list_id
       respond_to do |format|
         if @annotationList.update_attributes(
             :list_type => @annotationListIn['@type'],
@@ -100,9 +108,20 @@ class AnnotationListController < ApplicationController
 
   def validate_annotationList annotationList
     valid = true
-    if !annotationList['@type'].to_s.downcase!.eql? 'sc:annotationlist-o-rama'
-      @problem = "invalid '@type'"
+    if !annotationList['@type'].to_s.downcase!.eql? 'sc:annotationlist'
+      @problem = "invalid @type: " + annotationList['@type']
       valid = false
+    end
+    if annotationList['within'].nil?
+      @problem = "missing 'within' element"
+      valid = false
+    end
+    annotationList['within'].each do |layer_id|
+      @annotation_layer = AnnotationLayer.where(layer_id: layer_id).first
+      if @annotation_layer.nil?
+        @problem = "'within' element: Annotation Layer " + layer_id + " does not exist"
+        valid = false
+      end
     end
     if annotationList['label'].nil?
       @problem = "missing 'label'"
