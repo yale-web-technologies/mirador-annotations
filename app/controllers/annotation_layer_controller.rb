@@ -104,7 +104,7 @@ class AnnotationLayerController < ApplicationController
 
   def validate_annotationLayer annotationLayer
     valid = true
-    if !annotationLayer['@type'].to_s.downcase!.eql? 'sc:layer'
+    if !annotationLayer['@type'].to_s.downcase! == 'sc:layer'
       @problem = "invalid '@type'"
       valid = false
     end

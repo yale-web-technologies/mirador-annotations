@@ -108,21 +108,20 @@ class AnnotationListController < ApplicationController
 
   def validate_annotationList annotationList
     valid = true
-    if !annotationList['@type'].to_s.downcase!.eql? 'sc:annotationlist'
+    if !annotationList['@type'].to_s.downcase! == 'sc:annotationlist'
       @problem = "invalid @type: " + annotationList['@type']
       valid = false
     end
-    if annotationList['within'].nil?
-      @problem = "missing 'within' element"
-      valid = false
-    end
-    annotationList['within'].each do |layer_id|
-      @annotation_layer = AnnotationLayer.where(layer_id: layer_id).first
-      if @annotation_layer.nil?
-        @problem = "'within' element: Annotation Layer " + layer_id + " does not exist"
-        valid = false
+    unless annotationList['within'].nil?
+      annotationList['within'].each do |layer_id|
+        @annotation_layer = AnnotationLayer.where(layer_id: layer_id).first
+        if @annotation_layer.nil?
+          @problem = "'within' element: Annotation Layer " + layer_id + " does not exist"
+          valid = false
+        end
       end
     end
+
     if annotationList['label'].nil?
       @problem = "missing 'label'"
       valid = false

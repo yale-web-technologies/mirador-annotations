@@ -32,8 +32,8 @@ class AnnotationList < ActiveRecord::Base
     iiif['@id'] = list_id
     iiif['@type'] = list_type
     iiif['@context'] = "http://iiif.io/api/presentation/2/context.json"
-    iiif['label'] = label if !label.nil?
-    iiif['description'] = description if !description.nil?
+    iiif['label'] = label if !label.blank?
+    iiif['description'] = description if !description.blank?
     iiif['within'] = LayerListsMap.getLayersForList list_id
     iiif['resources'] = @resourcesArr
     iiif

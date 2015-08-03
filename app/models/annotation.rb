@@ -19,8 +19,7 @@ class Annotation < ActiveRecord::Base
     iiif['@id'] = annotation_id
     iiif['@type'] = annotation_type
     iiif['@context'] = "http://iiif.io/api/presentation/2/context.json"
-    iiif['@motivation'] = motivation
-    iiif['@label'] = label if !label.nil?
+    iiif['motivation'] = motivation
     iiif['within'] = ListAnnotationsMap.getListsForAnnotation annotation_id
     iiif['resource'] = JSON.parse(resource)
     iiif['annnotatedBy'] = JSON.parse(annotated_by)
