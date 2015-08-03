@@ -130,23 +130,21 @@ class AnnotationController < ApplicationController
 
   def validate_annotation annotation
     valid = true
-    if !annotation['@type'].to_s.downcase!.eql? 'oa:annotation'
-      @problem = "invalid '@type'"
+    if !annotation['@type'].to_s.downcase! == 'oa:annotation'
+      @problem = "invalid '@type' + #{annotation['@type']}"
       valid = false
     end
     if annotation['motivation'].nil?
       @problem = "missing 'motivation'"
       valid = false
     end
-    if annotation['within'].nil?
-      @problem = "missing 'within' element"
-      valid = false
-    end
-    annotation['within'].each do |list_id|
-      @annotation_list = AnnotationList.where(list_id: list_id).first
-      if @annotation_list.nil?
-        @problem = "'within' element: Annotation List " + list_id + " does not exist"
-        valid = false
+    unless annotation['within'].nil?
+      annotation['within'].each do |list_id|
+        @annotation_list = AnnotationList.where(list_id: list_id).first
+        if @annotation_list.nil?
+          @problem = "'within' element: Annotation List " + list_id + " does not exist"
+          valid = false
+        end
       end
     end
     if annotation['resource'].nil?
@@ -155,10 +153,6 @@ class AnnotationController < ApplicationController
     end
     if annotation['on'].nil?
       @problem = "missing 'on' element"
-      valid = false
-    end
-    if annotation['canvas'].nil?
-      @problem = "missing 'canvas' element"
       valid = false
     end
     valid
