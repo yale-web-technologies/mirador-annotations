@@ -18,7 +18,7 @@ class AnnotationList < ActiveRecord::Base
       @annoJson['@context'] = "http://iiif.io/api/presentation/2/context.json"
       @annoJson['@motivation'] = @Anno.motivation
       @annoJson['@label'] = @Anno.label
-      p 'anno label = ' + @Anno.label
+      #p 'anno label = ' + @Anno.label
 
       @annoJson['resource'] = JSON.parse(@Anno.resource)
       @annoJson['annotatedBy'] = JSON.parse(@Anno.annotated_by)
