@@ -34,7 +34,6 @@ class AnnotationController < ApplicationController
   # POST /annotation
   # POST /annotation.json
   def create
-    #@annotationIn = JSON.parse(params['annotation'])
     @annotationIn = JSON.parse(params.to_json)
     @problem = ''
     if !validate_annotation @annotationIn
@@ -77,17 +76,13 @@ class AnnotationController < ApplicationController
   # PUT /layer/1
   # PUT /layer/1.json
   def update
-    #@ru = request.original_url
-    #@annotationIn = JSON.parse(params['annotation'].to_json)
     @annotationIn = JSON.parse(params.to_json)
-    p 'annotationIn: ' + @annotationIn.to_json
     @problem = ''
     if !validate_annotation @annotationIn
       errMsg = "Annotation record not valid and could not be updated: " + @problem
       render :json => { :error => errMsg },
              :status => :unprocessable_entity
     else
-      #annotation = Annotation.find(params[:id])
       p 'annotationIn["id"]: ' + @annotationIn['@id']
       @annotation = Annotation.where(annotation_id: @annotationIn['@id']).first
       #authorize! :update, @annotation
@@ -98,13 +93,8 @@ class AnnotationController < ApplicationController
         if @annotation.update_attributes(
             :annotation_type => @annotationIn['@type'],
             :motivation => @annotationIn['motivation'],
-            #:label => @annotationIn['label'],
-            #:description => @annotationIn['description'],
             :on => @annotationIn['on'],
-            #:canvas => @annotationIn['canvas'],
-            #:manifest => @annotationIn['manifest'],
             :resource => @annotationIn['resource'],
-            #:active => @annotationIn['active'],
             :annotated_by => @annotationIn['annotatedBy']
         )
           format.html { redirect_to @annotation, notice: 'Annotation was successfully updated.' }
@@ -122,7 +112,6 @@ class AnnotationController < ApplicationController
   def destroy
     @ru = request.original_url
     @annotation = Annotation.where(annotation_id: @ru).first
-
     #authorize! :delete, @annotation
     ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
     @annotation.destroy

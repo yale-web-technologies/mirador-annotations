@@ -23,7 +23,6 @@ class LayerListsMap < ActiveRecord::Base
     nextSeq
   end
 
-  # ready to test; next do above 2.
   def self.getLayersForList list_id
     within = Array.new
     @annotationLayers = self.where(list_id: list_id)
