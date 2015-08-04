@@ -82,7 +82,7 @@ class AnnotationListController < ApplicationController
         if @annotationList.update_attributes(
             :list_type => @annotationListIn['@type'],
             :label => @annotationListIn['label'],
-            :motivation => @annotationListIn['motivation']
+            #:motivation => @annotationListIn['motivation']
         )
           format.html { redirect_to @annotationList, notice: 'AnnotationList was successfully updated.' }
           format.json { render json: @annotationList.to_iiif, status: :updated, location: @annotation_list }

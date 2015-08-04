@@ -25,15 +25,15 @@ class AnnotationList < ActiveRecord::Base
       @annoJson['on'] = @Anno.on
       @resourcesArr.push(@annoJson)
       #@resourceJson = @idJson.merge(JSON.parse(@Anno.resource))
-     # @resourcesArr.push(@resourceJson)
+      #@resourcesArr.push(@resourceJson)
     end
 
     iiif = Hash.new
     iiif['@id'] = list_id
     iiif['@type'] = list_type
     iiif['@context'] = "http://iiif.io/api/presentation/2/context.json"
-    iiif['label'] = label if !label.blank?
-    iiif['description'] = description if !description.blank?
+    #iiif['label'] = label if !label.blank?
+    #iiif['description'] = description if !description.blank?
     iiif['within'] = LayerListsMap.getLayersForList list_id
     iiif['resources'] = @resourcesArr
     iiif

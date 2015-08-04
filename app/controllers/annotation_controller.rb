@@ -98,13 +98,13 @@ class AnnotationController < ApplicationController
         if @annotation.update_attributes(
             :annotation_type => @annotationIn['@type'],
             :motivation => @annotationIn['motivation'],
-            :label => @annotationIn['label'],
-            :description => @annotationIn['description'],
+            #:label => @annotationIn['label'],
+            #:description => @annotationIn['description'],
             :on => @annotationIn['on'],
-            :canvas => @annotationIn['canvas'],
-            :manifest => @annotationIn['manifest'],
+            #:canvas => @annotationIn['canvas'],
+            #:manifest => @annotationIn['manifest'],
             :resource => @annotationIn['resource'],
-            :active => @annotationIn['active'],
+            #:active => @annotationIn['active'],
             :annotated_by => @annotationIn['annotatedBy']
         )
           format.html { redirect_to @annotation, notice: 'Annotation was successfully updated.' }
