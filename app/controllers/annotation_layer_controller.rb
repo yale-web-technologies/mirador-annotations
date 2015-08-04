@@ -32,7 +32,6 @@ class AnnotationLayerController < ApplicationController
   # POST /layer
   # POST /layer.json
   def create
-    #@layerIn = JSON.parse(params['layer'])
     @layerIn = JSON.parse(params.to_json)
     @layer = Hash.new
     @ru = request.original_url
@@ -60,13 +59,7 @@ class AnnotationLayerController < ApplicationController
   # PUT /layer/1
   # PUT /layer/1.json
   def update
-
-    #p 'params = ' + params.to_json
-    #@annotationLayerIn = JSON.parse(params['annotationLayer'].to_json)
     @annotationLayerIn = JSON.parse(params.to_json)
-    #@annotationLayerIn = JSON.parse(request.POST.to_json)
-    #@annotationLayerIn = JSON.parse(request.body.to_json)
-    p 'annotationLayerIn: ' + @annotationLayerIn.to_json
 
     @problem = ''
     if !validate_annotationLayer @annotationLayerIn

@@ -15,12 +15,7 @@ class AnnotationLayer < ActiveRecord::Base
     @listIds = LayerListsMap.where(layer_id:layer_id).order(:sequence)
     @listIds.each do |listId|
       @list = AnnotationList.where(list_id: listId.list_id).first
-      # as a hash as per api 6.3
-      #@idJson = Hash.new
-      #@idJson['@id'] = @list.list_id
-      # as a url string as per api 8.2
       @idJson= @list.list_id
-      #p 'idJson = ' + @idJson.to_s
       @otherContentArr.push(@idJson)
     end
 

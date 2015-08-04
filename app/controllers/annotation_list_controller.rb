@@ -32,7 +32,6 @@ class AnnotationListController < ApplicationController
   # POST /list
   # POST /list.json
   def create
-    #@annotationListIn = JSON.parse(params['list'])
     @annotationListIn = JSON.parse(params.to_json)
     p @annotationListIn.to_json
     @problem = ''
@@ -65,7 +64,6 @@ class AnnotationListController < ApplicationController
   end
 
   def update
-    #@annotationListIn = JSON.parse(params['annotationList'].to_json)
     @annotationListIn = JSON.parse(params.to_json)
     @problem = ''
     if !validate_annotationList @annotationListIn
@@ -100,7 +98,6 @@ class AnnotationListController < ApplicationController
   def destroy
     @ru = request.original_url
     @annotationList = AnnotationList.where(list_id: @ru).first
-
     #authorize! :delete, @annotation_list
     LayerListsMap.deleteListFromLayer @annotationList.list_id
     @annotationList.destroy
@@ -125,7 +122,6 @@ class AnnotationListController < ApplicationController
         end
       end
     end
-
     if annotationList['label'].nil?
       @problem = "missing 'label'"
       valid = false
