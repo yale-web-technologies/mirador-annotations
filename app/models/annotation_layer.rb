@@ -20,7 +20,7 @@ class AnnotationLayer < ActiveRecord::Base
       #@idJson['@id'] = @list.list_id
       # as a url string as per api 8.2
       @idJson= @list.list_id
-      p 'idJson = ' + @idJson.to_s
+      #p 'idJson = ' + @idJson.to_s
       @otherContentArr.push(@idJson)
     end
 
