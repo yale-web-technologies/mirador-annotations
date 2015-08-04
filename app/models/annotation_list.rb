@@ -18,7 +18,7 @@ class AnnotationList < ActiveRecord::Base
       @annoJson['@context'] = "http://iiif.io/api/presentation/2/context.json"
       @annoJson['motivation'] = @Anno.motivation
       @annoJson['resource'] = JSON.parse(@Anno.resource)
-      @annoJson['annotatedBy'] = JSON.parse(@Anno.annotated_by) if !@Anno.annotated_by.blank?
+      #@annoJson['annotatedBy'] = JSON.parse(@Anno.annotated_by) if !@Anno.annotated_by.blank?
       @annoJson['on'] = @Anno.on
       @resourcesArr.push(@annoJson)
     end
