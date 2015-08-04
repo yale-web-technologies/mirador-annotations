@@ -16,9 +16,8 @@ class AnnotationList < ActiveRecord::Base
       @annoJson['@id'] = @Anno.annotation_id
       @annoJson['@type'] = @Anno.annotation_type
       @annoJson['@context'] = "http://iiif.io/api/presentation/2/context.json"
-      @annoJson['@motivation'] = @Anno.motivation
-      @annoJson['@label'] = @Anno.label
-      #p 'anno label = ' + @Anno.label
+      @annoJson['motivation'] = @Anno.motivation
+      #@annoJson['label'] = @Anno.label
 
       @annoJson['resource'] = JSON.parse(@Anno.resource)
       @annoJson['annotatedBy'] = JSON.parse(@Anno.annotated_by)
@@ -32,7 +31,7 @@ class AnnotationList < ActiveRecord::Base
     iiif['@id'] = list_id
     iiif['@type'] = list_type
     iiif['@context'] = "http://iiif.io/api/presentation/2/context.json"
-    #iiif['label'] = label if !label.blank?
+    iiif['label'] = label if !label.blank?
     #iiif['description'] = description if !description.blank?
     iiif['within'] = LayerListsMap.getLayersForList list_id
     iiif['resources'] = @resourcesArr
