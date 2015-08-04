@@ -32,7 +32,8 @@ class AnnotationLayerController < ApplicationController
   # POST /layer
   # POST /layer.json
   def create
-    @layerIn = JSON.parse(params['layer'])
+    #@layerIn = JSON.parse(params['layer'])
+    @layerIn = JSON.parse(params.to_json)
     @layer = Hash.new
     @ru = request.original_url
     @ru += '/'   if !@ru.end_with? '/'
@@ -59,7 +60,14 @@ class AnnotationLayerController < ApplicationController
   # PUT /layer/1
   # PUT /layer/1.json
   def update
-    @annotationLayerIn = JSON.parse(params['annotationLayer'].to_json)
+
+    #p 'params = ' + params.to_json
+    #@annotationLayerIn = JSON.parse(params['annotationLayer'].to_json)
+    @annotationLayerIn = JSON.parse(params.to_json)
+    #@annotationLayerIn = JSON.parse(request.POST.to_json)
+    #@annotationLayerIn = JSON.parse(request.body.to_json)
+    p 'annotationLayerIn: ' + @annotationLayerIn.to_json
+
     @problem = ''
     if !validate_annotationLayer @annotationLayerIn
       errMsg = "AnnotationLayer record not valid and could not be updated: " + @problem
@@ -78,7 +86,8 @@ class AnnotationLayerController < ApplicationController
             :description => @annotationLayerIn['description']
         )
           format.html { redirect_to @annotationLayer, notice: 'AnnotationLayer was successfully updated.' }
-          format.json { head :no_content }
+          format.json { render json: @annotationLayer.to_iiif, status: :updated, location: @annotation_layer }
+          #format.json { head :no_content }
         else
           format.html { render action: "edit" }
           format.json { render json: @annotationLayer.errors, status: :unprocessable_entity }
@@ -105,7 +114,7 @@ class AnnotationLayerController < ApplicationController
   def validate_annotationLayer annotationLayer
     valid = true
     if !annotationLayer['@type'].to_s.downcase! == 'sc:layer'
-      @problem = "invalid '@type'"
+      @problem = "invalid '@type': #{anotationLayer['@type']}"
       valid = false
     end
     if annotationLayer['label'].nil?
@@ -114,6 +123,5 @@ class AnnotationLayerController < ApplicationController
     end
     valid
   end
-
 
 end

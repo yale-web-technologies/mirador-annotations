@@ -34,7 +34,8 @@ class AnnotationController < ApplicationController
   # POST /annotation
   # POST /annotation.json
   def create
-    @annotationIn = JSON.parse(params['annotation'])
+    #@annotationIn = JSON.parse(params['annotation'])
+    @annotationIn = JSON.parse(params.to_json)
     @problem = ''
     if !validate_annotation @annotationIn
       errMsg = "Annotation record not valid and could not be saved: " + @problem
@@ -76,8 +77,10 @@ class AnnotationController < ApplicationController
   # PUT /layer/1
   # PUT /layer/1.json
   def update
-    @ru = request.original_url
-    @annotationIn = JSON.parse(params['annotation'].to_json)
+    #@ru = request.original_url
+    #@annotationIn = JSON.parse(params['annotation'].to_json)
+    @annotationIn = JSON.parse(params.to_json)
+    p 'annotationIn: ' + @annotationIn.to_json
     @problem = ''
     if !validate_annotation @annotationIn
       errMsg = "Annotation record not valid and could not be updated: " + @problem
@@ -85,6 +88,7 @@ class AnnotationController < ApplicationController
              :status => :unprocessable_entity
     else
       #annotation = Annotation.find(params[:id])
+      p 'annotationIn["id"]: ' + @annotationIn['@id']
       @annotation = Annotation.where(annotation_id: @annotationIn['@id']).first
       #authorize! :update, @annotation
       # rewrite the ListAnnotationsMap for this annotation: first delete, then re-write based on ['within']
@@ -103,8 +107,8 @@ class AnnotationController < ApplicationController
             :active => @annotationIn['active'],
             :annotated_by => @annotationIn['annotatedBy']
         )
-        format.html { redirect_to @annotation, notice: 'Annotation was successfully updated.' }
-          format.json { head :no_content }
+          format.html { redirect_to @annotation, notice: 'Annotation was successfully updated.' }
+          #format.json { head :no_content }
         else
           format.html { render action: "edit" }
           format.json { render json: @annotation.errors, status: :unprocessable_entity }

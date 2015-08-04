@@ -32,7 +32,9 @@ class AnnotationListController < ApplicationController
   # POST /list
   # POST /list.json
   def create
-    @annotationListIn = JSON.parse(params['list'])
+    #@annotationListIn = JSON.parse(params['list'])
+    @annotationListIn = JSON.parse(params.to_json)
+    p @annotationListIn.to_json
     @problem = ''
     if !validate_annotationList @annotationListIn
       errMsg = "AnnotationList record not valid and could not be updated: " + @problem
@@ -63,7 +65,8 @@ class AnnotationListController < ApplicationController
   end
 
   def update
-    @annotationListIn = JSON.parse(params['annotationList'].to_json)
+    #@annotationListIn = JSON.parse(params['annotationList'].to_json)
+    @annotationListIn = JSON.parse(params.to_json)
     @problem = ''
     if !validate_annotationList @annotationListIn
       errMsg = "AnnotationList record not valid and could not be updated: " + @problem
@@ -79,10 +82,11 @@ class AnnotationListController < ApplicationController
         if @annotationList.update_attributes(
             :list_type => @annotationListIn['@type'],
             :label => @annotationListIn['label'],
-            :description => @annotationListIn['description']
+            :motivation => @annotationListIn['motivation']
         )
           format.html { redirect_to @annotationList, notice: 'AnnotationList was successfully updated.' }
-          format.json { head :no_content }
+          format.json { render json: @annotationList.to_iiif, status: :updated, location: @annotation_list }
+          #format.json { head :no_content }
         else
           format.html { render action: "edit" }
           format.json { render json: @annotationList.errors, status: :unprocessable_entity }
