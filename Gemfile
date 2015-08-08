@@ -70,6 +70,7 @@ gem 'rspec'
 gem 'protected_attributes'
 
 gem 'simplecov', :require => false, :group => :test
+gem 'rubocop', require: false
 
 #gem 'arel', '6.0.0.beta2'
 
