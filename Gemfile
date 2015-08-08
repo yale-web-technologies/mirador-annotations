@@ -19,6 +19,9 @@ gem 'uuid'
 group :development, :test do
   # Use sqlite3 as the database for Active Record for dev
   gem 'sqlite3'
+
+  gem 'rspec-rails'
+  gem 'rspec'
 end
 
 group :production do
@@ -60,10 +63,6 @@ gem 'dropzonejs-rails'
 
 # carrierwave for upload details
 #gem 'carrierwave'
-
-# use rspec for tests
-gem 'rspec-rails'
-gem 'rspec'
 
 #gem "bootstrap-sass", "~> 2.2.0"
 
