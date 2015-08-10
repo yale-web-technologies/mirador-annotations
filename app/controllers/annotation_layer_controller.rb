@@ -1,6 +1,5 @@
 class AnnotationLayerController < ApplicationController
   skip_before_action :verify_authenticity_token
-  respond_to :html, :json
 
   # GET /layer
   # GET /layer.json
@@ -42,6 +41,7 @@ class AnnotationLayerController < ApplicationController
     @layer['motivation'] = @layerIn['motivation']
     #@layer['description'] = @layerIn['description']
     @layer['license'] = @layerIn['license']
+    @layer['version'] = 1
     @annotation_layer = AnnotationLayer.new(@layer)
 
     #authorize! :create, @annotation_layer
@@ -58,35 +58,46 @@ class AnnotationLayerController < ApplicationController
 
   # PUT /layer/1
   # PUT /layer/1.json
+
   def update
     @annotationLayerIn = JSON.parse(params.to_json)
-
     @problem = ''
     if !validate_annotationLayer @annotationLayerIn
-      errMsg = "AnnotationLayer record not valid and could not be updated: " + @problem
+      errMsg = "Annotation Layer not valid and could not be updated: " + @problem
       render :json => { :error => errMsg },
              :status => :unprocessable_entity
-    else
-      @annotationLayer = AnnotationLayer.where(layer_id: @annotationLayerIn['@id']).first
-      #authorize! :update, @annotation
-      respond_to do |format|
-        if @annotationLayer.update_attributes(
-            :layer_id => @annotationLayerIn['@id'],
-            :layer_type => @annotationLayerIn['@type'],
-            :label => @annotationLayerIn['label'],
-            :motivation => @annotationLayerIn['motivation'],
-            :license => @annotationLayerIn['license'],
-            :description => @annotationLayerIn['description']
-        )
-          format.html { redirect_to @annotationLayer, notice: 'AnnotationLayer was successfully updated.' }
-          format.json { render json: @annotationLayer.to_iiif, status: :updated, location: @annotation_layer }
-          #format.json { head :no_content }
-        else
-          format.html { render action: "edit" }
-          format.json { render json: @annotationLayer.errors, status: :unprocessable_entity }
-        end
+    end
+    @annotationLayer = AnnotationLayer.where(layer_id: @annotationLayerIn['@id']).first
+    #authorize! :update, @annotationLayer
+
+    @annotationLayer.version = 1 if @annotationList.version.nil? || @annotationLayer.version < 1 # for pre-version annotation_records
+    if !version_layer @annotationLayer
+      errMsg = "Annotation Layer could not be updated: " + @problem
+      render :json => { :error => errMsg },
+             :status => :unprocessable_entity
+    end
+
+    newVersion = @annotationLayer.version + 1
+    respond_to do |format|
+      if @annotationLayer.update_attributes(
+          :layer_id => @annotationLayerIn['@id'],
+          :layer_type => @annotationLayerIn['@type'],
+          :label => @annotationLayerIn['label'],
+          :motivation => @annotationLayerIn['motivation'],
+          :license => @annotationLayerIn['license'],
+          :description => @annotationLayerIn['description'],
+          :version => newVersion
+      )
+        format.html { redirect_to @annotationLayer, notice: 'AnnotationLayer was successfully updated.' }
+        format.json { render json: @annotationLayer.to_iiif, status: 200 }
+        #format.json { head :no_content }
+      else
+        format.html { render action: "edit" }
+        format.json { render json: @annotationLayer.errors, status: :unprocessable_entity }
       end
     end
+    #end
+    #end
   end
 
   # DELETE /layer/1
@@ -116,5 +127,23 @@ class AnnotationLayerController < ApplicationController
     end
     valid
   end
+
+  def version_layer layer
+    versioned = true
+    @allVersion = Hash.new
+    @allVersion['all_id'] = layer.layer_id
+    @allVersion['all_type'] = layer.layer_type
+    @allVersion['all_version'] = layer.version
+    #@allVersion['all_version'] = !layer.version.nil? ? layer.version : 1
+    @allVersion['all_content'] = layer.to_version_content
+    @annotation_layer_version = AnnoListLayerVersion.new(@allVersion)
+    #@annotation_layer = AnnotationLayer.new(@layer)
+    if !@annotation_layer_version.save
+      @problem = "versioning for this record failed"
+      versioned = false
+    end
+    versioned
+  end
+
 
 end

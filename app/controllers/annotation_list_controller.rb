@@ -47,6 +47,7 @@ class AnnotationListController < ApplicationController
       @list['list_type'] = @annotationListIn['@type']
       @list['label'] = @annotationListIn['label']
       @list['description'] = @annotationListIn['description']
+      @list['version'] = 1
       @within =  @annotationListIn['within']
       LayerListsMap.setMap @within,@list['list_id']
       @annotation_list = AnnotationList.new(@list)
@@ -67,30 +68,47 @@ class AnnotationListController < ApplicationController
     @annotationListIn = JSON.parse(params.to_json)
     @problem = ''
     if !validate_annotationList @annotationListIn
-      errMsg = "AnnotationList record not valid and could not be updated: " + @problem
+      errMsg = "Annotation List not valid and could not be updated: " + @problem
       render :json => { :error => errMsg },
              :status => :unprocessable_entity
+    end
+
+    @annotationList = AnnotationList.where(list_id: @annotationListIn['@id']).first
+    #authorize! :update, @annotationList
+
+    if @annotationList.version.nil?
+      @annotationList.version = 1
     else
-      @annotationList = AnnotationList.where(list_id: @annotationListIn['@id']).first
-      #authorize! :update, @annotationList
-      # rewrite the ListAnnotationsMap for this annotation: first delete, then re-write based on ['within']
-      LayerListsMap.deleteListFromLayer @annotationList.list_id
-      LayerListsMap.setMap @annotationListIn['within'],@annotationList.list_id
-      respond_to do |format|
-        if @annotationList.update_attributes(
-            :list_type => @annotationListIn['@type'],
-            :label => @annotationListIn['label'],
-            #:motivation => @annotationListIn['motivation']
-        )
-          format.html { redirect_to @annotationList, notice: 'AnnotationList was successfully updated.' }
-          format.json { render json: @annotationList.to_iiif, status: :updated, location: @annotation_list }
-          #format.json { head :no_content }
-        else
-          format.html { render action: "edit" }
-          format.json { render json: @annotationList.errors, status: :unprocessable_entity }
-        end
+      if @annotationList.version < 1
+        @annotationList.version = 1
       end
     end
+
+    if !version_list @annotationList
+      errMsg = "Annotation List could not be updated: " + @problem
+      render :json => { :error => errMsg },
+             :status => :unprocessable_entity
+    end
+
+    # rewrite the ListAnnotationsMap for this annotation: first delete, then re-write based on ['within']
+    LayerListsMap.deleteListFromLayer @annotationList.list_id
+    LayerListsMap.setMap @annotationListIn['within'],@annotationList.list_id
+    newVersion = @annotationList.version + 1
+    respond_to do |format|
+      if @annotationList.update_attributes(
+          :list_type => @annotationListIn['@type'],
+          :label => @annotationListIn['label'],
+          :version => newVersion
+      )
+        format.html { redirect_to @annotationList, notice: 'AnnotationList was successfully updated.' }
+        format.json { render json: @annotationList.to_iiif, status: 200}
+        #format.json { head :no_content }
+      else
+        format.html { render action: "edit" }
+        format.json { render json: @annotationList.errors, status: :unprocessable_entity }
+      end
+    end
+    #end
   end
 
   # DELETE /list/1
@@ -106,6 +124,8 @@ class AnnotationListController < ApplicationController
       format.json { head :no_content }
     end
   end
+
+  protected
 
   def validate_annotationList annotationList
     valid = true
@@ -128,4 +148,20 @@ class AnnotationListController < ApplicationController
     end
     valid
   end
+
+  def version_list list
+    versioned = true
+    @allVersion = Hash.new
+    @allVersion['all_id'] = list.list_id
+    @allVersion['all_type'] = list.list_type
+    @allVersion['all_version'] = list.version
+    @allVersion['all_content'] = list.to_version_content
+    @annotation_list_version = AnnoListLayerVersion.new(@allVersion)
+    if !@annotation_list_version.save
+      @problem = "versioning for this record failed"
+      versioned = false
+    end
+    versioned
+  end
+
 end

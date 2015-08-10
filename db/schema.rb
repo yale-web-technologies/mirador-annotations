@@ -11,7 +11,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150716182845) do
+ActiveRecord::Schema.define(version: 20150805185759) do
+
+  create_table "anno_list_layer_versions", force: :cascade do |t|
+    t.string   "all_id"
+    t.string   "all_type"
+    t.integer  "all_version"
+    t.string   "all_content"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
 
   create_table "annotation_layers", force: :cascade do |t|
     t.string   "layer_id"
@@ -22,6 +31,7 @@ ActiveRecord::Schema.define(version: 20150716182845) do
     t.string   "license"
     t.datetime "created_at",  null: false
     t.datetime "updated_at",  null: false
+    t.integer  "version"
   end
 
   add_index "annotation_layers", ["layer_id"], name: "index_annotation_layers_on_layer_id"
@@ -33,6 +43,7 @@ ActiveRecord::Schema.define(version: 20150716182845) do
     t.string   "description"
     t.datetime "created_at",  null: false
     t.datetime "updated_at",  null: false
+    t.integer  "version"
   end
 
   add_index "annotation_lists", ["list_id"], name: "index_annotation_lists_on_list_id"
