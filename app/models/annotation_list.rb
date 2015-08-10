@@ -4,7 +4,8 @@ class AnnotationList < ActiveRecord::Base
                    :resources,
                    :within,
                    :label,
-                   :description
+                   :description,
+                   :version
   def to_iiif
     # get the list's annotation records via the sequencing map table
     @resourcesArr = Array.new
@@ -16,7 +17,6 @@ class AnnotationList < ActiveRecord::Base
       @annoJson['@id'] = @Anno.annotation_id
       @annoJson['@type'] = @Anno.annotation_type
       @annoJson['@context'] = "http://iiif.io/api/presentation/2/context.json"
-      @annoJson['motivation'] = @Anno.motivation
       @annoJson['resource'] = JSON.parse(@Anno.resource)
       #@annoJson['annotatedBy'] = JSON.parse(@Anno.annotated_by) if !@Anno.annotated_by.blank?
       @annoJson['on'] = @Anno.on
@@ -31,5 +31,15 @@ class AnnotationList < ActiveRecord::Base
     iiif['within'] = LayerListsMap.getLayersForList list_id
     iiif['resources'] = @resourcesArr
     iiif
+  end
+
+  def to_version_content
+    version_content = Hash.new
+    version_content['@id'] = list_id
+    version_content['@type'] = list_type
+    version_content['@context'] = "http://iiif.io/api/presentation/2/context.json"
+    version_content['label'] = label if !label.blank?
+    version_content['within'] = LayerListsMap.getLayersForList list_id
+    version_content
   end
 end
