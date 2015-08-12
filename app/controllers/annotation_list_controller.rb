@@ -76,12 +76,8 @@ class AnnotationListController < ApplicationController
     @annotationList = AnnotationList.where(list_id: @annotationListIn['@id']).first
     #authorize! :update, @annotationList
 
-    if @annotationList.version.nil?
+    if @annotationList.version.nil? ||  @annotationList.version < 1
       @annotationList.version = 1
-    else
-      if @annotationList.version < 1
-        @annotationList.version = 1
-      end
     end
 
     if !version_list @annotationList

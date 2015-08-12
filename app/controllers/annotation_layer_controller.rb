@@ -70,7 +70,10 @@ class AnnotationLayerController < ApplicationController
     @annotationLayer = AnnotationLayer.where(layer_id: @annotationLayerIn['@id']).first
     #authorize! :update, @annotationLayer
 
-    @annotationLayer.version = 1 if @annotationList.version.nil? || @annotationLayer.version < 1 # for pre-version annotation_records
+    if @annotationLayer.version.nil? ||  @annotationLayer.version < 1
+      @annotationLayer.version = 1
+    end
+
     if !version_layer @annotationLayer
       errMsg = "Annotation Layer could not be updated: " + @problem
       render :json => { :error => errMsg },
