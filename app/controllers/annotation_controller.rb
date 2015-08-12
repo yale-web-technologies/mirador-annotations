@@ -112,7 +112,6 @@ class AnnotationController < ApplicationController
       )
         format.html { redirect_to @annotation, notice: 'Annotation was successfully updated.' }
         format.json { render json: @annotation.to_iiif, status: 200}
-        format.json { head :no_content }
       else
         format.html { render action: "edit" }
         format.json { render json: @annotation.errors, status: :unprocessable_entity }

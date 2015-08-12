@@ -93,7 +93,6 @@ class AnnotationLayerController < ApplicationController
       )
         format.html { redirect_to @annotationLayer, notice: 'AnnotationLayer was successfully updated.' }
         format.json { render json: @annotationLayer.to_iiif, status: 200 }
-        #format.json { head :no_content }
       else
         format.html { render action: "edit" }
         format.json { render json: @annotationLayer.errors, status: :unprocessable_entity }
