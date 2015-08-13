@@ -1,13 +1,12 @@
 class Annotation < ActiveRecord::Base
   attr_accessible :annotation_id,
                   :annotation_type,
+                  :motivation,
+                  :description,
+                  :on,
                   :resource,
                   :version,
-                  :description,
-                  :label,
                   :annotated_by,
-                  :motivation,
-                  :on,
                   :active,
                   :version
 
@@ -17,11 +16,11 @@ class Annotation < ActiveRecord::Base
     iiif['@type'] = annotation_type
     iiif['@context'] = "http://iiif.io/api/presentation/2/context.json"
     iiif['motivation'] = motivation
-    iiif['within'] = ListAnnotationsMap.getListsForAnnotation annotation_id #if !iiif['within'].blank?
+    iiif['within'] = ListAnnotationsMap.getListsForAnnotation annotation_id
     iiif['resource'] = JSON.parse(resource)
-    iiif['annnotatedBy'] = JSON.parse(annotated_by) #if !iiif['annnotatedBy'].blank?
+    iiif['annnotatedBy'] = JSON.parse(annotated_by)
     iiif['on'] = on
-    iiif
+    iiif.to_json
   end
 
   def to_version_content
