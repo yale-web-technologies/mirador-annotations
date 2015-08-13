@@ -31,6 +31,38 @@ class ListAnnotationsMap < ActiveRecord::Base
     within
   end
 
+  def self.getAnnotationsForList list_id
+    resources = Array.new
+    @annoIds = self.where(list_id: list_id).order(:sequence)
+    @annoIds.each do |annotation|
+      #resources.push(annotation.annotation_id)
+      @Anno = Annotation.where(annotation_id: annotation.annotation_id).first
+      @annoJson = Hash.new
+      @annoJson['@id'] = @Anno.annotation_id
+      @annoJson['@type'] = @Anno.annotation_type
+      @annoJson['@context'] = "http://iiif.io/api/presentation/2/context.json"
+      @annoJson['resource'] = JSON.parse(@Anno.resource)
+      #@annoJson['annotatedBy'] = JSON.parse(@Anno.annotated_by) if !@Anno.annotated_by.blank?
+      @annoJson['on'] = @Anno.on
+      resources.push(@annoJson)
+    end
+    resources
+  end
+
+  # return list of annotations only
+  def self.getAnnotationListForList list_id
+    resources = Array.new
+    @annoIds = self.where(list_id: list_id).order(:sequence)
+    @annoIds.each do |annotation|
+      #resources.push(annotation.annotation_id)
+      @Anno = Annotation.where(annotation_id: annotation.annotation_id).first
+      @annoJson = Hash.new
+      @annoJson['@id'] = @Anno.annotation_id
+      resources.push(@annoJson)
+    end
+    resources
+  end
+
   def self.deleteAnnotationFromList anno_id
     @annotationLists = self.where(annotation_id: anno_id)
     @annotationLists.each do |annoList|
