@@ -103,7 +103,6 @@ class AnnotationListController < ApplicationController
         format.json { render json: @annotationList.errors, status: :unprocessable_entity }
       end
     end
-    #end
   end
 
   # DELETE /list/1

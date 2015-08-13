@@ -98,8 +98,6 @@ class AnnotationLayerController < ApplicationController
         format.json { render json: @annotationLayer.errors, status: :unprocessable_entity }
       end
     end
-    #end
-    #end
   end
 
   # DELETE /layer/1
@@ -136,16 +134,13 @@ class AnnotationLayerController < ApplicationController
     @allVersion['all_id'] = layer.layer_id
     @allVersion['all_type'] = layer.layer_type
     @allVersion['all_version'] = layer.version
-    #@allVersion['all_version'] = !layer.version.nil? ? layer.version : 1
     @allVersion['all_content'] = layer.to_version_content
     @annotation_layer_version = AnnoListLayerVersion.new(@allVersion)
-    #@annotation_layer = AnnotationLayer.new(@layer)
     if !@annotation_layer_version.save
       @problem = "versioning for this record failed"
       versioned = false
     end
     versioned
   end
-
 
 end

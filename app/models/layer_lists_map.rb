@@ -32,6 +32,15 @@ class LayerListsMap < ActiveRecord::Base
     within
   end
 
+  def self.getListsForLayer layer_id
+    otherContent = Array.new
+    @annotationLists = self.where(layer_id: layer_id).order(:sequence)
+    @annotationLists.each do |annoList|
+        otherContent.push(annoList.list_id)
+    end
+    otherContent
+  end
+
   def self.deleteListFromLayer list_id
     @annotationLayers = self.where(list_id: list_id)
     @annotationLayers.each do |annoLayer|
