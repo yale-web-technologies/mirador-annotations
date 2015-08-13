@@ -7,7 +7,8 @@ class AnnotationLayer < ActiveRecord::Base
                   :motivation,
                   :description,
                   :license,
-                  :othercontent
+                  :othercontent,
+                  :version
 
   def to_iiif
     # get the layer's list records via the sequencing map table to build otherContent
@@ -29,6 +30,28 @@ class AnnotationLayer < ActiveRecord::Base
     #iiif['otherContent'] = othercontent.split(",")
     iiif['otherContent'] = @otherContentArr
     iiif
+  end
+
+  def to_version_content
+    # get the layer's list records via the sequencing map table to build otherContent
+    @otherContentArr = Array.new
+    @listIds = LayerListsMap.where(layer_id:layer_id).order(:sequence)
+    @listIds.each do |listId|
+      @list = AnnotationList.where(list_id: listId.list_id).first
+      @idJson= @list.list_id
+      @otherContentArr.push(@idJson)
+    end
+
+    version_content = Hash.new
+    version_content['@id'] = layer_id
+    version_content['@type'] = layer_type
+    version_content['@context'] = "http://iiif.io/api/presentation/2/context.json"
+    version_content['label'] = label if !label.blank?
+    version_content['motivation'] = motivation if !motivation.blank?
+    version_content['license'] = license if !license.blank?
+    version_content['description'] = description if !description.blank?
+    version_content['otherContent'] = @otherContentArr
+    version_content
   end
 
 end
