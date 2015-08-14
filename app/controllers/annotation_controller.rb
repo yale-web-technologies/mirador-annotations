@@ -1,7 +1,8 @@
 require 'securerandom'
 class AnnotationController < ApplicationController
   skip_before_action :verify_authenticity_token
-  respond_to :html, :json
+  #respond_to :html, :json
+  respond_to :json
 
   # GET /list
   # GET /list.json
@@ -61,12 +62,11 @@ class AnnotationController < ApplicationController
       ListAnnotationsMap.setMap @annotationIn['within'], @annotation_id
       @annotation = Annotation.new(@annotationOut)
       #authorize! :create, @annotation
+      request.format = "json"
       respond_to do |format|
         if @annotation.save
-          format.html { redirect_to @annotation, notice: 'Annotation was successfully created.' }
           format.json { render json: @annotation.to_iiif, status: :created} #, location: @annotation }
         else
-          format.html { render action: "new" }
           format.json { render json: @annotation.errors, status: :unprocessable_entity }
         end
       end
@@ -139,23 +139,27 @@ class AnnotationController < ApplicationController
       @problem = "invalid '@type' + #{annotation['@type']}"
       valid = false
     end
+
     if annotation['motivation'].nil?
       @problem = "missing 'motivation'"
       valid = false
     end
+
     unless annotation['within'].nil?
       annotation['within'].each do |list_id|
         @annotation_list = AnnotationList.where(list_id: list_id).first
         if @annotation_list.nil?
-          @problem = "'within' element: Annotation List " + list_id + " does not exist"
-          valid = false
+         # @problem = "'within' element: Annotation List " + list_id + " does not exist"
+         # valid = false
         end
       end
     end
+
     if annotation['resource'].nil?
       @problem = "missing 'resource' element"
       valid = false
     end
+
     if annotation['on'].nil?
       @problem = "missing 'on' element"
       valid = false
