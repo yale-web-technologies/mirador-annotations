@@ -23,9 +23,11 @@ class AnnotationController < ApplicationController
   # GET /annotation/1
   # GET /annotation/1.json
   def show
-    @ru = request.original_url
+    @ru = request.protocol + request.host_with_port + "/annotations/#{params['id']}"
     @annotation = Annotation.where(annotation_id: @ru).first
+
     #authorize! :show, @annotation_list
+    request.format = "json"
     respond_to do |format|
       format.html # show.html.erb
       format.json { render json: @annotation.to_iiif }
@@ -42,7 +44,8 @@ class AnnotationController < ApplicationController
       render :json => { :error => errMsg },
              :status => :unprocessable_entity
     else
-      @ru = request.original_url
+      #@ru = request.original_url
+      @ru = request.original_url.split('?').first
       @ru += '/'   if !@ru.end_with? '/'
       @annotation_id = @ru + SecureRandom.uuid
       @annotation_id = @ru + SecureRandom.uuid
@@ -51,8 +54,6 @@ class AnnotationController < ApplicationController
       @annotationOut['annotation_type'] = @annotationIn['@type']
       @annotationOut['motivation'] = @annotationIn['motivation']
       @annotationOut['on'] = @annotationIn['on']
-      @annotationOut['canvas'] = @annotationIn['canvas']
-      @annotationOut['label'] = @annotationIn['label']
       @annotationOut['description'] = @annotationIn['description']
       @annotationOut['annotated_by'] = @annotationIn['annotatedBy'].to_json
       #@annotationOut['resource']  = @annotationIn.to_json
@@ -82,39 +83,37 @@ class AnnotationController < ApplicationController
       errMsg = "Annotation not valid and could not be updated: " + @problem
       render :json => { :error => errMsg },
              :status => :unprocessable_entity
-    end
-
-    @annotation = Annotation.where(annotation_id: @annotationIn['@id']).first
-    #authorize! :update, @annotation
-
-    if @annotation.version.nil? ||  @annotation.version < 1
-      @annotation.version = 1
-    end
-
-    if !version_annotation @annotation
-      errMsg = "Annotation could not be updated: " + @problem
-      render :json => { :error => errMsg },
-             :status => :unprocessable_entity
-    end
-
-    # rewrite the ListAnnotationsMap for this annotation: first delete, then re-write based on ['within']
-    ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
-    ListAnnotationsMap.setMap @annotationIn['within'], @annotation.annotation_id
-    newVersion = @annotation.version + 1
-    respond_to do |format|
-      if @annotation.update_attributes(
-          :annotation_type => @annotationIn['@type'],
-          :motivation => @annotationIn['motivation'],
-          :on => @annotationIn['on'],
-          :resource => @annotationIn['resource'].to_json,
-          :annotated_by => @annotationIn['annotatedBy'].to_json,
-          :version => newVersion
-      )
-        format.html { redirect_to @annotation, notice: 'Annotation was successfully updated.' }
-        format.json { render json: @annotation.to_iiif, status: 200}
-      else
-        format.html { render action: "edit" }
-        format.json { render json: @annotation.errors, status: :unprocessable_entity }
+    else
+      @annotation = Annotation.where(annotation_id: @annotationIn['@id']).first
+      #authorize! :update, @annotation
+      if @annotation.version.nil? ||  @annotation.version < 1
+        @annotation.version = 1
+      end
+      if !version_annotation @annotation
+        errMsg = "Annotation could not be updated: " + @problem
+        render :json => { :error => errMsg },
+               :status => :unprocessable_entity
+      end
+      # rewrite the ListAnnotationsMap for this annotation: first delete, then re-write based on ['within']
+      ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
+      ListAnnotationsMap.setMap @annotationIn['within'], @annotation.annotation_id
+      newVersion = @annotation.version + 1
+      request.format = "json"
+      respond_to do |format|
+        if @annotation.update_attributes(
+            :annotation_type => @annotationIn['@type'],
+            :motivation => @annotationIn['motivation'],
+            :on => @annotationIn['on'],
+            :resource => @annotationIn['resource'].to_json,
+            :annotated_by => @annotationIn['annotatedBy'].to_json,
+            :version => newVersion
+        )
+          format.html { redirect_to @annotation, notice: 'Annotation was successfully updated.' }
+          format.json { render json: @annotation.to_iiif, status: 200}
+        else
+          format.html { render action: "edit" }
+          format.json { render json: @annotation.errors, status: :unprocessable_entity }
+        end
       end
     end
   end
@@ -122,9 +121,19 @@ class AnnotationController < ApplicationController
   # DELETE /annotation/1
   # DELETE /annotation/1.json
   def destroy
-    @ru = request.original_url
+    #@ru = request.original_url
+    request.format = "json"
+    @ru = request.protocol + request.host_with_port + "/annotations/#{params['id']}"
     @annotation = Annotation.where(annotation_id: @ru).first
     #authorize! :delete, @annotation
+    if @annotation.version.nil? ||  @annotation.version < 1
+      @annotation.version = 1
+    end
+    if !version_annotation @annotation
+      errMsg = "Annotation could not be versioned: " + @problem
+      render :json => { :error => errMsg },
+             :status => :unprocessable_entity
+    end
     ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
     @annotation.destroy
     respond_to do |format|

@@ -15,6 +15,7 @@ TenThousandRooms::Application.routes.draw do
   resources :annotation, path: 'annotations',defaults: {format: :json}
   resources :annotation, path: 'annotation',defaults: {format: :json}
 
+  #get 'show', to: 'annotation#show'
   put '/annotations', to: 'annotation#update'
   put '/lists', to: 'annotation_list#update'
   put '/layers', to: 'annotation_layer#update'
