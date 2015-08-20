@@ -6,6 +6,14 @@ RSpec.describe AnnotationController, :type => :controller do
     describe 'POST annotation json' do
 
       before(:all) do
+        #@controller = AnnotationListController
+        #@annoListString ='{"@type": "sc:AnnotationList","@context": "http://iiif.io/api/presentation/2/context.json","motivation": "yale:transcribing","label":"transcription layer 2 list 2","within":["http://localhost:5000/layers/6d46d0e9-c643-47c4-a1e1-985d674d5af7"]}'
+        #post :create, JSON.parse(@annoListString), :format => 'json', :Content_Type => 'application/json', :Accept => 'application/json'
+        #@list = AnnotationList.last()
+        #@listId = @annotation.list_id
+        #@controller = AnnotationController
+
+        #@controller = AnnotationController
         @annoString ='{"@type": "oa:annotation",
                       "motivation": "yale:transcribing",
                       "within":["http://localhost:5000/lists/e7ceec6a-af59-4191-a74c-39a7acfe90ce"],
@@ -27,7 +35,6 @@ RSpec.describe AnnotationController, :type => :controller do
         post :create, JSON.parse(@annoString)
         expect(response.status).to eq(201)
         json = JSON.parse(response.body)
-        @annotation = Annotation.last()
         expect(json['@id']).to be_truthy
       end
 
@@ -206,7 +213,7 @@ RSpec.describe AnnotationController, :type => :controller do
         @lists = ListAnnotationsMap.getListsForAnnotation @annotation.annotation_id
         expect(@lists).to eq([])
       end
-      
+
       it 'creates a version correctly' do
         annoUID = @annotation.annotation_id.split('annotations/').last
         delete :destroy, format: :json, id: annoUID

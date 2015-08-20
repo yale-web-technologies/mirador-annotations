@@ -33,9 +33,9 @@ class AnnotationListController < ApplicationController
   # POST /list.json
   def create
     @annotationListIn = JSON.parse(params.to_json)
-    p @annotationListIn.to_json
     @problem = ''
     if !validate_annotationList @annotationListIn
+      p "problem = #{@problem}"
       errMsg = "AnnotationList record not valid and could not be updated: " + @problem
       render :json => { :error => errMsg },
              :status => :unprocessable_entity
@@ -52,6 +52,7 @@ class AnnotationListController < ApplicationController
       LayerListsMap.setMap @within,@list['list_id']
       @annotation_list = AnnotationList.new(@list)
       #authorize! :create, @annotation_list
+      request.format = "json"
       respond_to do |format|
         if @annotation_list.save
           format.html { redirect_to @annotation_list, notice: 'Annotation list was successfully created.' }
@@ -131,11 +132,14 @@ class AnnotationListController < ApplicationController
       annotationList['within'].each do |layer_id|
         @annotation_layer = AnnotationLayer.where(layer_id: layer_id).first
         if @annotation_layer.nil?
-          @problem = "'within' element: Annotation Layer " + layer_id + " does not exist"
-          valid = false
+          if !ENV['RAIS_ENV'] == 'test'
+            @problem = "'within' element: Annotation Layer " + layer_id + " does not exist"
+            valid = false
+          end
         end
       end
     end
+
     if annotationList['label'].nil?
       @problem = "missing 'label'"
       valid = false
