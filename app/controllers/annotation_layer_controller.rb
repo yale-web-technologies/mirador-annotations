@@ -1,5 +1,6 @@
 class AnnotationLayerController < ApplicationController
   skip_before_action :verify_authenticity_token
+  respond_to :html, :json
 
   # GET /layer
   # GET /layer.json
@@ -19,7 +20,8 @@ class AnnotationLayerController < ApplicationController
   # GET /layer/1
   # GET /layer/1.json
   def show
-    @ru = request.original_url
+    #@ru = request.original_url
+    @ru = request.protocol + request.host_with_port + "/layers/#{params['id']}"
     @annotation_layer = AnnotationLayer.where(layer_id: @ru).first
     #authorize! :show, @annotation_layer
     respond_to do |format|
@@ -33,7 +35,8 @@ class AnnotationLayerController < ApplicationController
   def create
     @layerIn = JSON.parse(params.to_json)
     @layer = Hash.new
-    @ru = request.original_url
+    #@ru = request.original_url
+    @ru = request.original_url.split('?').first
     @ru += '/'   if !@ru.end_with? '/'
     @layer['layer_id'] = @ru + SecureRandom.uuid
     @layer['layer_type'] = @layerIn['@type']
@@ -45,6 +48,7 @@ class AnnotationLayerController < ApplicationController
     @annotation_layer = AnnotationLayer.new(@layer)
 
     #authorize! :create, @annotation_layer
+    request.format = "json"
     respond_to do |format|
       if @annotation_layer.save
         format.html { redirect_to @annotation_layer, notice: 'Annotation layer was successfully created.' }
@@ -66,36 +70,39 @@ class AnnotationLayerController < ApplicationController
       errMsg = "Annotation Layer not valid and could not be updated: " + @problem
       render :json => { :error => errMsg },
              :status => :unprocessable_entity
-    end
-    @annotationLayer = AnnotationLayer.where(layer_id: @annotationLayerIn['@id']).first
-    #authorize! :update, @annotationLayer
+    else
 
-    if @annotationLayer.version.nil? ||  @annotationLayer.version < 1
-      @annotationLayer.version = 1
-    end
+      @annotationLayer = AnnotationLayer.where(layer_id: @annotationLayerIn['@id']).first
+      #authorize! :update, @annotationLayer
 
-    if !version_layer @annotationLayer
-      errMsg = "Annotation Layer could not be updated: " + @problem
-      render :json => { :error => errMsg },
-             :status => :unprocessable_entity
-    end
+      if @annotationLayer.version.nil? ||  @annotationLayer.version < 1
+        @annotationLayer.version = 1
+      end
 
-    newVersion = @annotationLayer.version + 1
-    respond_to do |format|
-      if @annotationLayer.update_attributes(
-          :layer_id => @annotationLayerIn['@id'],
-          :layer_type => @annotationLayerIn['@type'],
-          :label => @annotationLayerIn['label'],
-          :motivation => @annotationLayerIn['motivation'],
-          :license => @annotationLayerIn['license'],
-          :description => @annotationLayerIn['description'],
-          :version => newVersion
-      )
-        format.html { redirect_to @annotationLayer, notice: 'AnnotationLayer was successfully updated.' }
-        format.json { render json: @annotationLayer.to_iiif, status: 200 }
-      else
-        format.html { render action: "edit" }
-        format.json { render json: @annotationLayer.errors, status: :unprocessable_entity }
+      if !version_layer @annotationLayer
+        errMsg = "Annotation Layer could not be updated: " + @problem
+        render :json => { :error => errMsg },
+               :status => :unprocessable_entity
+      end
+
+      newVersion = @annotationLayer.version + 1
+      request.format = "json"
+      respond_to do |format|
+        if @annotationLayer.update_attributes(
+            :layer_id => @annotationLayerIn['@id'],
+            :layer_type => @annotationLayerIn['@type'],
+            :label => @annotationLayerIn['label'],
+            :motivation => @annotationLayerIn['motivation'],
+            :license => @annotationLayerIn['license'],
+            :description => @annotationLayerIn['description'],
+            :version => newVersion
+        )
+          format.html { redirect_to @annotationLayer, notice: 'AnnotationLayer was successfully updated.' }
+          format.json { render json: @annotationLayer.to_iiif, status: 200 }
+        else
+          format.html { render action: "edit" }
+          format.json { render json: @annotationLayer.errors, status: :unprocessable_entity }
+        end
       end
     end
   end
@@ -103,10 +110,20 @@ class AnnotationLayerController < ApplicationController
   # DELETE /layer/1
   # DELETE /layer/1.json
   def destroy
-    @ru = request.original_url
-    @annotation_layer = AnnotationLayer.where(layer_id: @ru).first
+    #@ru = request.original_url
+    @ru = request.protocol + request.host_with_port + "/layers/#{params['id']}"
+    @annotationLayer = AnnotationLayer.where(layer_id: @ru).first
     #authorize! :delete, @annotation_layer
-    @annotation_layer.destroy
+    if @annotationLayer.version.nil? ||  @annotationLayer.version < 1
+      @annotationLayer.version = 1
+    end
+    if !version_layer @annotationLayer
+      errMsg = "Annotation Layer could not be updated: " + @problem
+      render :json => { :error => errMsg },
+             :status => :unprocessable_entity
+    end
+    @annotationLayer.destroy
+    request.format = "json"
     respond_to do |format|
       format.html { redirect_to annotation_layers_url }
       format.json { head :no_content }
