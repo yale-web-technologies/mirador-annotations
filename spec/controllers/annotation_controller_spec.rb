@@ -125,9 +125,7 @@ RSpec.describe AnnotationController, :type => :controller do
       end
 
       it 'does not change the record count' do
-
         @annoJSON['motivation'] = 'yale:transliterating'
-        put :update, @annoJSON, :format => 'json'
         expect { put :update, @annoJSON }.to change(Annotation, :count).by(0)
       end
 
