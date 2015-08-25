@@ -36,7 +36,6 @@ class AnnotationListController < ApplicationController
     @annotationListIn = JSON.parse(params.to_json)
     @problem = ''
     if !validate_annotationList @annotationListIn
-      p "problem = #{@problem}"
       errMsg = "AnnotationList record not valid and could not be updated: " + @problem
       render :json => { :error => errMsg },
              :status => :unprocessable_entity
@@ -145,10 +144,8 @@ class AnnotationListController < ApplicationController
       annotationList['within'].each do |layer_id|
         @annotation_layer = AnnotationLayer.where(layer_id: layer_id).first
         if @annotation_layer.nil?
-          if !ENV['RAIS_ENV'] == 'test'
-            @problem = "'within' element: Annotation Layer " + layer_id + " does not exist"
-            valid = false
-          end
+          @problem = "'within' element: Annotation Layer " + layer_id + " does not exist"
+          valid = false
         end
       end
     end

@@ -71,6 +71,7 @@ RSpec.describe AnnotationLayerController, type: :controller do
           @annoLayerString ='{"label": "Layer 2", "motivation": "yale:transcribing", "license": "http://creativecommons.org/licenses/by/4.0/", "@type": "sc:Layer", "@context": "http://iiif.io/api/presentation/2/context.json", "otherContent": "http://localhost:5000/lists/1"}'
           post :create, JSON.parse(@annoLayerString)
           @layer = AnnotationLayer.last()
+          #@layer = post :create, JSON.parse(@annoLayerString)
           @layerJSON = JSON.parse(@annoLayerString)
           @layerJSON['@id'] = @layer.layer_id
         end

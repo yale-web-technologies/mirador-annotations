@@ -158,10 +158,8 @@ class AnnotationController < ApplicationController
       annotation['within'].each do |list_id|
         @annotation_list = AnnotationList.where(list_id: list_id).first
         if @annotation_list.nil?
-          if !ENV['RAIS_ENV'] == 'test'
-            @problem = "'within' element: Annotation List " + list_id + " does not exist"
-            valid = false
-          end
+          @problem = "'within' element: Annotation List " + list_id + " does not exist"
+          valid = false
         end
       end
     end

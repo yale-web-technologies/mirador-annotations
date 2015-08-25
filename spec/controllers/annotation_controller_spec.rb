@@ -2,21 +2,20 @@ require 'rails_helper'
 
 RSpec.describe AnnotationController, :type => :controller do
 
+  before(:all) do
+    @annoList1 ='{"list_id": "http://localhost:5000/lists/list1", "list_type": "sc:AnnotationList","@context": "http://iiif.io/api/presentation/2/context.json", "label":"transcription layer 1 list 1","within":["http://localhost:5000/layers/testLayer"]}'
+    @annotation_list1 = AnnotationList.create(JSON.parse(@annoList1))
+    @annoList2 ='{"list_id": "http://localhost:5000/lists/list2", "list_type": "sc:AnnotationList","@context": "http://iiif.io/api/presentation/2/context.json", "label":"transcription layer 1 list 2","within":["http://localhost:5000/layers/testLayer"]}'
+    @annotation_list2 = AnnotationList.create(JSON.parse(@annoList2))
+  end
+
   context 'when Post is called' do
     describe 'POST annotation json' do
 
-      before(:all) do
-        #@controller = AnnotationListController
-        #@annoListString ='{"@type": "sc:AnnotationList","@context": "http://iiif.io/api/presentation/2/context.json","motivation": "yale:transcribing","label":"transcription layer 2 list 2","within":["http://localhost:5000/layers/6d46d0e9-c643-47c4-a1e1-985d674d5af7"]}'
-        #post :create, JSON.parse(@annoListString), :format => 'json', :Content_Type => 'application/json', :Accept => 'application/json'
-        #@list = AnnotationList.last()
-        #@listId = @annotation.list_id
-        #@controller = AnnotationController
-
-        #@controller = AnnotationController
+      before(:each) do
         @annoString ='{"@type": "oa:annotation",
                       "motivation": "yale:transcribing",
-                      "within":["http://localhost:5000/lists/e7ceec6a-af59-4191-a74c-39a7acfe90ce"],
+                      "within":["http://localhost:5000/lists/list1"],
                       "resource":{"@type":"cnt:ContentAsText","chars":"transcription1 list 1 annotation 1 **","format":"text/plain"},
                       "annotatedBy":{"@id":"http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001","@type":"prov:Agent","name":"Test User 8"},
                       "on":"http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1140"}'
@@ -74,7 +73,7 @@ RSpec.describe AnnotationController, :type => :controller do
       before(:each) do
         @annoString ='{"@type": "oa:annotation",
                       "motivation": "yale:transcribing",
-                      "within":["http://localhost:5000/lists/e7ceec6a-af59-4191-a74c-39a7acfe90ce"],
+                      "within":["http://localhost:5000/lists/list1"],
                       "resource":{"@type":"cnt:ContentAsText","chars":"transcription1 list 1 annotation 1 **","format":"text/plain"},
                       "annotatedBy":{"@id":"http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001","@type":"prov:Agent","name":"Test User 8"},
                       "on":"http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1140"}'
@@ -114,7 +113,7 @@ RSpec.describe AnnotationController, :type => :controller do
       before(:each) do
         @annoString ='{"@type": "oa:annotation",
                       "motivation": "yale:transcribing",
-                      "within":["http://localhost:5000/lists/e7ceec6a-af59-4191-a74c-39a7acfe90ce","http://localhost:5000/lists/a750962a-f361-46d2-817f-038d085460aa"],
+                      "within":["http://localhost:5000/lists/list1","http://localhost:5000/lists/list2"],
                       "resource":{"@type":"cnt:ContentAsText","chars":"transcription1 list 1 annotation 1 **","format":"text/plain"},
                       "annotatedBy":{"@id":"http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001","@type":"prov:Agent","name":"Test User 8"},
                       "on":"http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1140"}'
@@ -180,7 +179,7 @@ RSpec.describe AnnotationController, :type => :controller do
       before(:each) do
         @annoString ='{"@type": "oa:annotation",
                       "motivation": "yale:transcribing",
-                      "within":["http://localhost:5000/lists/e7ceec6a-af59-4191-a74c-39a7acfe90ce","http://localhost:5000/lists/a750962a-f361-46d2-817f-038d085460aa"],
+                      "within":["http://localhost:5000/lists/list1","http://localhost:5000/lists/list2"],
                       "resource":{"@type":"cnt:ContentAsText","chars":"transcription1 list 1 annotation 1 **","format":"text/plain"},
                       "annotatedBy":{"@id":"http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001","@type":"prov:Agent","name":"Test User 8"},
                       "on":"http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1140"}'
@@ -222,5 +221,10 @@ RSpec.describe AnnotationController, :type => :controller do
         expect(@version.all_version).to eq(@annotation.version)
       end
     end
+  end
+
+  after(:all) do
+    @annotation_list1.destroy!
+    @annotation_list2.destroy!
   end
 end
