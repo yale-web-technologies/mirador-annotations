@@ -2,10 +2,15 @@ require 'rails_helper'
 
 RSpec.describe AnnotationListController, type: :controller do
 
+  before(:all) do
+    @annoLayer ='{"layer_id": "http://localhost:5000/layers/testLayer", "label": "Layer 2", "motivation": "yale:transcribing", "license": "http://creativecommons.org/licenses/by/4.0/", "layer_type": "sc:Layer", "@context": "http://iiif.io/api/presentation/2/context.json"}'
+    @annotationLayer = AnnotationLayer.create(JSON.parse(@annoLayer))
+  end
+
   context 'when Post is called' do
     describe 'POST annotation json' do
         before(:each) do
-          @annoListString ='{"@type": "sc:AnnotationList","@context": "http://iiif.io/api/presentation/2/context.json", "label":"transcription layer 2 list 2","within":["http://localhost:5000/layers/6d46d0e9-c643-47c4-a1e1-985d674d5af7"]}'
+          @annoListString ='{"@type": "sc:AnnotationList","@context": "http://iiif.io/api/presentation/2/context.json", "label":"transcription layer 2 list 2","within":["http://localhost:5000/layers/testLayer"]}'
         end
 
       it 'returns a 201 ("created") response' do
@@ -59,7 +64,7 @@ RSpec.describe AnnotationListController, type: :controller do
   context 'when Get is called' do
     describe 'GET annotation json' do
       before(:each) do
-        @listString ='{"@type": "sc:AnnotationList","@context": "http://iiif.io/api/presentation/2/context.json", "label":"transcription layer 2 list 2","within":["http://localhost:5000/layers/6d46d0e9-c643-47c4-a1e1-985d674d5af7"]}'
+        @listString ='{"@type": "sc:AnnotationList","@context": "http://iiif.io/api/presentation/2/context.json", "label":"transcription layer 2 list 2","within":["http://localhost:5000/layers/testLayer"]}'
       end
 
       it 'returns a 200 response' do
@@ -94,7 +99,7 @@ RSpec.describe AnnotationListController, type: :controller do
     context 'when Put is called' do
       describe 'Put annotationList json' do
         before(:each) do
-          @listString ='{"@type": "sc:AnnotationList","@context": "http://iiif.io/api/presentation/2/context.json", "label":"transcription layer 2 list 2","within":["http://localhost:5000/layers/6d46d0e9-c643-47c4-a1e1-985d674d5af7"]}'
+          @listString ='{"@type": "sc:AnnotationList","@context": "http://iiif.io/api/presentation/2/context.json", "label":"transcription layer 2 list 2","within":["http://localhost:5000/layers/testLayer"]}'
           post :create, JSON.parse(@listString)
           @list = AnnotationList.last()
           @listJSON = JSON.parse(@listString)
@@ -156,7 +161,7 @@ RSpec.describe AnnotationListController, type: :controller do
     context 'when Delete is called' do
       describe 'Delete annotation' do
         before(:each) do
-          @listString ='{"@type": "sc:AnnotationList","@context": "http://iiif.io/api/presentation/2/context.json", "label":"transcription layer 2 list 2","within":["http://localhost:5000/layers/6d46d0e9-c643-47c4-a1e1-985d674d5af7"]}'
+          @listString ='{"@type": "sc:AnnotationList","@context": "http://iiif.io/api/presentation/2/context.json", "label":"transcription layer 2 list 2","within":["http://localhost:5000/layers/testLayer"]}'
           post :create, JSON.parse(@listString)
           @list = AnnotationList.last()
           @listUID = @list.list_id.split('lists/').last
@@ -193,6 +198,10 @@ RSpec.describe AnnotationListController, type: :controller do
       end
 
     end
+  end
+
+  after(:all) do
+    @annotationLayer.destroy!
   end
 end
 
