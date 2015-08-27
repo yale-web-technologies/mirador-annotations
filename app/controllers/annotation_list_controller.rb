@@ -20,7 +20,8 @@ class AnnotationListController < ApplicationController
   # GET /list/1
   # GET /list/1.json
   def show
-    @ru = request.original_url
+    #@ru = request.original_url
+    @ru = request.protocol + request.host_with_port + "/lists/#{params['id']}"
     @annotation_list = AnnotationList.where(list_id: @ru).first
     #authorize! :show, @annotation_list
     respond_to do |format|
@@ -33,7 +34,6 @@ class AnnotationListController < ApplicationController
   # POST /list.json
   def create
     @annotationListIn = JSON.parse(params.to_json)
-    p @annotationListIn.to_json
     @problem = ''
     if !validate_annotationList @annotationListIn
       errMsg = "AnnotationList record not valid and could not be updated: " + @problem
@@ -41,7 +41,8 @@ class AnnotationListController < ApplicationController
              :status => :unprocessable_entity
     else
       @list = Hash.new
-      @ru = request.original_url
+      #@ru = request.original_url
+      @ru = request.original_url.split('?').first
       @ru += '/'   if !@ru.end_with? '/'
       @list['list_id'] = @ru + SecureRandom.uuid
       @list['list_type'] = @annotationListIn['@type']
@@ -52,6 +53,7 @@ class AnnotationListController < ApplicationController
       LayerListsMap.setMap @within,@list['list_id']
       @annotation_list = AnnotationList.new(@list)
       #authorize! :create, @annotation_list
+      request.format = "json"
       respond_to do |format|
         if @annotation_list.save
           format.html { redirect_to @annotation_list, notice: 'Annotation list was successfully created.' }
@@ -71,36 +73,37 @@ class AnnotationListController < ApplicationController
       errMsg = "Annotation List not valid and could not be updated: " + @problem
       render :json => { :error => errMsg },
              :status => :unprocessable_entity
-    end
+    else
+      @annotationList = AnnotationList.where(list_id: @annotationListIn['@id']).first
+      #authorize! :update, @annotationList
 
-    @annotationList = AnnotationList.where(list_id: @annotationListIn['@id']).first
-    #authorize! :update, @annotationList
+      if @annotationList.version.nil? ||  @annotationList.version < 1
+        @annotationList.version = 1
+      end
 
-    if @annotationList.version.nil? ||  @annotationList.version < 1
-      @annotationList.version = 1
-    end
+      if !version_list @annotationList
+        errMsg = "Annotation List could not be updated: " + @problem
+        render :json => { :error => errMsg },
+               :status => :unprocessable_entity
+      end
 
-    if !version_list @annotationList
-      errMsg = "Annotation List could not be updated: " + @problem
-      render :json => { :error => errMsg },
-             :status => :unprocessable_entity
-    end
-
-    # rewrite the ListAnnotationsMap for this annotation: first delete, then re-write based on ['within']
-    LayerListsMap.deleteListFromLayer @annotationList.list_id
-    LayerListsMap.setMap @annotationListIn['within'],@annotationList.list_id
-    newVersion = @annotationList.version + 1
-    respond_to do |format|
-      if @annotationList.update_attributes(
-          :list_type => @annotationListIn['@type'],
-          :label => @annotationListIn['label'],
-          :version => newVersion
-      )
-        format.html { redirect_to @annotationList, notice: 'AnnotationList was successfully updated.' }
-        format.json { render json: @annotationList.to_iiif, status: 200}
-      else
-        format.html { render action: "edit" }
-        format.json { render json: @annotationList.errors, status: :unprocessable_entity }
+      # rewrite the ListAnnotationsMap for this annotation: first delete, then re-write based on ['within']
+      LayerListsMap.deleteListFromLayer @annotationList.list_id
+      LayerListsMap.setMap @annotationListIn['within'],@annotationList.list_id
+      newVersion = @annotationList.version + 1
+      request.format = "json"
+      respond_to do |format|
+        if @annotationList.update_attributes(
+            :list_type => @annotationListIn['@type'],
+            :label => @annotationListIn['label'],
+            :version => newVersion
+        )
+          format.html { redirect_to @annotationList, notice: 'AnnotationList was successfully updated.' }
+          format.json { render json: @annotationList.to_iiif, status: 200}
+        else
+          format.html { render action: "edit" }
+          format.json { render json: @annotationList.errors, status: :unprocessable_entity }
+        end
       end
     end
   end
@@ -108,9 +111,19 @@ class AnnotationListController < ApplicationController
   # DELETE /list/1
   # DELETE /list/1.json
   def destroy
-    @ru = request.original_url
+    #@ru = request.original_url
+    @ru = request.protocol + request.host_with_port + "/lists/#{params['id']}"
     @annotationList = AnnotationList.where(list_id: @ru).first
     #authorize! :delete, @annotation_list
+
+    if @annotationList.version.nil? ||  @annotationList.version < 1
+      @annotation.version = 1
+    end
+    if !version_list @annotationList
+      errMsg = "AnnotationList could not be versioned: " + @problem
+      render :json => { :error => errMsg },
+             :status => :unprocessable_entity
+    end
     LayerListsMap.deleteListFromLayer @annotationList.list_id
     @annotationList.destroy
     respond_to do |format|
@@ -136,6 +149,7 @@ class AnnotationListController < ApplicationController
         end
       end
     end
+
     if annotationList['label'].nil?
       @problem = "missing 'label'"
       valid = false
