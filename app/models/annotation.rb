@@ -9,6 +9,7 @@ class Annotation < ActiveRecord::Base
                   :annotated_by,
                   :active,
                   :version
+  has_many :webacls, foreign_key: "resource_id"
 
   def to_iiif
     iiif = Hash.new
