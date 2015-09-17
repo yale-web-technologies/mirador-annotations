@@ -9,7 +9,7 @@ RSpec.describe Group, type: :model do
   end
 
   describe Group do
-   it { is_expected.to have_many :webacls}
+   #it { is_expected.to have_many :webacls}
   end
 
   describe Group do
