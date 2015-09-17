@@ -4,6 +4,10 @@ class AnnotationList < ActiveRecord::Base
                    :label,
                    :description,
                    :version
+
+  has_many :list_annotations_maps
+  has_many :webacls, foreign_key: "resource_id"
+
   def to_iiif
     iiif = Hash.new
     iiif['@id'] = list_id

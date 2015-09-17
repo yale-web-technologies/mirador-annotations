@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150805185759) do
+ActiveRecord::Schema.define(version: 20150904193528) do
 
   create_table "anno_list_layer_versions", force: :cascade do |t|
     t.string   "all_id"
@@ -67,6 +67,13 @@ ActiveRecord::Schema.define(version: 20150805185759) do
 
   add_index "annotations", ["annotation_id"], name: "index_annotations_on_annotation_id"
 
+  create_table "groups", force: :cascade do |t|
+    t.string   "group_id"
+    t.string   "group_description"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+  end
+
   create_table "layer_lists_maps", force: :cascade do |t|
     t.string   "layer_id"
     t.integer  "sequence"
@@ -88,5 +95,34 @@ ActiveRecord::Schema.define(version: 20150805185759) do
 
   add_index "list_annotations_maps", ["annotation_id"], name: "index_list_annotations_maps_on_annotation_id"
   add_index "list_annotations_maps", ["list_id"], name: "index_list_annotations_maps_on_list_id"
+
+  create_table "users", force: :cascade do |t|
+    t.string   "email",                  default: "", null: false
+    t.string   "encrypted_password",     default: "", null: false
+    t.string   "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.integer  "sign_in_count",          default: 0,  null: false
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
+    t.string   "current_sign_in_ip"
+    t.string   "last_sign_in_ip"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "provider"
+    t.string   "uid"
+    t.string   "group_id"
+  end
+
+  add_index "users", ["email"], name: "index_users_on_email", unique: true
+  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+
+  create_table "webacls", force: :cascade do |t|
+    t.string   "resource_id"
+    t.string   "acl_mode"
+    t.string   "group_id"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
 
 end
