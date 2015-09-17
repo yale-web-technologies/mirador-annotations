@@ -66,12 +66,12 @@ RSpec.describe User, type: :model do
     end
   end
 
-  after(:all) do
-    @user.destroy!
-    @group.destroy!
-    @webAcl1.destroy!
-    @webAcl2.destroy!
-    @webAcl3.destroy!
-  end
+  #after(:all) do
+  #  @user.destroy!
+  #  @group.destroy!
+  #  @webAcl1.destroy!
+  #  @webAcl2.destroy!
+  #  @webAcl3.destroy!
+  #end
 
 end
