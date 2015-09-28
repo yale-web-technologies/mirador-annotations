@@ -1,7 +1,14 @@
 require 'securerandom'
+include Warden::Test::Helpers
+Warden.test_mode!
+include Devise::TestHelpers
+
 class AnnotationController < ApplicationController
-  skip_before_action :verify_authenticity_token
-  #respond_to :html, :json
+  include CanCan::ControllerAdditions
+  #skip_before_action :verify_authenticity_token
+
+  before_action :authenticate_user!
+
   respond_to :json
 
   # GET /list
@@ -25,7 +32,6 @@ class AnnotationController < ApplicationController
   def show
     @ru = request.protocol + request.host_with_port + "/annotations/#{params['id']}"
     @annotation = Annotation.where(annotation_id: @ru).first
-
     #authorize! :show, @annotation_list
     request.format = "json"
     respond_to do |format|
@@ -62,7 +68,7 @@ class AnnotationController < ApplicationController
       @annotationOut['version'] = 1
       ListAnnotationsMap.setMap @annotationIn['within'], @annotation_id
       @annotation = Annotation.new(@annotationOut)
-      #authorize! :create, @annotation
+      authorize! :create, @annotation
       request.format = "json"
       respond_to do |format|
         if @annotation.save
@@ -84,8 +90,9 @@ class AnnotationController < ApplicationController
       render :json => { :error => errMsg },
              :status => :unprocessable_entity
     else
-      @annotation = Annotation.where(annotation_id: @annotationIn['@id']).first
-      #authorize! :update, @annotation
+      @annotation = Annotation.where(annotation_id: @annotationIn['annotation_id']).first
+      authorize! :update, @annotation
+
       if @annotation.version.nil? ||  @annotation.version < 1
         @annotation.version = 1
       end
@@ -125,7 +132,7 @@ class AnnotationController < ApplicationController
     request.format = "json"
     @ru = request.protocol + request.host_with_port + "/annotations/#{params['id']}"
     @annotation = Annotation.where(annotation_id: @ru).first
-    #authorize! :delete, @annotation
+    authorize! :delete, @annotation
     if @annotation.version.nil? ||  @annotation.version < 1
       @annotation.version = 1
     end
@@ -190,4 +197,5 @@ class AnnotationController < ApplicationController
     end
     versioned
   end
+
 end

@@ -23,7 +23,10 @@ RSpec.describe Webacl, type: :model do
         expect( @webAcls ).not_to eq(nil)
       end
     end
+  end
 
+  after(:all) do
+     @webAcl.delete
   end
 
 end
