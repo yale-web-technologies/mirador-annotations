@@ -1,17 +1,37 @@
 require 'rails_helper'
+require "cancan/matchers"
+
+include Warden::Test::Helpers
+Warden.test_mode!
+include Devise::TestHelpers
 
 RSpec.describe AnnotationController, :type => :controller do
 
-  before(:all) do
-    @annoList1 ='{"list_id": "http://localhost:5000/lists/list1", "list_type": "sc:AnnotationList","@context": "http://iiif.io/api/presentation/2/context.json", "label":"transcription layer 1 list 1","within":["http://localhost:5000/layers/testLayer"]}'
+  before(:each) do
+    @user = FactoryGirl.create(:jasper99)
+
+    @annoList1 ='{"list_id": "http://localhost:5000/lists/list1", "list_type": "sc:AnnotationList", "label":"transcription layer 1 list 1"}'
     @annotation_list1 = AnnotationList.create(JSON.parse(@annoList1))
-    @annoList2 ='{"list_id": "http://localhost:5000/lists/list2", "list_type": "sc:AnnotationList","@context": "http://iiif.io/api/presentation/2/context.json", "label":"transcription layer 1 list 2","within":["http://localhost:5000/layers/testLayer"]}'
+    @annoList2 ='{"list_id": "http://localhost:5000/lists/list2", "list_type": "sc:AnnotationList", "label":"transcription layer 1 list 2"}'
     @annotation_list2 = AnnotationList.create(JSON.parse(@annoList2))
+
+    @grp='{"group_id": "http://localhost:5000/groups/testGroup", "group_description":"test group"}'
+    @acl1 ='{"resource_id":"http://localhost:5000/layers/testLayer1", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup"}'
+    @acl2 ='{"resource_id":"http://localhost:5000/layers/testLayer2", "acl_mode": "write", "group_id": "http://localhost:5000/groups/testGroup"}'
+    @acl3 ='{"resource_id":"http://localhost:5000/layers/testLayer3", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup3"}'
+    @acl4 ='{"resource_id":"http://localhost:5000/annotations/testAnnotation", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup"}'
+    @acl5 ='{"resource_id":"http://localhost:5000/annotations/testAnnotation", "acl_mode": "update", "group_id": "http://localhost:5000/groups/testGroup"}'
+
+    @group= Group.create(JSON.parse(@grp))
+    @webAcl1= Webacl.create(JSON.parse(@acl1))
+    @webAcl2= Webacl.create(JSON.parse(@acl2))
+    @webAcl3= Webacl.create(JSON.parse(@acl3))
+    @webAcl4= Webacl.create(JSON.parse(@acl4))
+    @webAcl5= Webacl.create(JSON.parse(@acl5))
   end
 
   context 'when Post is called' do
     describe 'POST annotation json' do
-
       before(:each) do
         @annoString ='{"@type": "oa:annotation",
                       "motivation": "yale:transcribing",
@@ -19,6 +39,7 @@ RSpec.describe AnnotationController, :type => :controller do
                       "resource":{"@type":"cnt:ContentAsText","chars":"transcription1 list 1 annotation 1 **","format":"text/plain"},
                       "annotatedBy":{"@id":"http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001","@type":"prov:Agent","name":"Test User 8"},
                       "on":"http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1140"}'
+        sign_in @user
       end
 
       it 'returns a 201 ("created") response' do
@@ -65,6 +86,9 @@ RSpec.describe AnnotationController, :type => :controller do
         expect(lists).not_to eq(nil)
         expect(lists).to eq(annoJSON['within'])
       end
+      after(:each) do
+        sign_out @user
+      end
     end
   end
 
@@ -77,7 +101,8 @@ RSpec.describe AnnotationController, :type => :controller do
                       "resource":{"@type":"cnt:ContentAsText","chars":"transcription1 list 1 annotation 1 **","format":"text/plain"},
                       "annotatedBy":{"@id":"http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001","@type":"prov:Agent","name":"Test User 8"},
                       "on":"http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1140"}'
-        end
+        sign_in @user
+      end
 
       it 'returns a 200 response' do
         post :create, JSON.parse(@annoString)
@@ -105,22 +130,33 @@ RSpec.describe AnnotationController, :type => :controller do
         get :show, {format: :json, id: annoUID}
         expect(response.status).to eq(200)
       end
+      after(:each) do
+        sign_out @user
+      end
     end
   end
+
 
   context 'when Put is called' do
     describe 'Put annotation json' do
       before(:each) do
-        @annoString ='{"@type": "oa:annotation",
+        @annoString ='{"annotation_id":"http://localhost:5000/annotations/testAnnotation",
+                      "annotation_type": "oa:annotation",
                       "motivation": "yale:transcribing",
                       "within":["http://localhost:5000/lists/list1","http://localhost:5000/lists/list2"],
                       "resource":{"@type":"cnt:ContentAsText","chars":"transcription1 list 1 annotation 1 **","format":"text/plain"},
                       "annotatedBy":{"@id":"http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001","@type":"prov:Agent","name":"Test User 8"},
                       "on":"http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1140"}'
-        post :create, JSON.parse(@annoString)
-        @annotation = Annotation.last()
+        @annotation = Annotation.create(JSON.parse(@annoString))
         @annoJSON = JSON.parse(@annoString)
-        @annoJSON['@id'] = @annotation.annotation_id
+        sign_in @user
+      end
+
+      describe 'abilities' do
+        #ability = Ability.new(@user)
+        #ability.should be_able_to(:read, Annotation)
+        #subject(:ability) { Ability.new(@user) }
+        #it {is_expected.not_to_be_able_to :read, Annotation}
       end
 
       it 'does not change the record count' do
@@ -170,21 +206,29 @@ RSpec.describe AnnotationController, :type => :controller do
         expect(@version.all_type).to eq("oa:annotation")
         expect(@version.all_version).to eq(@annotation.version-1)
       end
-
+      after(:each) do
+        sign_out @user
+      end
     end
   end
 
   context 'when Delete is called' do
     describe 'Delete annotation' do
       before(:each) do
-        @annoString ='{"@type": "oa:annotation",
+        @annoString =#'{"annotation_id":"http://test.host/annotations/testAnnotation",
+                      '{"@type": "oa:annotation",
                       "motivation": "yale:transcribing",
                       "within":["http://localhost:5000/lists/list1","http://localhost:5000/lists/list2"],
                       "resource":{"@type":"cnt:ContentAsText","chars":"transcription1 list 1 annotation 1 **","format":"text/plain"},
                       "annotatedBy":{"@id":"http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001","@type":"prov:Agent","name":"Test User 8"},
                       "on":"http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1140"}'
+
+        sign_in @user
         post :create, JSON.parse(@annoString)
         @annotation = Annotation.last()
+        @aclDelete ='{"resource_id":"' + @annotation.annotation_id + '", "acl_mode": "delete", "group_id": "http://localhost:5000/groups/testGroup"}'
+        #p @aclDelete.to_s
+        @webAclDel = Webacl.create(JSON.parse(@aclDelete))
       end
 
       it 'returns a 201 ("created") response' do
@@ -220,11 +264,27 @@ RSpec.describe AnnotationController, :type => :controller do
         expect(@version.all_type).to eq("oa:annotation")
         expect(@version.all_version).to eq(@annotation.version)
       end
+
+      after(:each) do
+        sign_out @user
+      end
     end
   end
 
-  after(:all) do
-    @annotation_list1.destroy!
-    @annotation_list2.destroy!
+  after(:each) do
+    p 'destroying webAcl1'
+    @webAcl1.destroy
+    p 'destroyed webAcl1'
+    @webAcl2.destroy
+    @webAcl3.destroy
+    @webAcl4.destroy
+    p 'destroying webAcl5'
+    @webAcl5.destroy
+    @group.destroy
+    @annotation_list1.destroy
+    @annotation_list2.destroy
+    p 'destroying user'
+    @user.destroy
   end
+
 end
