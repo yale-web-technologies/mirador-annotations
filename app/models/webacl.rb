@@ -1,15 +1,8 @@
 class Webacl < ActiveRecord::Base
+  belongs_to :group
   attr_accessible :resource_id,
                   :acl_mode,
                   :group_id
-  #belongs_to :group
-  #has_many :groups, foreign_key: :group_id, primary_key: :group_id, :validate =>false, :dependent =>:delete_all
-  has_and_belongs_to_many :groups, foreign_key: :group_id, primary_key: :group_id, :validate =>false, :dependent =>:delete_all
-  #has_one :group,  foreign_key: :group_id, primary_key: :group_id
-
-  #has_many :users, foreign_key: :group_id, primary_key: :group_id, :validate =>false, :dependent =>:restrict_with_error
-  #has_and_belongs_to_many :users, foreign_key: :group_id, primary_key: :group_id, through: :group, :validate =>false, :dependent =>:delete_all
-  has_and_belongs_to_many :users, foreign_key: :group_id, primary_key: :group_id, :validate =>false, :dependent =>:delete_all
 
   def self.getAclsByResource resource_id
     @webAcls = Webacl.where(resource_id:resource_id)
