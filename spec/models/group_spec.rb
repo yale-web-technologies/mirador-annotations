@@ -4,28 +4,22 @@ include Warden::Test::Helpers
 Warden.test_mode!
 include Devise::TestHelpers
 
-
 RSpec.describe Group, type: :model do
 
   before (:each) do
     @usr ='{"uid":"jasper99", "password":"pass-word", "email":"jasper99@yale.edu", "encrypted_password":"7KVcbLRkKU15XiCRlTGuj0raudw+pl+SaGVnm456LoE", "provider":"cas", "sign_in_count":"0"}'
     @grp='{"group_id": "http://localhost:5000/groups/testGroup", "group_description":"test group"}'
+    @usrgrp = '{"user_id":"jasper99","group_id":"http://localhost:5000/groups/testGroup"}'
+    @usrgrp2 = '{"user_id":"jasper77","group_id":"http://localhost:5000/groups/testGroup"}'
     @acl1 ='{"resource_id":"http://localhost:5000/layers/testLayer1", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup"}'
     @acl2 ='{"resource_id":"http://localhost:5000/layers/testLayer2", "acl_mode": "write", "group_id": "http://localhost:5000/groups/testGroup"}'
     @acl3 ='{"resource_id":"http://localhost:5000/layers/testLayer3", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup3"}'
+
     #@user= User.create!(JSON.parse(@usr))
     @user = FactoryGirl.create(:jasper99)
-
     @group= Group.create(JSON.parse(@grp))
-    @grpwebacl1 = '{"group_id":"http://localhost:5000/groups/testGroup", "resource_id":"http://localhost:5000/layers/testList1"}'
-    @grpwebacl2 = '{"group_id":"http://localhost:5000/groups/testGroup3", "resource_id":"http://localhost:5000/layers/testList2"}'
-    #@group.webacls.create JSON.parse( @grpwebacl1)
-    #@group.webacls.create JSON.parse( @grpwebacl2)
-    @usrgrp = '{"user_id":"jasper99","group_id":"http://localhost:5000/groups/testGroup"}'
-    @usrgrp2 = '{"user_id":"jasper77","group_id":"http://localhost:5000/groups/testGroup"}'
     @group.users.create JSON.parse(@usrgrp)
     @group.users.create JSON.parse(@usrgrp2)
-
     @webAcl1= Webacl.create(JSON.parse(@acl1))
     @webAcl2= Webacl.create(JSON.parse(@acl2))
     @webAcl3= Webacl.create(JSON.parse(@acl3))
@@ -36,8 +30,7 @@ RSpec.describe Group, type: :model do
       it "returns a hasMany association with Group" do
         expect(Group.reflect_on_association(:users).class.to_s).to eq("ActiveRecord::Reflection::HasAndBelongsToManyReflection")
       end
-      it "returns a hasThrough association with Webacl" do
-        #expect(Group.reflect_on_association(:webacls).class.to_s).to eq("ActiveRecord::Reflection::HasAndBelongsToManyReflection")
+      it "returns a hasMany association with Webacl" do
         expect(Group.reflect_on_association(:webacls).class.to_s).to eq("ActiveRecord::Reflection::HasManyReflection")
       end
     end

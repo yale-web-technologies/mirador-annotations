@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150930135507) do
+ActiveRecord::Schema.define(version: 20150930151758) do
 
   create_table "anno_list_layer_versions", force: :cascade do |t|
     t.string   "all_id"
@@ -129,7 +129,6 @@ ActiveRecord::Schema.define(version: 20150930135507) do
     t.datetime "updated_at"
     t.string   "provider"
     t.string   "uid"
-    t.string   "group_id"
   end
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true
