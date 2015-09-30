@@ -8,13 +8,13 @@ include Devise::TestHelpers
 RSpec.describe AnnotationController, :type => :controller do
 
   before(:each) do
-    @user = FactoryGirl.create(:jasper99)
 
     @annoList1 ='{"list_id": "http://localhost:5000/lists/list1", "list_type": "sc:AnnotationList", "label":"transcription layer 1 list 1"}'
     @annotation_list1 = AnnotationList.create(JSON.parse(@annoList1))
     @annoList2 ='{"list_id": "http://localhost:5000/lists/list2", "list_type": "sc:AnnotationList", "label":"transcription layer 1 list 2"}'
     @annotation_list2 = AnnotationList.create(JSON.parse(@annoList2))
 
+    @usr ='{"uid":"jasper99", "password":"pass-word", "email":"jasper99@yale.edu", "encrypted_password":"7KVcbLRkKU15XiCRlTGuj0raudw+pl+SaGVnm456LoE", "provider":"cas", "sign_in_count":"0"}'
     @grp='{"group_id": "http://localhost:5000/groups/testGroup", "group_description":"test group"}'
     @usrgrp = '{"user_id":"jasper99","group_id":"http://localhost:5000/groups/testGroup"}'
     @usrgrp2 = '{"user_id":"jasper99","group_id":"http://localhost:5000/groups/testGroup3"}'
@@ -24,6 +24,7 @@ RSpec.describe AnnotationController, :type => :controller do
     @acl4 ='{"resource_id":"http://localhost:5000/annotations/testAnnotation", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup"}'
     @acl5 ='{"resource_id":"http://localhost:5000/annotations/testAnnotation", "acl_mode": "update", "group_id": "http://localhost:5000/groups/testGroup"}'
 
+    @user= User.create!(JSON.parse(@usr))
     @group= Group.create(JSON.parse(@grp))
     @user.groups.create JSON.parse(@usrgrp)
     @webAcl1= Webacl.create(JSON.parse(@acl1))
