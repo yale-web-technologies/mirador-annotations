@@ -1,8 +1,9 @@
 class User < ActiveRecord::Base
 
-  #has_one :group, foreign_key: :group_id, primary_key: :group_id
-  has_many :group, foreign_key: :group_id, primary_key: :group_id, :validate =>false, :dependent =>:delete_all
-  has_many :webacls, foreign_key: :group_id, primary_key: :group_id, through: :group, :validate =>false, :dependent =>:delete_all
+  has_and_belongs_to_many :groups, foreign_key: :group_id, primary_key: :group_id
+
+  has_and_belongs_to_many :webacls
+  #has_many :webacls, foreign_key: :group_id, primary_key: :group_id, through: :groups
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
@@ -18,32 +19,37 @@ class User < ActiveRecord::Base
                   :encrypted_password,
                   :group_id
 
-  def self.getUsersResourceIds uid
-    @user=User.find_by(uid:uid )
-    resourceIds = Array.new
-
-    resources = @user.webacls
-    resources.each do |resource|
-      resourceIds.push(resource.resource_id)
-      #p "uid: #{uid} resource = #{resource.resource_id}   acl_mode: #{resource.acl_mode}    group_id: #{resource.group_id}"
+  def self.getUsersResourceIds user
+    groupIds = Array.new
+    user.groups.each do |group|
+      groupIds.push(group.group_id)
     end
 
-    #groups = @user.groups
-    #groups.each do |group|
-    #  p "group_id: #{group_id}"
-    #end
+    resources = Webacl.where(:group_id => groupIds)
+    #resources = user.webacls
+    #resources = user.groups.webacls
 
+    resourceIds = Array.new
+    resources.each do |resource|
+      resourceIds.push(resource.resource_id)
+    end
     resourceIds
   end
 
-  def self.canUserAccess uid, resourceId
-    userResources = getUsersResourceIds uid
+  def self.canUserAccess user, resourceId
+    userResources = getUsersResourceIds user
     userResources.include? resourceId
   end
 
-  # this is now in abiity.rb
+  # this is now also in abiity.rb
   def hasPermission user, resourceId, permissionType
-    @webaclExists = user.webacls.where(resource_id: resourceId, acl_mode: permissionType).first
+   # @webaclExists = user.webacls.where(resource_id: resourceId, acl_mode: permissionType).first
+    groupIds = Array.new
+    user.groups.each do |group|
+      groupIds.push(group.group_id)
+    end
+    resources = Webacl.where(:group_id => groupIds)
+    @webaclExists = resources.where(resource_id: resourceId, acl_mode: permissionType).first
     !@webaclExists.nil?
   end
 end

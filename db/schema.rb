@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150904193528) do
+ActiveRecord::Schema.define(version: 20150930135507) do
 
   create_table "anno_list_layer_versions", force: :cascade do |t|
     t.string   "all_id"
@@ -72,7 +72,25 @@ ActiveRecord::Schema.define(version: 20150904193528) do
     t.string   "group_description"
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
+    t.string   "site_id"
+    t.string   "role"
   end
+
+  create_table "groups_users", id: false, force: :cascade do |t|
+    t.integer "group_id"
+    t.integer "user_id"
+  end
+
+  add_index "groups_users", ["group_id"], name: "index_groups_users_on_group_id"
+  add_index "groups_users", ["user_id"], name: "index_groups_users_on_user_id"
+
+  create_table "groups_webacls", id: false, force: :cascade do |t|
+    t.integer "group_id"
+    t.integer "webacl_id"
+  end
+
+  add_index "groups_webacls", ["group_id"], name: "index_groups_webacls_on_group_id"
+  add_index "groups_webacls", ["webacl_id"], name: "index_groups_webacls_on_webacl_id"
 
   create_table "layer_lists_maps", force: :cascade do |t|
     t.string   "layer_id"
@@ -116,6 +134,9 @@ ActiveRecord::Schema.define(version: 20150904193528) do
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+
+# Could not dump table "users_webacls" because of following NoMethodError
+#   undefined method `[]' for nil:NilClass
 
   create_table "webacls", force: :cascade do |t|
     t.string   "resource_id"
