@@ -1,4 +1,9 @@
 require 'rails_helper'
+require "cancan/matchers"
+
+include Warden::Test::Helpers
+Warden.test_mode!
+include Devise::TestHelpers
 
 RSpec.describe AnnotationLayerController, type: :controller do
 

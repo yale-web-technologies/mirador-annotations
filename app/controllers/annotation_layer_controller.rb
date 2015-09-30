@@ -20,10 +20,6 @@ class AnnotationLayerController < ApplicationController
   # GET /layer/1
   # GET /layer/1.json
   def show
-
-    puts 'current_user: ' + current_user.uid
-
-
     #@ru = request.original_url
     @ru = request.protocol + request.host_with_port + "/layers/#{params['id']}"
     @annotation_layer = AnnotationLayer.where(layer_id: @ru).first
