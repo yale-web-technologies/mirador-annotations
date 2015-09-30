@@ -8,11 +8,11 @@ class Ability
     can :create, :all
 
     can :update, Annotation do |annotation|
-      user.webacls.where(resource_id: annotation.annotation_id, acl_mode: "update").first
+      user.hasPermission user, annotation.annotation_id, "update"
     end
 
     can :delete, Annotation do |annotation|
-      user.webacls.where(resource_id: annotation.annotation_id, acl_mode: "delete").first
+      user.hasPermission user, annotation.annotation_id, "delete"
     end
   end
 

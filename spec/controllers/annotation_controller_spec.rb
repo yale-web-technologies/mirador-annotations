@@ -16,6 +16,8 @@ RSpec.describe AnnotationController, :type => :controller do
     @annotation_list2 = AnnotationList.create(JSON.parse(@annoList2))
 
     @grp='{"group_id": "http://localhost:5000/groups/testGroup", "group_description":"test group"}'
+    @usrgrp = '{"user_id":"jasper99","group_id":"http://localhost:5000/groups/testGroup"}'
+    @usrgrp2 = '{"user_id":"jasper99","group_id":"http://localhost:5000/groups/testGroup3"}'
     @acl1 ='{"resource_id":"http://localhost:5000/layers/testLayer1", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup"}'
     @acl2 ='{"resource_id":"http://localhost:5000/layers/testLayer2", "acl_mode": "write", "group_id": "http://localhost:5000/groups/testGroup"}'
     @acl3 ='{"resource_id":"http://localhost:5000/layers/testLayer3", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup3"}'
@@ -23,6 +25,7 @@ RSpec.describe AnnotationController, :type => :controller do
     @acl5 ='{"resource_id":"http://localhost:5000/annotations/testAnnotation", "acl_mode": "update", "group_id": "http://localhost:5000/groups/testGroup"}'
 
     @group= Group.create(JSON.parse(@grp))
+    @user.groups.create JSON.parse(@usrgrp)
     @webAcl1= Webacl.create(JSON.parse(@acl1))
     @webAcl2= Webacl.create(JSON.parse(@acl2))
     @webAcl3= Webacl.create(JSON.parse(@acl3))
@@ -272,18 +275,14 @@ RSpec.describe AnnotationController, :type => :controller do
   end
 
   after(:each) do
-    p 'destroying webAcl1'
     @webAcl1.destroy
-    p 'destroyed webAcl1'
     @webAcl2.destroy
     @webAcl3.destroy
     @webAcl4.destroy
-    p 'destroying webAcl5'
     @webAcl5.destroy
     @group.destroy
     @annotation_list1.destroy
     @annotation_list2.destroy
-    p 'destroying user'
     @user.destroy
   end
 
