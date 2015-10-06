@@ -18,11 +18,27 @@ RSpec.describe AnnotationController, :type => :controller do
     @grp='{"group_id": "http://localhost:5000/groups/testGroup", "group_description":"test group"}'
     @usrgrp = '{"user_id":"jasper99","group_id":"http://localhost:5000/groups/testGroup"}'
     @usrgrp2 = '{"user_id":"jasper99","group_id":"http://localhost:5000/groups/testGroup3"}'
+
     @acl1 ='{"resource_id":"http://localhost:5000/layers/testLayer1", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup"}'
-    @acl2 ='{"resource_id":"http://localhost:5000/layers/testLayer2", "acl_mode": "write", "group_id": "http://localhost:5000/groups/testGroup"}'
-    @acl3 ='{"resource_id":"http://localhost:5000/layers/testLayer3", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup3"}'
-    @acl4 ='{"resource_id":"http://localhost:5000/annotations/testAnnotation", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup"}'
-    @acl5 ='{"resource_id":"http://localhost:5000/annotations/testAnnotation", "acl_mode": "update", "group_id": "http://localhost:5000/groups/testGroup"}'
+    @acl2 ='{"resource_id":"http://localhost:5000/layers/testLayer1", "acl_mode": "create", "group_id": "http://localhost:5000/groups/testGroup"}'
+    @acl3 ='{"resource_id":"http://localhost:5000/layers/testLayer1", "acl_mode": "update", "group_id": "http://localhost:5000/groups/testGroup"}'
+    @acl4 ='{"resource_id":"http://localhost:5000/layers/testLayer1", "acl_mode": "delete", "group_id": "http://localhost:5000/groups/testGroup"}'
+
+    @acl5 ='{"resource_id":"http://localhost:5000/layers/testLayer2", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup"}'
+    @acl6 ='{"resource_id":"http://localhost:5000/layers/testLayer2", "acl_mode": "create", "group_id": "http://localhost:5000/groups/testGroup"}'
+    @acl7 ='{"resource_id":"http://localhost:5000/layers/testLayer2", "acl_mode": "update", "group_id": "http://localhost:5000/groups/testGroup"}'
+    @acl8 ='{"resource_id":"http://localhost:5000/layers/testLayer2", "acl_mode": "delete", "group_id": "http://localhost:5000/groups/testGroup"}'
+
+    @acl9 ='{"resource_id":"http://localhost:5000/layers/testLayer3", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup3"}'
+    @acl10 ='{"resource_id":"http://localhost:5000/layers/testLayer3", "acl_mode": "create", "group_id": "http://localhost:5000/groups/testGroup3"}'
+    @acl11 ='{"resource_id":"http://localhost:5000/layers/testLayer3", "acl_mode": "update", "group_id": "http://localhost:5000/groups/testGroup3"}'
+    @acl12 ='{"resource_id":"http://localhost:5000/layers/testLayer3", "acl_mode": "delete", "group_id": "http://localhost:5000/groups/testGroup3"}'
+
+
+    @acl13 ='{"resource_id":"http://localhost:5000/annotations/testAnnotation", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup"}'
+    @acl14 ='{"resource_id":"http://localhost:5000/annotations/testAnnotation", "acl_mode": "create", "group_id": "http://localhost:5000/groups/testGroup"}'
+    @acl15 ='{"resource_id":"http://localhost:5000/annotations/testAnnotation", "acl_mode": "update", "group_id": "http://localhost:5000/groups/testGroup"}'
+    @acl16 ='{"resource_id":"http://localhost:5000/annotations/testAnnotation", "acl_mode": "delete", "group_id": "http://localhost:5000/groups/testGroup"}'
 
     @user= User.create!(JSON.parse(@usr))
     @group= Group.create(JSON.parse(@grp))
@@ -31,7 +47,22 @@ RSpec.describe AnnotationController, :type => :controller do
     @webAcl2= Webacl.create(JSON.parse(@acl2))
     @webAcl3= Webacl.create(JSON.parse(@acl3))
     @webAcl4= Webacl.create(JSON.parse(@acl4))
+
     @webAcl5= Webacl.create(JSON.parse(@acl5))
+    @webAcl6= Webacl.create(JSON.parse(@acl6))
+    @webAcl7= Webacl.create(JSON.parse(@acl7))
+    @webAcl8= Webacl.create(JSON.parse(@acl8))
+
+    @webAcl9= Webacl.create(JSON.parse(@acl9))
+    @webAcl10= Webacl.create(JSON.parse(@acl10))
+    @webAcl11= Webacl.create(JSON.parse(@acl11))
+    @webAcl12= Webacl.create(JSON.parse(@acl12))
+
+    @webAcl13= Webacl.create(JSON.parse(@acl13))
+    @webAcl14= Webacl.create(JSON.parse(@acl14))
+    @webAcl15= Webacl.create(JSON.parse(@acl15))
+    @webAcl16= Webacl.create(JSON.parse(@acl16))
+
   end
 
   context 'when Post is called' do
@@ -281,6 +312,17 @@ RSpec.describe AnnotationController, :type => :controller do
     @webAcl3.destroy
     @webAcl4.destroy
     @webAcl5.destroy
+    @webAcl6.destroy
+    @webAcl7.destroy
+    @webAcl8.destroy
+    @webAcl9.destroy
+    @webAcl10.destroy
+    @webAcl11.destroy
+    @webAcl12.destroy
+    @webAcl13.destroy
+    @webAcl14.destroy
+    @webAcl15.destroy
+    @webAcl16.destroy
     @group.destroy
     @annotation_list1.destroy
     @annotation_list2.destroy
