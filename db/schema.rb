@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150930151758) do
+ActiveRecord::Schema.define(version: 20151006185045) do
 
   create_table "anno_list_layer_versions", force: :cascade do |t|
     t.string   "all_id"
@@ -113,6 +113,14 @@ ActiveRecord::Schema.define(version: 20150930151758) do
 
   add_index "list_annotations_maps", ["annotation_id"], name: "index_list_annotations_maps_on_annotation_id"
   add_index "list_annotations_maps", ["list_id"], name: "index_list_annotations_maps_on_list_id"
+
+  create_table "sites", force: :cascade do |t|
+    t.string   "site_id"
+    t.string   "site_title"
+    t.string   "site_description"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+  end
 
   create_table "users", force: :cascade do |t|
     t.string   "email",                  default: "", null: false

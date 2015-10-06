@@ -1,11 +1,13 @@
 class Group < ActiveRecord::Base
 
+  belongs_to :sites
   has_and_belongs_to_many :users
   has_many :webacls, foreign_key: :group_id, primary_key: :group_id
 
   attr_accessible :group_id,
-                  :group_description
-
+                  :group_description,
+                  :site_id,
+                  :role
 
   def self.getGroupsResourceIds group
     resources = group.webacls

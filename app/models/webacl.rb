@@ -12,4 +12,7 @@ class Webacl < ActiveRecord::Base
     @webAcls = Webacl.where(group_id:group_id)
   end
 
+  def self.createWebacl( aclHash ) #{ resource_id, group, permission }
+      Webacl.create(JSON.parse(aclHash))
+  end
 end
