@@ -1,3 +1,5 @@
+include AclCreator
+
 class AnnotationListController < ApplicationController
 
   #skip_before_action :verify_authenticity_token
@@ -53,6 +55,7 @@ class AnnotationListController < ApplicationController
       @list['version'] = 1
       @within =  @annotationListIn['within']
       LayerListsMap.setMap @within,@list['list_id']
+      create_list_acls_via_parent_layers @list['list_id']
       @annotation_list = AnnotationList.new(@list)
       #authorize! :create, @annotation_list
       request.format = "json"
