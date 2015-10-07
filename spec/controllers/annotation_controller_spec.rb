@@ -19,6 +19,14 @@ RSpec.describe AnnotationController, :type => :controller do
     @usrgrp = '{"user_id":"jasper99","group_id":"http://localhost:5000/groups/testGroup"}'
     @usrgrp2 = '{"user_id":"jasper99","group_id":"http://localhost:5000/groups/testGroup3"}'
 
+
+    @aclList1 ='{"resource_id":"http://localhost:5000/lists/list1", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup"}'
+    @webAclList1= Webacl.create(JSON.parse(@aclList1))
+    @aclList1w ='{"resource_id":"http://localhost:5000/lists/list1", "acl_mode": "write", "group_id": "http://localhost:5000/groups/testGroup"}'
+    @webAclList1w= Webacl.create(JSON.parse(@aclList1w))
+    @aclList2 ='{"resource_id":"http://localhost:5000/lists/list2", "acl_mode": "prognosticate", "group_id": "http://localhost:5000/groups/testGroup2"}'
+    @webAclList2= Webacl.create(JSON.parse(@aclList2))
+
     @acl1 ='{"resource_id":"http://localhost:5000/layers/testLayer1", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup"}'
     @acl2 ='{"resource_id":"http://localhost:5000/layers/testLayer1", "acl_mode": "create", "group_id": "http://localhost:5000/groups/testGroup"}'
     @acl3 ='{"resource_id":"http://localhost:5000/layers/testLayer1", "acl_mode": "update", "group_id": "http://localhost:5000/groups/testGroup"}'
@@ -63,6 +71,7 @@ RSpec.describe AnnotationController, :type => :controller do
     @webAcl15= Webacl.create(JSON.parse(@acl15))
     @webAcl16= Webacl.create(JSON.parse(@acl16))
 
+
   end
 
   context 'when Post is called' do
@@ -70,7 +79,7 @@ RSpec.describe AnnotationController, :type => :controller do
       before(:each) do
         @annoString ='{"@type": "oa:annotation",
                       "motivation": "yale:transcribing",
-                      "within":["http://localhost:5000/lists/list1"],
+                      "within":["http://localhost:5000/lists/list1","http://localhost:5000/lists/list2"],
                       "resource":{"@type":"cnt:ContentAsText","chars":"transcription1 list 1 annotation 1 **","format":"text/plain"},
                       "annotatedBy":{"@id":"http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001","@type":"prov:Agent","name":"Test User 8"},
                       "on":"http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1140"}'
@@ -121,6 +130,17 @@ RSpec.describe AnnotationController, :type => :controller do
         expect(lists).not_to eq(nil)
         expect(lists).to eq(annoJSON['within'])
       end
+
+      it 'creates the right number of webacls' do
+        annoJSON = JSON.parse(@annoString)
+        post :create, annoJSON
+        json = JSON.parse(response.body)
+        webacls = Webacl.getAclsByResource json['@id']
+        expect(webacls).not_to eq(nil)
+        expect(webacls.count).to eq(3)
+      end
+
+
       after(:each) do
         sign_out @user
       end
@@ -323,6 +343,7 @@ RSpec.describe AnnotationController, :type => :controller do
     @webAcl14.destroy
     @webAcl15.destroy
     @webAcl16.destroy
+    @webAclList1.destroy
     @group.destroy
     @annotation_list1.destroy
     @annotation_list2.destroy

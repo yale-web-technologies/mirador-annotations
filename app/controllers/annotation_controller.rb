@@ -1,7 +1,4 @@
-require 'securerandom'
-include Warden::Test::Helpers
-Warden.test_mode!
-include Devise::TestHelpers
+include AclCreator
 
 class AnnotationController < ApplicationController
   include CanCan::ControllerAdditions
@@ -67,6 +64,7 @@ class AnnotationController < ApplicationController
       @annotationOut['active'] = true
       @annotationOut['version'] = 1
       ListAnnotationsMap.setMap @annotationIn['within'], @annotation_id
+      create_annotation_acls_via_parent_lists @annotation_id
       @annotation = Annotation.new(@annotationOut)
       authorize! :create, @annotation
       request.format = "json"
