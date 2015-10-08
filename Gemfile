@@ -15,6 +15,9 @@ gem 'devise', '~> 3.4.0'   # or later
 gem 'omniauth'
 gem 'omniauth-cas'
 gem 'uuid'
+#gem 'cancan'
+gem 'cancancan', "~> 1.10"
+
 
 group :development, :test do
   # Use sqlite3 as the database for Active Record for dev
@@ -28,6 +31,12 @@ group :production do
   # Use postgres as the database for Active Record for dev
   gem 'pg', '0.15.1'
   gem 'rails_12factor', '0.0.2'
+end
+
+group :development, :test do
+gem 'factory_girl_rails', '~> 4.2.0'
+gem 'simplecov', :require => false, :group => :test
+gem 'rubocop', require: false
 end
 
 # Use SCSS for stylesheets
@@ -61,15 +70,10 @@ gem 'unicorn'
 # Use dropzone gem instead of having the javascript and css in /assets [jrl]
 gem 'dropzonejs-rails'
 
-# carrierwave for upload details
-#gem 'carrierwave'
-
 #gem "bootstrap-sass", "~> 2.2.0"
 
 gem 'protected_attributes'
 
-gem 'simplecov', :require => false, :group => :test
-gem 'rubocop', require: false
 
 #gem 'arel', '6.0.0.beta2'
 

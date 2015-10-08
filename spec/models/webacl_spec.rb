@@ -6,6 +6,19 @@ RSpec.describe Webacl, type: :model do
     @webAcl= Webacl.create(JSON.parse(@acl))
   end
 
+  describe 'create Acl By Hash' do
+    it 'creates a webAcl' do
+      #@webAcls = Webacl.create(JSON.parse(@acl))
+      @webAcls = Webacl.createWebacl(@acl)
+      expect(@webAcls).not_to eq(nil)
+    end
+
+    it 'checks for correct content' do
+      #@webAcls = Webacl.create(JSON.parse(@acl))
+      @webAcls = Webacl.createWebacl(@acl)
+      expect(@webAcls.group_id).not_to eq("http://localhost:5000/groups/testGroupNOT")
+    end
+  end
 
   context 'when webAcls is searched' do
     describe 'getAclByResource' do
@@ -23,7 +36,10 @@ RSpec.describe Webacl, type: :model do
         expect( @webAcls ).not_to eq(nil)
       end
     end
+  end
 
+  after(:all) do
+     @webAcl.delete
   end
 
 end
