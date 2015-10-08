@@ -29,7 +29,6 @@ RSpec.describe Site, type: :model do
       end
       it "returns correct site's group, based on the role" do
         group = @siteTest.findGroupforSiteRole "project_editor"
-        # p "here's what I got:" + group.inspect
         expect(group.group_description).to eq("test group for project editor")
       end
     end
