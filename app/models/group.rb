@@ -7,7 +7,10 @@ class Group < ActiveRecord::Base
   attr_accessible :group_id,
                   :group_description,
                   :site_id,
-                  :role
+                  :role,
+                  :permissions
+
+  #serialize :permissions
 
   def self.getGroupsResourceIds group
     resources = group.webacls
