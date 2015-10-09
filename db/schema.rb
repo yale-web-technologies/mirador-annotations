@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151006185045) do
+ActiveRecord::Schema.define(version: 20151008195119) do
 
   create_table "anno_list_layer_versions", force: :cascade do |t|
     t.string   "all_id"
@@ -74,6 +74,7 @@ ActiveRecord::Schema.define(version: 20151006185045) do
     t.datetime "updated_at",        null: false
     t.string   "site_id"
     t.string   "role"
+    t.text     "permissions"
   end
 
   create_table "groups_users", id: false, force: :cascade do |t|
@@ -141,9 +142,6 @@ ActiveRecord::Schema.define(version: 20151006185045) do
 
   add_index "users", ["email"], name: "index_users_on_email", unique: true
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
-
-# Could not dump table "users_webacls" because of following NoMethodError
-#   undefined method `[]' for nil:NilClass
 
   create_table "webacls", force: :cascade do |t|
     t.string   "resource_id"
