@@ -8,7 +8,7 @@ RSpec.describe Group, type: :model do
 
   before (:each) do
     @usr ='{"uid":"jasper99", "password":"pass-word", "email":"jasper99@yale.edu", "encrypted_password":"7KVcbLRkKU15XiCRlTGuj0raudw+pl+SaGVnm456LoE", "provider":"cas", "sign_in_count":"0"}'
-    @grp='{"group_id": "http://localhost:5000/groups/testGroup", "group_description":"test group"}'
+    @grp='{"group_id": "http://localhost:5000/groups/testGroup", "group_description":"test group","permissions":"[read,create,update]","site_id":"testSite1","role":"contributor"}'
     @usrgrp = '{"user_id":"jasper99","group_id":"http://localhost:5000/groups/testGroup"}'
     @usrgrp2 = '{"user_id":"jasper77","group_id":"http://localhost:5000/groups/testGroup"}'
     @acl1 ='{"resource_id":"http://localhost:5000/layers/testLayer1", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup"}'
@@ -54,6 +54,15 @@ RSpec.describe Group, type: :model do
     end
   end
 
+  context 'Groups default permissions' do
+    describe 'get Groups Permissions' do
+      it "stores and returns the group's default permissions" do
+        permissions = @group.permissions.split(",")
+        expect(permissions.count).to eq(3)
+      end
+    end
+  end
+
   after(:each) do
     @user.destroy
     @group.destroy
@@ -61,6 +70,5 @@ RSpec.describe Group, type: :model do
     @webAcl2.destroy
     @webAcl3.destroy
   end
-
 
 end
