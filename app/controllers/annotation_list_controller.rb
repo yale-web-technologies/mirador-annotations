@@ -2,7 +2,7 @@ include AclCreator
 
 class AnnotationListController < ApplicationController
 
-  #skip_before_action :verify_authenticity_token
+  skip_before_action :verify_authenticity_token
 
   respond_to :html, :json
 
@@ -11,7 +11,7 @@ class AnnotationListController < ApplicationController
   def index
     @annotation_lists = AnnotationList.all
     respond_to do |format|
-      format.html #index.html.erb
+      #format.html #index.html.erb
       iiif = []
       @annotation_lists.each do |annotation_list|
         iiif << annotation_list.to_iiif
@@ -133,6 +133,12 @@ class AnnotationListController < ApplicationController
     @annotationList.destroy
     respond_to do |format|
       format.html { redirect_to annotation_layers_url }
+      format.json { head :no_content }
+    end
+  end
+
+  def CORS_preflight
+    respond_to do |format|
       format.json { head :no_content }
     end
   end

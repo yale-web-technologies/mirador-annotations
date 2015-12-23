@@ -15,7 +15,8 @@ class AnnotationList < ActiveRecord::Base
     iiif['@context'] = "http://iiif.io/api/presentation/2/context.json"
     iiif['label'] = label if !label.blank?
     iiif['within'] = LayerListsMap.getLayersForList list_id
-    iiif['resources'] = ListAnnotationsMap.getAnnotationsForList list_id
+    # temp [jrl] data needs to be fixed
+    #iiif['resources'] = ListAnnotationsMap.getAnnotationsForList list_id
     iiif
   end
 

@@ -4,25 +4,53 @@ class AnnotationController < ApplicationController
   include CanCan::ControllerAdditions
   #skip_before_action :verify_authenticity_token
 
-  before_action :authenticate_user!
+  #before_action :authenticate_user!
 
   respond_to :json
 
   # GET /list
   # GET /list.json
-  def index
-    @annotation = Annotation.all
-    respond_to do |format|
-      format.html #index.html.erb
-      #format.json { render json: @annotation }
-      iiif = []
-      @annotation.each do |annotation|
-        iiif << annotation.to_iiif
+    def index
+      @annotation = Annotation.all
+      respond_to do |format|
+        #format.html #index.html.erb
+        #format.json { render json: @annotation }
+        iiif = []
+        @annotation.each do |annotation|
+          iiif << annotation.to_iiif
+          p annotation.to_iiif
+        end
+        iiif.to_json
+        format.html {render json: iiif}
+        format.json {render json: iiif}
       end
-      iiif.to_json
+    end
+
+
+  def CORS_preflight
+    p "CORS_preflight: request from: #{request.original_url}"
+    respond_to do |format|
+      format.json { head :no_content }
+    end
+  end
+
+  def getAnnotationsForCanvas
+    #p 'in getAnnotationsForCanvas: params = ' + params.inspect
+    @annotation = Annotation.where(canvas:params['canvas_id'])
+
+    #p '1) @annotation.count = ' + @annotation.count.to_s
+    respond_to do |format|
+      iiif = Array.new
+      #p '2) @annotation.count = ' + @annotation.count.to_s
+      @annotation.each do |annotation|
+        iiif.push(annotation.to_iiif)
+      end
+      #p iiif.inspect
+      format.html {render json: iiif}
       format.json {render json: iiif}
     end
   end
+
 
   # GET /annotation/1
   # GET /annotation/1.json
@@ -40,13 +68,21 @@ class AnnotationController < ApplicationController
   # POST /annotation
   # POST /annotation.json
   def create
-    @annotationIn = JSON.parse(params.to_json)
+    #@annotationIn = JSON.parse(params.to_json)
+    #@annotationIn = params.to_json    # ng
+    @annotationIn = params
+    p "in annotation_controller:create: @annotationIn stringified = " + params.to_json
+    #@annotationIn = params
+    #p "in annotation_controller:create: @annotationIn = " + params
+
     @problem = ''
+    p 'going to validation'
     if !validate_annotation @annotationIn
       errMsg = "Annotation record not valid and could not be saved: " + @problem
       render :json => { :error => errMsg },
              :status => :unprocessable_entity
     else
+      p 'thru validation'
       #@ru = request.original_url
       @ru = request.original_url.split('?').first
       @ru += '/'   if !@ru.end_with? '/'
@@ -56,18 +92,21 @@ class AnnotationController < ApplicationController
       @annotationOut['annotation_id'] = @annotation_id
       @annotationOut['annotation_type'] = @annotationIn['@type']
       @annotationOut['motivation'] = @annotationIn['motivation']
+      #@on = @annotationIn['on']
+      #@annotationOut['on'] = @on.gsub(/=>/,":")
       @annotationOut['on'] = @annotationIn['on']
       @annotationOut['description'] = @annotationIn['description']
       @annotationOut['annotated_by'] = @annotationIn['annotatedBy'].to_json
-      #@annotationOut['resource']  = @annotationIn.to_json
+      @annotationOut['canvas']  = @annotationIn['on']['source']#.to_json
       @annotationOut['resource']  = @annotationIn['resource'].to_json
       @annotationOut['active'] = true
       @annotationOut['version'] = 1
       ListAnnotationsMap.setMap @annotationIn['within'], @annotation_id
       create_annotation_acls_via_parent_lists @annotation_id
       @annotation = Annotation.new(@annotationOut)
-      authorize! :create, @annotation
+      #authorize! :create, @annotation
       request.format = "json"
+      p 'about to respond in create'
       respond_to do |format|
         if @annotation.save
           format.json { render json: @annotation.to_iiif, status: :created} #, location: @annotation }
@@ -81,6 +120,9 @@ class AnnotationController < ApplicationController
   # PUT /layer/1
   # PUT /layer/1.json
   def update
+
+    p 'In annotation_controller:update  params = ' + params.inspect
+
     @annotationIn = JSON.parse(params.to_json)
     @problem = ''
     if !validate_annotation @annotationIn
@@ -88,8 +130,11 @@ class AnnotationController < ApplicationController
       render :json => { :error => errMsg },
              :status => :unprocessable_entity
     else
-      @annotation = Annotation.where(annotation_id: @annotationIn['annotation_id']).first
-      authorize! :update, @annotation
+      #@annotation = Annotation.where(annotation_id: @annotationIn['annotation_id']).first
+      @annotation = Annotation.where(annotation_id: @annotationIn['@id']).first
+      p 'just searched for this annotation: id = ' + @annotation.annotation_id.to_s
+
+      #authorize! :update, @annotation
 
       if @annotation.version.nil? ||  @annotation.version < 1
         @annotation.version = 1
@@ -126,14 +171,24 @@ class AnnotationController < ApplicationController
   # DELETE /annotation/1
   # DELETE /annotation/1.json
   def destroy
-    #@ru = request.original_url
+    p 'in annotation_controller:destroy'
+
+    @ru = request.original_url   # will not work with rspec
+    #@ru = params['id'] # for rspec
+    #@ru = request.protocol + request.host_with_port + "/annotations/#{params['id']}"
+
+    p 'annotation_controller:destroy  params = ' + params.inspect
     request.format = "json"
-    @ru = request.protocol + request.host_with_port + "/annotations/#{params['id']}"
+
+    p "about to fetch for delete: #{@ru}"
     @annotation = Annotation.where(annotation_id: @ru).first
-    authorize! :delete, @annotation
+    p 'just retrieved @annotation for destroy: ' + @annotation.annotation_id
+
+    #authorize! :delete, @annotation
     if @annotation.version.nil? ||  @annotation.version < 1
       @annotation.version = 1
     end
+
     if !version_annotation @annotation
       errMsg = "Annotation could not be versioned: " + @problem
       render :json => { :error => errMsg },
@@ -148,6 +203,12 @@ class AnnotationController < ApplicationController
   end
 
   def validate_annotation annotation
+    #annotation = JSON.parse(annotation)
+    p 'validate: ' + annotation.inspect
+    p '@type = ' + annotation['@type'].to_s
+    p 'on = ' + annotation['on'].to_s
+    p 'resource = ' + annotation['resource'].to_s
+
     valid = true
     if !annotation['@type'].to_s.downcase! == 'oa:annotation'
       @problem = "invalid '@type' + #{annotation['@type']}"
@@ -156,6 +217,11 @@ class AnnotationController < ApplicationController
 
     if annotation['motivation'].nil?
       @problem = "missing 'motivation'"
+      valid = false
+    end
+
+    if annotation['on'].nil?
+      @problem = "missing 'on' element"
       valid = false
     end
 
@@ -174,10 +240,6 @@ class AnnotationController < ApplicationController
       valid = false
     end
 
-    if annotation['on'].nil?
-      @problem = "missing 'on' element"
-      valid = false
-    end
     valid
   end
 

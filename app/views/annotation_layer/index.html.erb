@@ -1,7 +1,9 @@
 <div class="container">
     <div class="page-header">
         <h1>Ten Thousand Rooms</h1>
-        <h2>You are logged in as <%==current_user.uid%></h2>
+        <% if !current_user.nil? %>
+            <h2>You are logged in as <%==current_user.uid%></h2>
+        <% end %>
     </div>
     <div class="col-sm-12 col-md-12">
 
