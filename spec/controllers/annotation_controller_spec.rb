@@ -84,6 +84,9 @@ RSpec.describe AnnotationController, :type => :controller do
                       "annotatedBy":{"@id":"http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001","@type":"prov:Agent","name":"Test User 8"},
                       "on":"http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1140"}'
         sign_in @user
+        #can't do this within rspec:
+        #p 'spec:@user = ' + @user.uid
+        #p 'spec:current_user = ' + current_user.uid
       end
 
       it 'returns a 201 ("created") response' do
@@ -286,32 +289,37 @@ RSpec.describe AnnotationController, :type => :controller do
         @webAclDel = Webacl.create(JSON.parse(@aclDelete))
       end
 
-      it 'returns a 201 ("created") response' do
-        annoUID = @annotation.annotation_id.split('annotations/').last
+      it 'returns a 204 ("deleted") response' do
+        #annoUID = @annotation.annotation_id.split('annotations/').last
+        annoUID = @annotation.annotation_id
         delete :destroy, format: :json, id: annoUID
         expect(response.status).to eq(204)
       end
 
       it 'decreases the Annotation record count' do
-        annoUID = @annotation.annotation_id.split('annotations/').last
+        #annoUID = @annotation.annotation_id.split('annotations/').last
+        annoUID = @annotation.annotation_id
         expect {delete :destroy, {format: :json, id: annoUID} }.to change(Annotation, :count).by(-1)
       end
 
       it 'deletes the Annotation record' do
-        annoUID = @annotation.annotation_id.split('annotations/').last
+        #annoUID = @annotation.annotation_id.split('annotations/').last
+        annoUID = @annotation.annotation_id
         delete :destroy, format: :json, id: annoUID
         expect(@annotationDeleted = Annotation.where(annotation_id: @annotation.annotation_id).first).to eq(nil)
       end
 
       it 'deletes the list_annotations map correctly' do
-        annoUID = @annotation.annotation_id.split('annotations/').last
+        #annoUID = @annotation.annotation_id.split('annotations/').last
+        annoUID = @annotation.annotation_id
         delete :destroy, format: :json, id: annoUID
         @lists = ListAnnotationsMap.getListsForAnnotation @annotation.annotation_id
         expect(@lists).to eq([])
       end
 
       it 'creates a version correctly' do
-        annoUID = @annotation.annotation_id.split('annotations/').last
+        #annoUID = @annotation.annotation_id.split('annotations/').last
+        annoUID = @annotation.annotation_id
         delete :destroy, format: :json, id: annoUID
         @version = AnnoListLayerVersion.last()
         expect(@annotation.version).to eq(1)

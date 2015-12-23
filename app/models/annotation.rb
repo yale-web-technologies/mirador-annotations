@@ -4,6 +4,7 @@ class Annotation < ActiveRecord::Base
                   :motivation,
                   :description,
                   :on,
+                  :canvas,
                   :resource,
                   :version,
                   :annotated_by,
@@ -19,7 +20,7 @@ class Annotation < ActiveRecord::Base
     iiif['motivation'] = motivation
     iiif['within'] = ListAnnotationsMap.getListsForAnnotation annotation_id
     iiif['resource'] = JSON.parse(resource)
-    iiif['annnotatedBy'] = JSON.parse(annotated_by)
+    #iiif['annnotatedBy'] = JSON.parse(annotated_by) if !iiif['annnotatedBy'].empty?
     iiif['on'] = on
     iiif.to_json
   end
