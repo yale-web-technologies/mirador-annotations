@@ -17,11 +17,19 @@ TenThousandRooms::Application.routes.draw do
   resources :annotation, path: 'annotations',defaults: {format: :json}
   resources :annotation, path: 'annotation',defaults: {format: :json}
 
-  #get 'show', to: 'annotation#show'
-  put '/annotations', to: 'annotation#update'
+  put '/annotation', to: 'annotation#update'
+  delete '/annotation', to: 'annotation#destroy'
   put '/lists', to: 'annotation_list#update'
   put '/layers', to: 'annotation_layer#update'
   get '/getAll', to: 'services#getAllCanvasesLayersLists'
   get '/getCanvasData', to: 'services#getLayersListsForCanvas'
+  #get '/getAnnotations', to: 'annotation_list#index'
+  get '/getAnnotations', to: 'annotation#getAnnotationsForCanvas'
+
+  match 'lists' => 'annotation_list#CORS_preflight', via: [:options], defaults: {format: :json}
+  match 'getAnnotations' => 'annotation#CORS_preflight', via: [:options], defaults: {format: :json}
+  match 'annotation' => 'annotation#CORS_preflight', via: [:options], defaults: {format: :json}
+  match 'annotations' => 'annotation#CORS_preflight', via: [:options], defaults: {format: :json}
+  match 'annotations/*all' => 'annotation#CORS_preflight', via: [:options], defaults: {format: :json}
 
 end
