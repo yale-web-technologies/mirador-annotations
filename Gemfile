@@ -11,7 +11,7 @@ gem 'sprockets', '2.12.3'
 gem 'json'
 
 gem 'therubyracer'
-gem 'devise', '~> 3.4.0'   # or later
+  gem 'devise', '~> 3.4.0'   # or later
 gem 'omniauth'
 gem 'omniauth-cas'
 gem 'uuid'
