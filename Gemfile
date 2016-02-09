@@ -17,6 +17,7 @@ gem 'omniauth-cas'
 gem 'uuid'
 #gem 'cancan'
 gem 'cancancan', "~> 1.10"
+gem 'rack-cors', :require => 'rack/cors'
 
 
 group :development, :test do
