@@ -1,0 +1,19 @@
+<div class="container">
+    <div class="page-header">
+        <h2>Ten Thousand Rooms Sign in</h2>
+    </div>
+    <div class="col-sm-12 col-md-6">
+
+        <div class="panel  panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Ten Thousand Rooms Users</h3>
+            </div>
+            <div class="panel-body">
+                Ten Thousand Rooms users should <%= link_to "sign in with CAS", omniauth_authorize_path(resource_name, 'cas') %>.
+            </div>
+        </div>
+
+    </div>
+
+
+</div>

@@ -9,7 +9,8 @@ class Annotation < ActiveRecord::Base
                   :version,
                   :annotated_by,
                   :active,
-                  :version
+                  :version,
+                  :service_block
   has_many :webacls, foreign_key: "resource_id"
 
   def to_iiif
@@ -36,6 +37,14 @@ class Annotation < ActiveRecord::Base
     version_content['annnotatedBy'] = annotated_by.to_json
     version_content['on'] = on
     version_content.to_json
+  end
+
+  def to_preAuth
+    preAuth = Hash.new
+    preAuth['@id'] = annotation_id
+    preAuth['serviceBlock'] = service_block
+    p preAuth.to_s
+    preAuth.to_json
   end
 
 end

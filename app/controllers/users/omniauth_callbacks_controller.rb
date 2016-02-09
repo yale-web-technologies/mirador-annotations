@@ -1,3 +1,4 @@
+require 'securerandom'
 class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   prepend_before_filter { request.env["devise.skip_timeout"] = true }
 
@@ -17,6 +18,9 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
       # end
 
        if !@user.nil?
+         @user.tgToken = SecureRandom.uuid
+         @user.bearerToken = SecureRandom.uuid
+         @user.save
          sign_in_and_redirect @user, :event => :authentication #this will throw if @user is not activated
          set_flash_message(:notice, :success, :kind => "CAS: user = #{current_user.uid}") if is_navigational_format?
        else
@@ -25,4 +29,5 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
        end
 
     end
+
 end

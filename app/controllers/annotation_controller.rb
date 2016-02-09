@@ -26,35 +26,54 @@ class AnnotationController < ApplicationController
       end
     end
 
-
   def CORS_preflight
     p "CORS_preflight: request from: #{request.original_url}"
+    p 'CORS_preflight: ' + request.headers.inspect
+    headers['Access-Control-Allow-Origin'] = "*"
     respond_to do |format|
       format.json { head :no_content }
     end
   end
 
   def getAnnotationsForCanvas
-    #p 'in getAnnotationsForCanvas: params = ' + params.inspect
+    bearerToken = ''
+    p 'in getAnnotationsForCanvas: params = ' + params.inspect
+    p 'in getAnnotationsForCanvas: headers: ' + request.headers.inspect
+    bearerToken = request.headers["bearer-token"] #user is logged in and has a bearer token
+    p "bearerToken = #{bearerToken}"
+    if (bearerToken)
+      @user = signInUserByBearerToken bearerToken
+    end
     @annotation = Annotation.where(canvas:params['canvas_id'])
-
-    #p '1) @annotation.count = ' + @annotation.count.to_s
     respond_to do |format|
       iiif = Array.new
-      #p '2) @annotation.count = ' + @annotation.count.to_s
       @annotation.each do |annotation|
-        iiif.push(annotation.to_iiif)
+        #iiif.push(annotation.to_iiif)
+        #iiif.push(annotation.to_preAuth)
+        within = ListAnnotationsMap.getListsForAnnotation annotation.annotation_id
+        authorized = false
+        #authorized = true
+        within.each do |list_id|
+            # figure out if user has read permission on this list via cancan/webacl; if not do not include in returned annoarray
+            @annotation_list = AnnotationList.where(:list_id => list_id).first
+            if can? :show, @annotation_list
+              authorized = true
+            end
+        end
+        if (authorized==true)
+          iiif.push(annotation.to_iiif)
+        end
       end
-      #p iiif.inspect
+      p iiif.inspect
       format.html {render json: iiif}
       format.json {render json: iiif}
     end
   end
 
-
   # GET /annotation/1
   # GET /annotation/1.json
   def show
+    p 'in show method for annotations'
     @ru = request.protocol + request.host_with_port + "/annotations/#{params['id']}"
     @annotation = Annotation.where(annotation_id: @ru).first
     #authorize! :show, @annotation_list
@@ -72,8 +91,6 @@ class AnnotationController < ApplicationController
     #@annotationIn = params.to_json    # ng
     @annotationIn = params
     p "in annotation_controller:create: @annotationIn stringified = " + params.to_json
-    #@annotationIn = params
-    #p "in annotation_controller:create: @annotationIn = " + params
 
     @problem = ''
     p 'going to validation'
@@ -168,6 +185,7 @@ class AnnotationController < ApplicationController
     end
   end
 
+
   # DELETE /annotation/1
   # DELETE /annotation/1.json
   def destroy
@@ -257,5 +275,7 @@ class AnnotationController < ApplicationController
     end
     versioned
   end
+
+
 
 end

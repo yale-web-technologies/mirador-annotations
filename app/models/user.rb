@@ -4,8 +4,8 @@ class User < ActiveRecord::Base
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
-  devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable
+  devise :database_authenticatable #, :registerable,
+         :recoverable #, :rememberable, :trackable, :validatable
   devise :omniauthable, :omniauth_providers => [:cas]
 
   # Omniauth
@@ -13,7 +13,9 @@ class User < ActiveRecord::Base
                   :uid,
                   :password,
                   :email,
-                  :encrypted_password
+                  :encrypted_password,
+                  :tgToken,
+                  :bearerToken
 
   def self.getUsersResourceIds user
     groupIds = Array.new
@@ -35,12 +37,17 @@ class User < ActiveRecord::Base
 
   # this is now also in abiity.rb
   def hasPermission user, resourceId, permissionType
-    groupIds = Array.new
-    user.groups.each do |group|
-      groupIds.push(group.group_id)
+    # first allow if resource has a webacls assigned to group "pubic"
+    @webaclExists = Webacl.where(group_id: "public", resource_id: resourceId, acl_mode: permissionType).first
+    if @webaclExists.nil?
+      groupIds = Array.new
+      user.groups.each do |group|
+        groupIds.push(group.group_id)
+      end
+      resources = Webacl.where(:group_id => groupIds)
+      @webaclExists = resources.where(resource_id: resourceId, acl_mode: permissionType).first
     end
-    resources = Webacl.where(:group_id => groupIds)
-    @webaclExists = resources.where(resource_id: resourceId, acl_mode: permissionType).first
     !@webaclExists.nil?
   end
+
 end
