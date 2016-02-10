@@ -37,4 +37,7 @@ TenThousandRooms::Application.routes.draw do
   match 'annotations/*all' => 'annotation#CORS_preflight', via: [:options], defaults: {format: :json}
   match 'getAccessToken' => 'annotation#CORS_preflight', via: [:options], defaults: {format: :json}
 
+
+
+
 end
