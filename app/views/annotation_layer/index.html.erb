@@ -17,11 +17,11 @@
     </div>
 </div>-->
 
-<script type="text/javascript">
-    $('document').ready(function() {
-        window.opener.postMessage('{"tgToken":"<%==current_user.tgToken%>","UserId":"<%==current_user.uid%>"}', "*");
-        window.close();
-    })
-
-    //}
-</script>
+<% if (user_signed_in?) %>
+    <script type="text/javascript">
+        $('document').ready(function() {
+            window.opener.postMessage('{"tgToken":"<%==current_user.tgToken%>","UserId":"<%==current_user.uid%>"}', "*");
+            window.close();
+        })
+    </script>
+<% end %>

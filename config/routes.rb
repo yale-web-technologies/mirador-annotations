@@ -27,7 +27,7 @@ TenThousandRooms::Application.routes.draw do
   get '/getAnnotations', to: 'annotation#getAnnotationsForCanvas'
 
   get 'getAccessToken', to: "application#get_access_token", defaults: {format: :json}
-  get 'loginToServer', to: "annotation#login"
+  get 'loginToServer', to: "application#login"
   #get 'users/CASSender', to: "annotation#/devise/sessions/sign_in.html.erb"
 
   match 'lists' => 'annotation_list#CORS_preflight', via: [:options], defaults: {format: :json}
