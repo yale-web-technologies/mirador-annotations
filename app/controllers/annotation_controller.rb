@@ -60,6 +60,10 @@ class AnnotationController < ApplicationController
               authorized = true
             end
         end
+
+        # TODO: turn authorization back on for next pass
+        authorized = true
+
         if (authorized==true)
           iiif.push(annotation.to_iiif)
         end
