@@ -5,8 +5,8 @@ class WebaclController < ApplicationController
     @webAclIn = JSON.parse(params.to_json)
     @webAclHash = Hash.new
     @webAclHash['resource_id'] = @webaclIn['resource_id']
-    @webAclHash['acl_mode'] = @layerIn['acl_mode']
-    @webAclHash['group_id'] = @layerIn['group_id']
+    @webAclHash['acl_mode'] = @webaclIn['acl_mode']
+    @webAclHash['group_id'] = @webaclIn['group_id']
 
     @webAcl = Webacl .new(@webAclHash)
 
