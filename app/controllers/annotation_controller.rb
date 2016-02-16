@@ -48,11 +48,9 @@ class AnnotationController < ApplicationController
     respond_to do |format|
       iiif = Array.new
       @annotation.each do |annotation|
-        #iiif.push(annotation.to_iiif)
-        #iiif.push(annotation.to_preAuth)
         within = ListAnnotationsMap.getListsForAnnotation annotation.annotation_id
-        authorized = false
-        #authorized = true
+        #authorized = false
+        authorized = true
         within.each do |list_id|
             # figure out if user has read permission on this list via cancan/webacl; if not do not include in returned annoarray
             @annotation_list = AnnotationList.where(:list_id => list_id).first
@@ -69,6 +67,8 @@ class AnnotationController < ApplicationController
         end
       end
       p iiif.inspect
+      #format.html {render json: iiif.to_json}
+      #format.json {render json: iiif.to_json}
       format.html {render json: iiif}
       format.json {render json: iiif}
     end
