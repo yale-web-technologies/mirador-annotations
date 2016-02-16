@@ -23,7 +23,7 @@ class Annotation < ActiveRecord::Base
     iiif['resource'] = JSON.parse(resource)
     #iiif['annnotatedBy'] = JSON.parse(annotated_by) if !iiif['annnotatedBy'].empty?
     iiif['on'] = on
-    iiif.to_json
+    iiif#.to_json
   end
 
   def to_version_content
