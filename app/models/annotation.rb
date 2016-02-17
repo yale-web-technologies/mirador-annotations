@@ -27,7 +27,9 @@ class Annotation < ActiveRecord::Base
     iiif['resource'] = JSON.parse(resource)
     iiif['annnotatedBy'] = JSON.parse(annotated_by) if !iiif['annnotatedBy'].nil?
     #iiif['on'] = on
-    iiif['on'] = JSON.parse(on.gsub(/=>/,":"))
+    if (on.start_with?("{"))
+      iiif['on'] = JSON.parse(on.gsub(/=>/,":"))
+    end
     iiif#.to_json
   end
 
