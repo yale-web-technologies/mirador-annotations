@@ -18,15 +18,13 @@ class Annotation < ActiveRecord::Base
     iiif['@id'] = annotation_id
     iiif['@type'] = annotation_type
     iiif['@context'] = "http://iiif.io/api/presentation/2/context.json"
-    p "motivation = "
-    p motivation
     iiif['motivation'] = motivation
     #iiif['motivation'] = JSON.parse(motivation)
     #iiif['motivation'] = JSON.parse(motivation.gsub(/=>/,":"))
     iiif['within'] = ListAnnotationsMap.getListsForAnnotation annotation_id
     iiif['resource'] = JSON.parse(resource)
     iiif['annnotatedBy'] = JSON.parse(annotated_by) if !iiif['annnotatedBy'].nil?
-    #iiif['on'] = on
+    iiif['on'] = on
     if (on.start_with?("{"))
       iiif['on'] = JSON.parse(on.gsub(/=>/,":"))
     end
