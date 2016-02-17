@@ -51,6 +51,8 @@ class AnnotationController < ApplicationController
         within = ListAnnotationsMap.getListsForAnnotation annotation.annotation_id
         #authorized = false
         authorized = true
+        # TODO: turn authorization back on for next pass
+=begin
         within.each do |list_id|
             # figure out if user has read permission on this list via cancan/webacl; if not do not include in returned annoarray
             @annotation_list = AnnotationList.where(:list_id => list_id).first
@@ -58,8 +60,8 @@ class AnnotationController < ApplicationController
               authorized = true
             end
         end
+=end
 
-        # TODO: turn authorization back on for next pass
         authorized = true
 
         if (authorized==true)
@@ -89,7 +91,10 @@ class AnnotationController < ApplicationController
   end
 
   # POST /annotation
-  # POST /annotation.json
+  # POST /annotation.j\q
+  #
+  #
+  # son
   def create
     #@annotationIn = JSON.parse(params.to_json)
     #@annotationIn = params.to_json    # ng
