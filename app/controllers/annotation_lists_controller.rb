@@ -1,6 +1,6 @@
 include AclCreator
 
-class AnnotationListController < ApplicationController
+class AnnotationListsController < ApplicationController
 
   skip_before_action :verify_authenticity_token
 

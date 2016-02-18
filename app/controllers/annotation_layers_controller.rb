@@ -1,4 +1,4 @@
-class AnnotationLayerController < ApplicationController
+class AnnotationLayersController < ApplicationController
   skip_before_action :verify_authenticity_token
   respond_to :html, :json
 
