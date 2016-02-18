@@ -5,7 +5,7 @@ include Warden::Test::Helpers
 Warden.test_mode!
 include Devise::TestHelpers
 
-RSpec.describe AnnotationController, :type => :controller do
+RSpec.describe AnnotationsController, :type => :controller do
 
   before(:each) do
 

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe AnnotationListController, type: :controller do
+RSpec.describe AnnotationListsController, type: :controller do
 
   before(:all) do
     @annoLayer ='{"layer_id": "http://localhost:5000/layers/testLayer", "label": "Layer 2", "motivation": "yale:transcribing", "license": "http://creativecommons.org/licenses/by/4.0/", "layer_type": "sc:Layer", "@context": "http://iiif.io/api/presentation/2/context.json"}'
