@@ -5,7 +5,7 @@ include Warden::Test::Helpers
 Warden.test_mode!
 include Devise::TestHelpers
 
-RSpec.describe AnnotationLayerController, type: :controller do
+RSpec.describe AnnotationLayersController, type: :controller do
 
     context 'when Post is called' do
       describe 'POST annotation json' do

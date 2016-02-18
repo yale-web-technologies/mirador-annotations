@@ -1,6 +1,6 @@
 include AclCreator
 
-class AnnotationController < ApplicationController
+class AnnotationsController < ApplicationController
   include CanCan::ControllerAdditions
   #skip_before_action :verify_authenticity_token
 
@@ -146,7 +146,8 @@ class AnnotationController < ApplicationController
   # PUT /layer/1
   # PUT /layer/1.json
   def update
-
+    @ru = request.original_url
+    p "about to update for this request: #{@ru}"
     p 'In annotation_controller:update  params = ' + params.inspect
 
     @annotationIn = JSON.parse(params.to_json)

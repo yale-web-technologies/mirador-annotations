@@ -1,4 +1,4 @@
-class WebaclController < ApplicationController
+class WebaclsController < ApplicationController
   # POST /layer
   # POST /layer.json
   def create

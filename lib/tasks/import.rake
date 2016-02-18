@@ -43,7 +43,7 @@ namespace :import do
   end
 
   desc "imports annotation data from a csv file"
-  task :annotation => :environment do
+  task :annotations => :environment do
     require 'csv'
     CSV.foreach('importData/Annos.csv') do |row|
       id = row[0]
