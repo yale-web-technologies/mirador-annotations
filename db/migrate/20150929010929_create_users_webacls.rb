@@ -4,7 +4,7 @@ class CreateUsersWebacls < ActiveRecord::Migration
     create_table :users_webacls do |t|
       t.belongs_to :user, index: :true
       t.belongs_to :group, index: :true
-      t.belongs_to :webacl, index: :true
+      t.belongs_to :webacls, index: :true
     end
   end
 end

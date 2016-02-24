@@ -9,8 +9,8 @@ TenThousandRooms::Application.routes.draw do
   root 'annotation_layer#index'
   resources :annotation_layers, path: 'layers',defaults: {format: :json}
   resources :annotation_lists, path: 'lists',defaults: {format: :json}
-  resources :annotations, path: 'annotations',defaults: {format: :json}
-  #put '/annotations', to: 'annotations#update'
+  resources :annotations, path: 'annotations',defaults: {format: :json}, :except => [:update]
+  put '/annotations', to: 'annotations#update'
 
   #get '/getAll', to: 'services#getAllCanvasesLayersLists'
   get '/getCanvasData', to: 'services#getLayersListsForCanvas'
@@ -18,14 +18,13 @@ TenThousandRooms::Application.routes.draw do
 
   get 'getAccessToken', to: "application#get_access_token", defaults: {format: :json}
   get 'loginToServer', to: "application#login"
-  #get 'users/CASSender', to: "annotation#/devise/sessions/sign_in.html.erb"
 
-  match '/' => 'annotation_lists#CORS_preflight', via: [:options], defaults: {format: :json}
-  match 'lists' => 'annotation_lists#CORS_preflight', via: [:options], defaults: {format: :json}
-  match 'getAnnotations' => 'annotations#CORS_preflight', via: [:options], defaults: {format: :json}
-  match 'annotations' => 'annotations#CORS_preflight', via: [:options], defaults: {format: :json}
-  match 'annotations' => 'annotations#CORS_preflight', via: [:options], defaults: {format: :json}
-  match 'annotations/*all' => 'annotations#CORS_preflight', via: [:options], defaults: {format: :json}
-  match 'getAccessToken' => 'annotations#CORS_preflight', via: [:options], defaults: {format: :json}
-
+  match '/' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
+  match 'getAccessToken' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
+  match 'getAnnotations' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
+  match 'annotations' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
+  match 'annotations/*all' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
+  match 'lists' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
+  match 'layers' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
+  match 'getAnnotations' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
 end
