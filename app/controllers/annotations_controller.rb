@@ -26,15 +26,6 @@ class AnnotationsController < ApplicationController
       end
     end
 
-  def CORS_preflight
-    p "CORS_preflight: request from: #{request.original_url}"
-    p 'CORS_preflight: ' + request.headers.inspect
-    headers['Access-Control-Allow-Origin'] = "*"
-    respond_to do |format|
-      format.json { head :no_content }
-    end
-  end
-
   def getAnnotationsForCanvas
     bearerToken = ''
     p 'in getAnnotationsForCanvas: params = ' + params.inspect

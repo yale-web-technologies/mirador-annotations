@@ -65,4 +65,14 @@ class ApplicationController < ActionController::Base
     #p "and current_user = #{current_user.uid}"
   end
 
+  #handles CORS preflight requests for Ajax calls; based on matches in routes
+  def CORS_preflight
+    p "CORS_preflight: request from: #{request.original_url}"
+    p 'CORS_preflight: ' + request.headers.inspect
+    headers['Access-Control-Allow-Origin'] = "*"
+    respond_to do |format|
+      format.json { head :no_content }
+    end
+  end
+
   end
