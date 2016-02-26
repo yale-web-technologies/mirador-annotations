@@ -37,6 +37,7 @@ class AnnotationsController < ApplicationController
     end
     @annotation = Annotation.where(canvas:params['canvas_id'])
     respond_to do |format|
+      annoWLayerArray = Array.new
       iiif = Array.new
       @annotation.each do |annotation|
         within = ListAnnotationsMap.getListsForAnnotation annotation.annotation_id
@@ -53,17 +54,30 @@ class AnnotationsController < ApplicationController
         end
 =end
 
-        authorized = true
-
         if (authorized==true)
-          iiif.push(annotation.to_iiif)
+          #iiif.push(annotation.to_iiif)
+          # return not just array of annotations but layers as well
+          lists = ListAnnotationsMap.getListsForAnnotation annotation.annotation_id
+          lists.each do |list_id|
+            p "list = #{list_id}"
+            layers = LayerListsMap.getLayersForList list_id
+            layers.each do |layer_id|
+              p "layer = #{layer_id}"
+              annoWLayerHash= Hash.new
+              annoWLayerHash["layer_id"] = layer_id
+              p "layer now = #{layer_id}"
+              annoWLayerHash["annotation"] = annotation.to_iiif
+              annoWLayerArray.push(annoWLayerHash)
+             end
+          end
         end
       end
-      p iiif.inspect
-      #format.html {render json: iiif.to_json}
-      #format.json {render json: iiif.to_json}
-      format.html {render json: iiif}
-      format.json {render json: iiif}
+      #p iiif.inspect
+      #format.html {render json: iiif}
+      #format.json {render json: iiif}
+      p annoWLayerArray.inspect
+      format.html {render json: annoWLayerArray}
+      format.json {render json: annoWLayerArray}
     end
   end
 
