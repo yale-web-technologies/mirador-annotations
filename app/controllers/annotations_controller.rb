@@ -96,24 +96,20 @@ class AnnotationsController < ApplicationController
   end
 
   # POST /annotation
-  # POST /annotation.j\q
   #
-  #
-  # son
   def create
-    #@annotationIn = JSON.parse(params.to_json)
-    #@annotationIn = params.to_json    # ng
-    @annotationIn = params
-    p "in annotation_controller:create: @annotationIn stringified = " + params.to_json
+    #@annotationIn = params
+    # for new params with layer_id and annotation
+    @paramsIn = params
+    @layer_id = @paramsIn['layer_id']
+    @annotationIn = @paramsIn['annotation']
 
     @problem = ''
-    p 'going to validation'
     if !validate_annotation @annotationIn
       errMsg = "Annotation record not valid and could not be saved: " + @problem
       render :json => { :error => errMsg },
              :status => :unprocessable_entity
     else
-      p 'thru validation'
       #@ru = request.original_url
       @ru = request.original_url.split('?').first
       @ru += '/'   if !@ru.end_with? '/'
@@ -132,6 +128,11 @@ class AnnotationsController < ApplicationController
       @annotationOut['resource']  = @annotationIn['resource'].to_json
       @annotationOut['active'] = true
       @annotationOut['version'] = 1
+
+      # determine the required list for this layer and canvas (this is project-specific)
+      # and create as needed (if this is the first annotation for this layer/canvas)
+      handleRequiredList
+
       ListAnnotationsMap.setMap @annotationIn['within'], @annotation_id
       create_annotation_acls_via_parent_lists @annotation_id
       @annotation = Annotation.new(@annotationOut)
@@ -152,9 +153,6 @@ class AnnotationsController < ApplicationController
   # PUT /layer/1.json
   def update
     @ru = request.original_url
-    p "about to update for this request: #{@ru}"
-    p 'In annotation_controller:update  params = ' + params.inspect
-
     @annotationIn = JSON.parse(params.to_json)
     @problem = ''
     if !validate_annotation @annotationIn
@@ -209,14 +207,10 @@ class AnnotationsController < ApplicationController
     @ru = request.original_url   # will not work with rspec
     #@ru = params['id'] # for rspec
     #@ru = request.protocol + request.host_with_port + "/annotations/#{params['id']}"
-
-    p 'annotation_controller:destroy  params = ' + params.inspect
     request.format = "json"
 
-    p "about to fetch for delete: #{@ru}"
     @annotation = Annotation.where(annotation_id: @ru).first
     p 'just retrieved @annotation for destroy: ' + @annotation.annotation_id
-
     #authorize! :delete, @annotation
     if @annotation.version.nil? ||  @annotation.version < 1
       @annotation.version = 1
@@ -236,11 +230,10 @@ class AnnotationsController < ApplicationController
   end
 
   def validate_annotation annotation
-    #annotation = JSON.parse(annotation)
-    p 'validate: ' + annotation.inspect
-    p '@type = ' + annotation['@type'].to_s
-    p 'on = ' + annotation['on'].to_s
-    p 'resource = ' + annotation['resource'].to_s
+    #p 'validate: ' + annotation.inspect
+    #p '@type = ' + annotation['@type'].to_s
+    #p 'on = ' + annotation['on'].to_s
+    #p 'resource = ' + annotation['resource'].to_s
 
     valid = true
     if !annotation['@type'].to_s.downcase! == 'oa:annotation'
@@ -291,6 +284,48 @@ class AnnotationsController < ApplicationController
     versioned
   end
 
+  def handleRequiredList
+    @canvas_id =  @annotationIn['on']['source']
+    @required_list_id = constructRequiredListId
+    checkListExists @required_list_id
+  end
 
+  def constructRequiredListId
+    @ru = request.original_url.split('?').first
+    @ru += '/'   if !@ru.end_with? '/'
+    list_id = @ru + @layer_id + "_" + @canvas_id
+  end
+
+  def checkListExists list_id
+    @annotation_list = AnnotationList.where(list_id: @ru).first
+    if @annotation_list.nil?
+      createAnnotationListForMap(list_id, @layer_id, @canvas_id)
+    end
+    # add to within if necessary
+    #if @annotation['within'].nil?
+    if !@annotationIn.key?(:within)
+      withinArray = Array.new
+      withinArray.push(list_id)
+      @annotationIn['within'] = withinArray
+    else
+      withinArray = @annotationIn['within'].to_arr
+      withinArray.push(list_id)
+      @annotationIn['within'] = withinArray
+    end
+  end
+
+  def createAnnotationListForMap list_id, layer_id, canvas_id
+    @list = Hash.new
+    @list['list_id'] = list_id
+    @list['list_type'] = "sc:annotationlist"
+    @list['label'] = "Annotation List for Canvas: #{canvas_id}"
+    @list['description'] = ""
+    @list['version'] = 1
+    @within = Array.new
+    @within.push(layer_id)
+    LayerListsMap.setMap @within,@list['list_id']
+    create_list_acls_via_parent_layers @list['list_id']
+    @annotation_list = AnnotationList.create(@list)
+  end
 
 end

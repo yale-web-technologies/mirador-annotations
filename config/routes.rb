@@ -6,7 +6,7 @@ TenThousandRooms::Application.routes.draw do
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
-  root 'annotation_layer#index'
+  root 'annotation_layers#index'
   resources :annotation_layers, path: 'layers',defaults: {format: :json}
   resources :annotation_lists, path: 'lists',defaults: {format: :json}
   resources :annotations, path: 'annotations',defaults: {format: :json}, :except => [:update]
