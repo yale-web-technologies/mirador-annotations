@@ -124,7 +124,8 @@ class AnnotationsController < ApplicationController
       @annotationOut['on'] = @annotationIn['on']
       @annotationOut['description'] = @annotationIn['description']
       @annotationOut['annotated_by'] = @annotationIn['annotatedBy'].to_json
-      @annotationOut['canvas']  = @annotationIn['on']['source']#.to_json
+      #@annotationOut['canvas']  = @annotationIn['on']['source']#.to_json
+      @annotationOut['canvas']  = @annotationIn['on']['full']
       @annotationOut['resource']  = @annotationIn['resource'].to_json
       @annotationOut['active'] = true
       @annotationOut['version'] = 1
@@ -285,7 +286,8 @@ class AnnotationsController < ApplicationController
   end
 
   def handleRequiredList
-    @canvas_id =  @annotationIn['on']['source']
+    #@canvas_id =  @annotationIn['on']['source']
+    @canvas_id =  @annotationIn['on']['full']
     @required_list_id = constructRequiredListId
     checkListExists @required_list_id
   end
