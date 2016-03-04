@@ -295,6 +295,7 @@ class AnnotationsController < ApplicationController
   def constructRequiredListId
     @ru = request.original_url.split('?').first
     @ru += '/'   if !@ru.end_with? '/'
+    @ru.gsub!(/annotations/,"lists")
     list_id = @ru + @layer_id + "_" + @canvas_id
   end
 
