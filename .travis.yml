@@ -4,5 +4,4 @@ rvm:
 
 notifications:
   email:
-    - michael.appleby@yale.edu
     - roy.lechich@yale.edu
