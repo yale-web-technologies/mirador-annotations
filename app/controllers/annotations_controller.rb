@@ -300,7 +300,8 @@ class AnnotationsController < ApplicationController
   end
 
   def checkListExists list_id
-    @annotation_list = AnnotationList.where(list_id: @ru).first
+    @annotation_list = AnnotationList.where(list_id: @ru).first # never finding this and was causing dupes
+    @annotation_list = AnnotationList.where(list_id: list_id).first
     if @annotation_list.nil?
       createAnnotationListForMap(list_id, @layer_id, @canvas_id)
     end
