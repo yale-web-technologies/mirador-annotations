@@ -36,7 +36,7 @@ class AnnotationsController < ApplicationController
       @user = signInUserByBearerToken bearerToken
     end
     @annotation = Annotation.where(canvas:params['canvas_id'])
-    p "count of annotations returned: " + @annotation.count
+    p "count of annotations returned: " + @annotation.count.to_s
 
     respond_to do |format|
       annoWLayerArray = Array.new
