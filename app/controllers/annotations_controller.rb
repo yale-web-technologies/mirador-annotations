@@ -36,6 +36,8 @@ class AnnotationsController < ApplicationController
       @user = signInUserByBearerToken bearerToken
     end
     @annotation = Annotation.where(canvas:params['canvas_id'])
+    p "count of annotations returned: " + @annotation.count
+
     respond_to do |format|
       annoWLayerArray = Array.new
       iiif = Array.new
@@ -62,10 +64,10 @@ class AnnotationsController < ApplicationController
             p "list = #{list_id}"
             layers = LayerListsMap.getLayersForList list_id
             layers.each do |layer_id|
-              p "layer = #{layer_id}"
+              #p "layer = #{layer_id}"
               annoWLayerHash= Hash.new
               annoWLayerHash["layer_id"] = layer_id
-              p "layer now = #{layer_id}"
+              #p "layer now = #{layer_id}"
               annoWLayerHash["annotation"] = annotation.to_iiif
               annoWLayerArray.push(annoWLayerHash)
              end
@@ -289,6 +291,7 @@ class AnnotationsController < ApplicationController
     #@canvas_id =  @annotationIn['on']['source']
     @canvas_id =  @annotationIn['on']['full']
     @required_list_id = constructRequiredListId
+    p "constgructed Required List = " + @required_list_id
     checkListExists @required_list_id
   end
 
@@ -300,7 +303,7 @@ class AnnotationsController < ApplicationController
   end
 
   def checkListExists list_id
-    @annotation_list = AnnotationList.where(list_id: @ru).first # never finding this and was causing dupes
+    #@annotation_list = AnnotationList.where(list_id: @ru).first # never finding this and was causing dupes
     @annotation_list = AnnotationList.where(list_id: list_id).first
     if @annotation_list.nil?
       createAnnotationListForMap(list_id, @layer_id, @canvas_id)
