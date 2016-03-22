@@ -35,8 +35,11 @@ class AnnotationsController < ApplicationController
     if (bearerToken)
       @user = signInUserByBearerToken bearerToken
     end
+
     @annotation = Annotation.where(canvas:params['canvas_id'])
-    p "count of annotations returned: " + @annotation.count.to_s
+    if params['includeTargetingAnnos']== 'true'
+      @annotationsOnAnnotations = getTargetingAnnos @annotation #if params['includeTargetingAnnos']==true
+    end
 
     respond_to do |format|
       annoWLayerArray = Array.new
@@ -74,10 +77,7 @@ class AnnotationsController < ApplicationController
           end
         end
       end
-      #p iiif.inspect
-      #format.html {render json: iiif}
-      #format.json {render json: iiif}
-      p annoWLayerArray.inspect
+
       format.html {render json: annoWLayerArray}
       format.json {render json: annoWLayerArray}
     end
@@ -333,6 +333,19 @@ class AnnotationsController < ApplicationController
     LayerListsMap.setMap @within,@list['list_id']
     create_list_acls_via_parent_layers @list['list_id']
     @annotation_list = AnnotationList.create(@list)
+  end
+
+  def  getTargetingAnnos inputAnnos
+    p "in getAnnosOnAnnos: input count = " + inputAnnos.count.to_s
+    targetingAnnotations = nil
+    if !(inputAnnos.nil?)
+        inputAnnos.each do |anno|
+        #p "getAnnosOnAnnos: anno_id = " + anno.annotation_id + " canvas = " + anno.canvas
+        targetingAnnotations = Annotation.where(canvas:anno.annotation_id)
+        getTargetingAnnos targetingAnnotations
+        @annotation += targetingAnnotations if !targetingAnnotations.nil?
+      end
+    end
   end
 
 end
