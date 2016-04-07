@@ -31,14 +31,14 @@ class AnnotationsController < ApplicationController
     p 'in getAnnotationsForCanvas: params = ' + params.inspect
     p 'in getAnnotationsForCanvas: headers: ' + request.headers.inspect
     bearerToken = request.headers["bearer-token"] #user is logged in and has a bearer token
-    p "bearerToken = #{bearerToken}"
+    #p "bearerToken = #{bearerToken}"
     if (bearerToken)
       @user = signInUserByBearerToken bearerToken
     end
 
     @annotation = Annotation.where(canvas:params['canvas_id'])
     if params['includeTargetingAnnos']== 'true'
-      @annotationsOnAnnotations = getTargetingAnnos @annotation #if params['includeTargetingAnnos']==true
+      @annotationsOnAnnotations = getTargetingAnnos @annotation
     end
 
     respond_to do |format|
@@ -291,7 +291,7 @@ class AnnotationsController < ApplicationController
     #@canvas_id =  @annotationIn['on']['source']
     @canvas_id =  @annotationIn['on']['full']
     @required_list_id = constructRequiredListId
-    p "constgructed Required List = " + @required_list_id
+    p "constructed Required List = " + @required_list_id
     checkListExists @required_list_id
   end
 
@@ -325,26 +325,23 @@ class AnnotationsController < ApplicationController
     @list = Hash.new
     @list['list_id'] = list_id
     @list['list_type'] = "sc:annotationlist"
-    @list['label'] = "Annotation List for Canvas: #{canvas_id}"
+    @list['label'] = "Annotation List for: #{canvas_id}"
     @list['description'] = ""
     @list['version'] = 1
     @within = Array.new
     @within.push(layer_id)
     LayerListsMap.setMap @within,@list['list_id']
+
     create_list_acls_via_parent_layers @list['list_id']
     @annotation_list = AnnotationList.create(@list)
   end
 
   def  getTargetingAnnos inputAnnos
-    p "in getAnnosOnAnnos: input count = " + inputAnnos.count.to_s
-    targetingAnnotations = nil
-    if !(inputAnnos.nil?)
-        inputAnnos.each do |anno|
-        #p "getAnnosOnAnnos: anno_id = " + anno.annotation_id + " canvas = " + anno.canvas
-        targetingAnnotations = Annotation.where(canvas:anno.annotation_id)
-        getTargetingAnnos targetingAnnotations
-        @annotation += targetingAnnotations if !targetingAnnotations.nil?
-      end
+    return if (inputAnnos.nil?)
+    inputAnnos.each do |anno|
+      targetingAnnotations = Annotation.where(canvas:anno.annotation_id)
+      getTargetingAnnos targetingAnnotations
+      @annotation += targetingAnnotations if !targetingAnnotations.nil?
     end
   end
 
