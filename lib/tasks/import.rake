@@ -358,7 +358,7 @@ namespace :import do
     end
   end
 
-  def createNewRenderingAnnotation newAnnotation withinArray
+  def createNewRenderingAnnotation newAnnotation, withinArray
     annotations = Annotation.where(annotation_id: newAnnotation['annotation_id']).first
     if (annotations.nil?)
       @annotation = Annotation.create(newAnnotation)
