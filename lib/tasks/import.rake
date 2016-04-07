@@ -312,7 +312,7 @@ namespace :import do
     withinArray.push(chapterList)
     #newAnnotation['within'] = withinArray
     #createNewRenderingAnnotation newAnnotation
-    createNewRenderingAnnotation newAnnotation withinArray
+    createNewRenderingAnnotation newAnnotation, withinArray
 
     # create Tibetan and English lists for this scene
     list = Hash.new
