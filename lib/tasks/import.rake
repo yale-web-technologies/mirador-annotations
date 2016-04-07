@@ -310,9 +310,9 @@ namespace :import do
     withinArray = Array.new
     withinArray.push(thisList)
     withinArray.push(chapterList)
-    #newAnnotation['within'] = withinArray
-    #createNewRenderingAnnotation newAnnotation
-    createNewRenderingAnnotation newAnnotation, withinArray
+    newAnnotation['within'] = withinArray
+    createNewRenderingAnnotation newAnnotation
+    #createNewRenderingAnnotation newAnnotation, withinArray
 
     # create Tibetan and English lists for this scene
     list = Hash.new
@@ -358,12 +358,15 @@ namespace :import do
     end
   end
 
-  def createNewRenderingAnnotation newAnnotation, withinArray
+  def createNewRenderingAnnotation newAnnotation
     annotations = Annotation.where(annotation_id: newAnnotation['annotation_id']).first
     if (annotations.nil?)
-      @annotation = Annotation.create(newAnnotation)
-      #ListAnnotationsMap.setMap newAnnotation['within'], newAnnotation['annotation_id']
-      ListAnnotationsMap.setMap withinArray, newAnnotation['annotation_id']
+      #@annotation = Annotation.create(newAnnotation)
+      @annotation = Annotation.create(annotation_id:newAnnotation['annotation_id'], annotation_type: newAnnotation['annotation_type'], motivation: newAnnotation['motivation'],
+                                      description:newAnnotation['description'], on: newAnnotation['on'], canvas: newAnnotation['canvas'], manifest: newAnnotation['manifest'],
+                                      active: newAnnotation['active'],
+                                      version: newAnnotation['version'])
+      ListAnnotationsMap.setMap newAnnotation['within'], newAnnotation['annotation_id']
     end
   end
 
