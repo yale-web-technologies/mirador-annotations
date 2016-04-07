@@ -19,7 +19,7 @@ class AnnotationLayer < ActiveRecord::Base
     iiif['label'] = label if !label.blank?
     iiif['motivation'] = motivation if !motivation.blank?
     iiif['license'] = license if !license.blank?
-    version_content['description'] = description if !description.blank?
+    iiif['description'] = description if !description.blank?
     iiif['otherContent'] = LayerListsMap.getListsForLayer layer_id
     iiif
   end
@@ -38,3 +38,4 @@ class AnnotationLayer < ActiveRecord::Base
   end
 
 end
+
