@@ -275,7 +275,7 @@ namespace :import do
     #newAnnotation['on'] = @ru + "/annotations/"+ "Panel_" + row[0] + "_Chapter_" + row[1]
 
     newAnnotation['on'] = '{
-            "@type": "oa:Annotation",
+            "@type": "oa:SpecificResource",
             "full": "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"}'
     newAnnotation['on'] = JSON.parse(newAnnotation['on'])
 
@@ -283,7 +283,7 @@ namespace :import do
     newAnnotation['annotated_by'] = "annotator"
     newAnnotation['canvas']  = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
     newAnnotation['manifest'] = "tbd"
-    newAnnotation['resource']  = ""
+    newAnnotation['resource']  = "| |"
     newAnnotation['active'] = true
     newAnnotation['version'] = 1
     thisList = @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1]
@@ -320,7 +320,7 @@ namespace :import do
     newAnnotation['motivation'] =" "
     #newAnnotation['on'] = @ru + "/annotations/"+ "Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene #+ "_0"
     newAnnotation['on'] = '{
-            "@type": "oa:Annotation",
+            "@type": "oa:SpecificResource",
             "full": "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"}'
     newAnnotation['on'] = JSON.parse(newAnnotation['on'])
 
@@ -328,7 +328,7 @@ namespace :import do
     newAnnotation['annotated_by'] = "annotator"
     newAnnotation['canvas']  = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
     newAnnotation['manifest'] = "tbd"
-    newAnnotation['resource']  = ""
+    newAnnotation['resource']  = "| |"
     newAnnotation['active'] = true
     newAnnotation['version'] = 1
     thisList = @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene
