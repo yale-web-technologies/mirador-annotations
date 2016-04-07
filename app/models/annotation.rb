@@ -24,7 +24,7 @@ class Annotation < ActiveRecord::Base
     #iiif['motivation'] = JSON.parse(motivation)
     #iiif['motivation'] = JSON.parse(motivation.gsub(/=>/,":"))
     iiif['within'] = ListAnnotationsMap.getListsForAnnotation annotation_id
-    iiif['resource'] = JSON.parse(resource) if !iiif['resource'].nil?
+    iiif['resource'] = JSON.parse(resource) #if !iiif['resource'].nil?
     iiif['annnotatedBy'] = JSON.parse(annotated_by) if !iiif['annnotatedBy'].nil?
     iiif['on'] = on
     if (on.start_with?("{"))
