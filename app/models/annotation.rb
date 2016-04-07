@@ -4,6 +4,7 @@ class Annotation < ActiveRecord::Base
                   :motivation,
                   :description,
                   :on,
+                  :label,
                   :canvas,
                   :manifest,
                   :resource,
