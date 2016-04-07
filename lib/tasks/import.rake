@@ -65,6 +65,7 @@ namespace :import do
   end
 
 
+
   desc "imports LoTB annotation data from a csv file"
   #Sun of Faith - Structured Chapters - ch. 19.csv
   # Assumption: will be loaded by worksheet per chapter: first column holds panel, second column holds chapter, third column holds scene
@@ -126,7 +127,15 @@ namespace :import do
         motivation = "oa:transcribing"
         label = "Tibetan transcription"
         description = ""
-        on = @ru + "/annotations/"+ "Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene #+ "_0"
+
+        #on = @ru + "/annotations/"+ "Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene #+ "_0"
+        on = '{
+            "@type": "oa:Annotation",
+            "full": "'
+        on += @ru + '/annotations/'+ 'Panel_' + row[0] + '_Chapter_' + row[1] + '_Scene_' + scene
+        on += '"}'
+        on = JSON.parse(on)
+
         #canvas = @ru  + "/canvas/" + "SunOfFaith_Panel_B"
         canvas = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
         manifest = "tbd"
@@ -161,7 +170,13 @@ namespace :import do
         motivation = "oa:translating"
         label = "English Translation"
         description = " "
-        on = @ru + "/annotations/"+ "Panel_"  + "_Chapter_" +"_Scene_" + scene #+ "_0"
+        #on = @ru + "/annotations/"+ "Panel_"  + "_Chapter_" +"_Scene_" + scene
+        on = '{
+            "@type": "oa:Annotation",
+            "full": "'
+        on += @ru + '/annotations/'+ 'Panel_' + row[0] + '_Chapter_' + row[1] + '_Scene_' + scene
+        on += '"}'
+        on = JSON.parse(on)
         #canvas = @ru  + "/canvas/" + "SunOfFaith_Panel_B"
         canvas = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
         manifest = "tbd"
@@ -257,7 +272,13 @@ namespace :import do
     newAnnotation['annotation_id'] = annotation_id
     newAnnotation['annotation_type'] = "oa:annotation"
     newAnnotation['motivation'] =""
-    newAnnotation['on'] = @ru + "/annotations/"+ "Panel_" + row[0] + "_Chapter_" + row[1]
+    #newAnnotation['on'] = @ru + "/annotations/"+ "Panel_" + row[0] + "_Chapter_" + row[1]
+
+    newAnnotation['on'] = '{
+            "@type": "oa:Annotation",
+            "full": "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"}'
+    newAnnotation['on'] = JSON.parse(newAnnotation['on'])
+
     newAnnotation['description'] = "Panel: " + row[0] + " Chapter: " + row[1]
     newAnnotation['annotated_by'] = "annotator"
     newAnnotation['canvas']  = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
@@ -297,7 +318,12 @@ namespace :import do
     newAnnotation['annotation_id'] = annotation_id
     newAnnotation['annotation_type'] = "oa:annotation"
     newAnnotation['motivation'] =" "
-    newAnnotation['on'] = @ru + "/annotations/"+ "Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene #+ "_0"
+    #newAnnotation['on'] = @ru + "/annotations/"+ "Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene #+ "_0"
+    newAnnotation['on'] = '{
+            "@type": "oa:Annotation",
+            "full": "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"}'
+    newAnnotation['on'] = JSON.parse(newAnnotation['on'])
+
     newAnnotation['description'] = "Panel: " + row[0] + " Chapter: " + row[1] + " Scene: " + scene
     newAnnotation['annotated_by'] = "annotator"
     newAnnotation['canvas']  = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
@@ -363,7 +389,7 @@ namespace :import do
     if (annotations.nil?)
       #@annotation = Annotation.create(newAnnotation)
       @annotation = Annotation.create(annotation_id:newAnnotation['annotation_id'], annotation_type: newAnnotation['annotation_type'], motivation: newAnnotation['motivation'],
-                                      description:newAnnotation['description'], on: newAnnotation['on'], canvas: newAnnotation['canvas'], manifest: newAnnotation['manifest'],
+                                      description:newAnnotation['description'], on: newAnnotation['on'].to_s, canvas: newAnnotation['canvas'], manifest: newAnnotation['manifest'],
                                       active: newAnnotation['active'],
                                       version: newAnnotation['version'])
       ListAnnotationsMap.setMap newAnnotation['within'], newAnnotation['annotation_id']
