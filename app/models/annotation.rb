@@ -5,6 +5,7 @@ class Annotation < ActiveRecord::Base
                   :description,
                   :on,
                   :canvas,
+                  :manifest,
                   :resource,
                   :version,
                   :annotated_by,
