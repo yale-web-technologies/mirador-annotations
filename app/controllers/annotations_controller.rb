@@ -66,14 +66,22 @@ class AnnotationsController < ApplicationController
           lists.each do |list_id|
             p "list = #{list_id}"
             layers = LayerListsMap.getLayersForList list_id
-            layers.each do |layer_id|
-              #p "layer = #{layer_id}"
+            # 4/7/2016
+            if (layers.nil?)
               annoWLayerHash= Hash.new
-              annoWLayerHash["layer_id"] = layer_id
-              #p "layer now = #{layer_id}"
+              annoWLayerHash["layer_id"] = "no layer"
               annoWLayerHash["annotation"] = annotation.to_iiif
               annoWLayerArray.push(annoWLayerHash)
-             end
+            else
+              layers.each do |layer_id|
+                #p "layer = #{layer_id}"
+                annoWLayerHash= Hash.new
+                annoWLayerHash["layer_id"] = layer_id
+                #p "layer now = #{layer_id}"
+                annoWLayerHash["annotation"] = annotation.to_iiif
+                annoWLayerArray.push(annoWLayerHash)
+              end
+            end
           end
         end
       end
