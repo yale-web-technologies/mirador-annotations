@@ -156,10 +156,11 @@ class AnnotationsController < ApplicationController
       #@annotationOut['canvas']  = @annotationIn['on']['source']#.to_json
       @annotationOut['canvas']  = @annotationIn['on']['full']
       @annotationOut['resource']  = @annotationIn['resource'].to_json
-      if (@annotationIn['orderWeight']=='')
-        @annotationIn['orderWeight'] = '9999'
-      end
+      #if (@annotationIn['orderWeight']=='')
+      #  @annotationIn['orderWeight'] = '9999'
+      #end
       @annotationOut['order_weight']  = @annotationIn['orderWeight']
+      @annotationOut['order_weight']  = '9999'
       @annotationOut['active'] = true
       @annotationOut['version'] = 1
 
