@@ -13,7 +13,7 @@ class Annotation < ActiveRecord::Base
                   :active,
                   :version,
                   :service_block,
-                  :orderWeight
+                  :order_weight
   has_many :webacls, foreign_key: "resource_id"
 
   def to_iiif
