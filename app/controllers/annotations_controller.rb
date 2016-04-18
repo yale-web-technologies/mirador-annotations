@@ -156,6 +156,7 @@ class AnnotationsController < ApplicationController
       #@annotationOut['canvas']  = @annotationIn['on']['source']#.to_json
       @annotationOut['canvas']  = @annotationIn['on']['full']
       @annotationOut['resource']  = @annotationIn['resource'].to_json
+      @annotationOut['order_weight']  = @annotationIn['orderWeight']
       @annotationOut['active'] = true
       @annotationOut['version'] = 1
 
@@ -216,7 +217,8 @@ class AnnotationsController < ApplicationController
             :on => @annotationIn['on'],
             :resource => @annotationIn['resource'].to_json,
             :annotated_by => @annotationIn['annotatedBy'].to_json,
-            :version => newVersion
+            :version => newVersion,
+            :order_weight => @annotationIn['orderWeight']
         )
           format.html { redirect_to @annotation, notice: 'Annotation was successfully updated.' }
           format.json { render json: @annotation.to_iiif, status: 200}
