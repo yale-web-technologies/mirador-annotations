@@ -67,15 +67,15 @@ namespace :import do
 
 
   desc "imports LoTB annotation data from a csv file"
-  #Sun of Faith - Structured Chapters - ch. 19.csv
+  #Sun of Faith - Structured Chapters - ch. 26.csv normalized
   # Assumption: will be loaded by worksheet per chapter: first column holds panel, second column holds chapter, third column holds scene
   # Iterating through sheet needs to check for new scene, but not for new panel or chapter
   task :LoTB_annotations => :environment do
     require 'csv'
     #@ru = request.original_url.split('?').first
     #@ru += '/'   if !ru.end_with? '/'
-    #@ru = "localhost"
-    @ru = "mirador-annotations-lotb.herokuapp.com"
+    @ru = "http://localhost:5000"
+    #@ru = "mirador-annotations-lotb.herokuapp.com"
     labels = Array.new
     i = 0
     j=0
@@ -85,29 +85,27 @@ namespace :import do
     lastScene = 0
     nextSceneSeq = 0
     makeLanguageLayers
+    makeLanguageLists
+    makeChaptersScenesLayers
+    makeChaptersScenesLists
     CSV.foreach('importData/lotb26_norm.txt') do |row|
       i+=1;
       puts "i = #{i}"
       # store the labels from row 0
-      puts 'row.size = ' + row.size.to_s
+      #puts 'row.size = ' + row.size.to_s
       # First Row: set labels from column headings
       if (i==1)
-        while j <= row.size
+        #while j < row.size
+        while j <= 11
           labels[j] = row[j]
           puts "labels[#{j}] = #{labels[j]}"
           j += 1
         end
       else
-        # Second Row: set and create Panel and Chapter
-        if (i==2)
-          # - layer for Panel (row[0]),
-          panel = row[0]
-          createNewPanel row
-          # - layer,list and annotation for Chapter (row[1])
-          chapter = row[1]
-          createNewChapter row
-        end
+        panel = row[0]
+        chapter = row[1]
         # check for new Scene
+        # this is to setup the new scene drawing annotation and initialize the nextSceneSeq num
         scene = row[2]
         scene = "0" if (scene.nil?)
         if (lastScene != scene)
@@ -118,100 +116,217 @@ namespace :import do
         end
         nextSceneSeq += 1
         puts "nextSceneSeq = #{nextSceneSeq}"
+#===================================================================================================================================================================
 
-        # create the Tibetan transcription annotation for this row ([5], [7] and [9])
-        #annotation_id = Socket.gethostname + "/annotations/"+ "Panel_" + panel + "_Chapter_" + chapter + "_Scene_" + scene + "_" + nextSceneSeq.to_s + "_Tibetan"
-        #annotation_id = "localhost"         + "/annotations/"+ "Panel_" + panel + "_Chapter_" + chapter + "_Scene_" + scene + "_" + nextSceneSeq.to_s + "_Tibetan"
-        annotation_id = @ru + "/annotations/"+ "Panel_" + panel + "_Chapter_" + chapter + "_Scene_" + scene + "_" + nextSceneSeq.to_s + "_Tibetan"
+        # 1) create the Tibetan Sun of Faith transcription annotation for this row ([5]
+        annotation_id = @ru + "/annotations/"+ "Panel_" + panel + "_Chapter_" + chapter + "_Scene_" + scene + "_" + nextSceneSeq.to_s + "_Tibetan_Sun_Of_Faith"
         annotation_type = "oa:annotation"
-        motivation = "oa:transcribing"
-        label = "Tibetan transcription"
-        description = ""
-
-        #on = @ru + "/annotations/"+ "Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene #+ "_0"
+        motivation = "[oa:transcribing]"
+        label = "Tibetan transcription: Sun of Faith"
         on = '{
             "@type": "oa:Annotation",
             "full": "'
         on += @ru + '/annotations/'+ 'Panel_' + row[0] + '_Chapter_' + row[1] + '_Scene_' + scene
         on += '"}'
         on = JSON.parse(on)
-
-        #canvas = @ru  + "/canvas/" + "SunOfFaith_Panel_B"
-        canvas = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+        #canvas = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+        canvas = on['full']
         manifest = "tbd"
-        chars = Hash.new
-        j = 0
-        #build chars with hash of labels and values
-        while j < row.size
-          unless (j==6 || j==8 || j==10)
-            chars[labels[j]] = row[j]
-            puts chars[labels[j]]
-          end
-          j += 1
-        end
-
-        resource = '[{"@type":"dctypes:Text","format":"text/html","chars":' + chars.to_json + "}]"
+        chars = row[5]
+        #p "chars = " + chars.to_s
+        resource = '[{"@type":"dctypes:Text","format":"text/html","chars":"'
+        resource += chars.to_s
+        resource += '"}]'
         active = true
         version = 1
         @annotation = Annotation.create(annotation_id: annotation_id, annotation_type: annotation_type, motivation: motivation, label:label, on: on, canvas: canvas, manifest: manifest,  resource: resource, active: active, version: version)
         result = @annotation.save!(options={validate: false})
-        sceneList =  @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene
-        languageList = @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" +scene + ":Tibetan"
+        #sceneList =  @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene
+        languageList = @ru + "/lists/Tibetan"
         withinArray = Array.new
-        withinArray.push(sceneList)
+        #withinArray.push(sceneList)
         withinArray.push(languageList)
         ListAnnotationsMap.setMap withinArray, @annotation['annotation_id']
-
-        # create the English translation annotation for this row ([6], [8] and [10])
-        #annotation_id = Socket.gethostname + "/annotations/"+ "Panel_" + panel + "_Chapter_" + chapter + "_Scene_" + scene + "_" + nextSceneSeq + "_English"
-        annotation_id = "localhost" + "/annotations/"+ "Panel_" + panel + "_Chapter_" + chapter + "_Scene_" + scene + "_" + nextSceneSeq.to_s + "_English"
-        annotation_id = @ru + "/annotations/"+ "Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene + "_" + nextSceneSeq.to_s + "_English"
+        #===================================================================================================================================================================
+        # 2) create the Tibetan Inscription transcription annotation for this row ([7]
+        unless row[7].nil?
+          annotation_id = @ru + "/annotations/"+ "Panel_" + panel + "_Chapter_" + chapter + "_Scene_" + scene + "_" + nextSceneSeq.to_s + "_Tibetan_Inscription"
+          annotation_type = "oa:annotation"
+          motivation = "[oa:transcribing]"
+          label = "Tibetan transcription: Inscription"
+          on = '{
+              "@type": "oa:Annotation",
+              "full": "'
+          on += @ru + '/annotations/'+ 'Panel_' + row[0] + '_Chapter_' + row[1] + '_Scene_' + scene
+          on += '"}'
+          on = JSON.parse(on)
+          #canvas = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+          canvas = on['full']
+          manifest = "tbd"
+          chars = row[7]
+          resource = '[{"@type":"dctypes:Text","format":"text/html","chars":"' + chars+'"}]'
+          active = true
+          version = 1
+          @annotation = Annotation.create(annotation_id: annotation_id, annotation_type: annotation_type, motivation: motivation, label:label, on: on, canvas: canvas, manifest: manifest,  resource: resource, active: active, version: version)
+          result = @annotation.save!(options={validate: false})
+          languageList = @ru + "/lists/Tibetan"
+          withinArray = Array.new
+          #withinArray.push(sceneList)
+          withinArray.push(languageList)
+          ListAnnotationsMap.setMap withinArray, @annotation['annotation_id']
+        end
+        #===================================================================================================================================================================
+        # 3) create the Tibetan Manual transcription annotation for this row ([9]
+        unless row[9].nil?
+          annotation_id = @ru + "/annotations/"+ "Panel_" + panel + "_Chapter_" + chapter + "_Scene_" + scene + "_" + nextSceneSeq.to_s + "_Tibetan_Manual"
+          annotation_type = "oa:annotation"
+          motivation = "[oa:transcribing]"
+          label = "Tibetan transcription: Manual"
+          on = '{
+              "@type": "oa:Annotation",
+              "full": "'
+          on += @ru + '/annotations/'+ 'Panel_' + row[0] + '_Chapter_' + row[1] + '_Scene_' + scene
+          on += '"}'
+          on = JSON.parse(on)
+          #canvas = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+          canvas = on['full']
+          manifest = "tbd"
+          chars = row[9]
+          resource = '[{"@type":"dctypes:Text","format":"text/html","chars":"' + chars+'"}]'
+          active = true
+          version = 1
+          @annotation = Annotation.create(annotation_id: annotation_id, annotation_type: annotation_type, motivation: motivation, label:label, on: on, canvas: canvas, manifest: manifest,  resource: resource, active: active, version: version)
+          result = @annotation.save!(options={validate: false})
+          languageList = @ru + "/lists/Tibetan"
+          withinArray = Array.new
+          #withinArray.push(sceneList)
+          withinArray.push(languageList)
+          ListAnnotationsMap.setMap withinArray, @annotation['annotation_id']
+          end
+        #===================================================================================================================================================================
+        # 4) create the English Sun of Faith translation annotation for this row ([6]
+        annotation_id = @ru + "/annotations/"+ "Panel_" + panel + "_Chapter_" + chapter + "_Scene_" + scene + "_" + nextSceneSeq.to_s + "_English_Sun_Of_Faith"
         annotation_type = "oa:annotation"
-        motivation = "oa:translating"
-        label = "English Translation"
-        description = " "
-        #on = @ru + "/annotations/"+ "Panel_"  + "_Chapter_" +"_Scene_" + scene
+        motivation = "[oa:translating]"
+        label = "English Translation: Sun Of Faith"
         on = '{
             "@type": "oa:Annotation",
             "full": "'
         on += @ru + '/annotations/'+ 'Panel_' + row[0] + '_Chapter_' + row[1] + '_Scene_' + scene
         on += '"}'
         on = JSON.parse(on)
-        #canvas = @ru  + "/canvas/" + "SunOfFaith_Panel_B"
-        canvas = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+        #canvas = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+        canvas = on['full']
         manifest = "tbd"
-        chars = Hash.new
-        j = 0
-        #build chars with hash of labels and values
-        while j < row.size
-          unless (j==5 || j==7 || j==9)
-            chars[labels[j]] = row[j]
-            puts chars[labels[j]]
-          end
-          j += 1
-        end
-        resource = '[{"@type":"dctypes:Text","format":"text/html","chars":' + chars.to_json + "}]"
+        chars = row[6]
+        resource = '[{"@type":"dctypes:Text","format":"text/html","chars":"' + chars+'"}]'
         active = true
         version = 1
         @annotation = Annotation.create(annotation_id: annotation_id, annotation_type: annotation_type, motivation: motivation, label:label, on: on, canvas: canvas, manifest: manifest,  resource: resource, active: active, version: version)
         result = @annotation.save!(options={validate: false})
-        sceneList =  @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene
-        languageList = @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" +scene + ":English"
+        languageList = @ru + "/lists/English"
         withinArray = Array.new
-        withinArray.push(sceneList)
+        #withinArray.push(sceneList)
         withinArray.push(languageList)
         ListAnnotationsMap.setMap withinArray, @annotation['annotation_id']
+        #===================================================================================================================================================================
+        # 5) create the English Inscription annotation for this row ([8]
+        unless row[8].nil?
+          annotation_id = @ru + "/annotations/"+ "Panel_" + panel + "_Chapter_" + chapter + "_Scene_" + scene + "_" + nextSceneSeq.to_s + "_English_Inscription"
+          annotation_type = "oa:annotation"
+          motivation = "[oa:translating]"
+          label = "English translation: Inscription"
+          on = '{
+              "@type": "oa:Annotation",
+              "full": "'
+          on += @ru + '/annotations/'+ 'Panel_' + row[0] + '_Chapter_' + row[1] + '_Scene_' + scene
+          on += '"}'
+          on = JSON.parse(on)
+          #canvas = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+          canvas = on['full']
+          manifest = "tbd"
+          chars = row[8]
+          resource = '[{"@type":"dctypes:Text","format":"text/html","chars":"' + chars+'"}]'
+          active = true
+          version = 1
+          @annotation = Annotation.create(annotation_id: annotation_id, annotation_type: annotation_type, motivation: motivation, label:label, on: on, canvas: canvas, manifest: manifest,  resource: resource, active: active, version: version)
+          result = @annotation.save!(options={validate: false})
+          languageList = @ru + "/lists/English"
+          withinArray = Array.new
+          #withinArray.push(sceneList)
+          withinArray.push(languageList)
+          ListAnnotationsMap.setMap withinArray, @annotation['annotation_id']
+        end
+        #===================================================================================================================================================================
+        # 6) create the English Manual annotation for this row ([10]
+        unless row[10].nil?
+          annotation_id = @ru + "/annotations/"+ "Panel_" + panel + "_Chapter_" + chapter + "_Scene_" + scene + "_" + nextSceneSeq.to_s + "_English_Manual"
+          annotation_type = "oa:annotation"
+          motivation = "[oa:translating]"
+          label = "English translation: Manual"
+          on = '{
+              "@type": "oa:Annotation",
+              "full": "'
+          on += @ru + '/annotations/'+ 'Panel_' + row[0] + '_Chapter_' + row[1] + '_Scene_' + scene
+          on += '"}'
+          on = JSON.parse(on)
+          # canvas = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+          canvas = on['full']
+          manifest = "tbd"
+          chars = row[10]
+          resource = '[{"@type":"dctypes:Text","format":"text/html","chars":"' + chars+'"}]'
+          active = true
+          version = 1
+          @annotation = Annotation.create(annotation_id: annotation_id, annotation_type: annotation_type, motivation: motivation, label:label, on: on, canvas: canvas, manifest: manifest,  resource: resource, active: active, version: version)
+          result = @annotation.save!(options={validate: false})
+          languageList = @ru + "/lists/English"
+          withinArray = Array.new
+          #withinArray.push(sceneList)
+          withinArray.push(languageList)
+          ListAnnotationsMap.setMap withinArray, @annotation['annotation_id']
+        end
+        #===================================================================================================================================================================
+        # create the Canonical annotation for this row ([11]
+=begin
+        unless row[11].nil?
+          annotation_id = @ru + "/annotations/"+ "Panel_" + panel + "_Chapter_" + chapter + "_Scene_" + scene + "_" + nextSceneSeq.to_s + "Canonical Source"
+          annotation_type = "oa:annotation"
+          motivation = "[oa:transcribing]"
+          label = "Canonical Source"
+          on = '{
+              "@type": "oa:Annotation",
+              "full": "'
+          on += @ru + '/annotations/'+ 'Panel_' + row[0] + '_Chapter_' + row[1] + '_Scene_' + scene
+          on += '"}'
+          on = JSON.parse(on)
+          canvas = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+          manifest = "tbd"
+          chars = row[11]
+          resource = '[{"@type":"dctypes:Text","format":"text/html","chars":"' + chars+'"}]'
+          active = true
+          version = 1
+          @annotation = Annotation.create(annotation_id: annotation_id, annotation_type: annotation_type, motivation: motivation, label:label, on: on, canvas: canvas, manifest: manifest,  resource: resource, active: active, version: version)
+          result = @annotation.save!(options={validate: false})
+          #sceneList =  @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene
+          #languageList = @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" +scene + ":Tibetan"
+          languageList = @ru + "/lists/Tibetan"
+          withinArray = Array.new
+          #withinArray.push(sceneList)
+          withinArray.push(languageList)
+          ListAnnotationsMap.setMap withinArray, @annotation['annotation_id']
+         end
+=end
+        #===================================================================================================================================================================
       end
     end
   end
-
 
   def makeLanguageLayers
     layer = Hash.new
     layer['layer_id'] = @ru + "/layers/Tibetan"
     layer['layer_type'] = "sc:layer"
     layer['label'] = "Sun of Faith Tibetan"
-    layer['motivation'] = " "
+    layer['motivation'] = "[oa:commenting]"
     layer['description'] = "Sun of Faith Tibetan Transcriptions"
     layer['license'] = "http://creativecommons.org/licenses/by/4.0/"
     layer['version'] = " "
@@ -221,19 +336,107 @@ namespace :import do
     layer['layer_id'] = @ru + "/layers/English"
     layer['layer_type'] = "sc:layer"
     layer['label'] = "Sun of Faith English"
-    layer['motivation'] = " "
+    layer['motivation'] = "[oa:commenting]"
     layer['description'] = "Sun of Faith English Transcriptions"
     layer['license'] = "http://creativecommons.org/licenses/by/4.0/"
     layer['version'] = " "
     createNewLayer layer
   end
 
+  def makeLanguageLists
+    # create Tibetan and English lists for this scene
+    list = Hash.new
+    list['list_id'] = @ru + "/lists/Tibetan"
+    list['list_type'] = "sc:list"
+    list['label'] = "Tibetan"
+    list['description'] = "Tibetan"
+    list['version'] = " "
+    languageLayer =   @ru + "/layers/Tibetan"
+    withinArray = Array.new
+    withinArray.push(languageLayer)
+    list['within'] = withinArray
+    createNewList list
+
+    list = Hash.new
+    list['list_id'] = @ru + "/lists/English"
+    list['list_type'] = "sc:list"
+    list['label'] = "English"
+    list['description'] = "English"
+    list['version'] = " "
+    languageLayer =   @ru + "/layers/English"
+    withinArray = Array.new
+    withinArray.push(languageLayer)
+    list['within'] = withinArray
+    createNewList list
+  end
+
+  def makeChaptersScenesLayers
+    layer = Hash.new
+    layer['layer_id'] = @ru + "/layers/Chapters"
+    layer['layer_type'] = "sc:layer"
+    layer['label'] = "Sun of Faith Chapters"
+    layer['motivation'] = "[oa:commenting]"
+    layer['description'] = "Sun of Faith Chapters"
+    layer['license'] = "http://creativecommons.org/licenses/by/4.0/"
+    layer['version'] = " "
+    createNewLayer layer
+
+    layer = Hash.new
+    layer['layer_id'] = @ru + "/layers/Scenes"
+    layer['layer_type'] = "sc:layer"
+    layer['label'] = "Sun of Faith Scenes"
+    layer['motivation'] = "[oa:commenting]"
+    layer['description'] = "Sun of Faith Scenes"
+    layer['license'] = "http://creativecommons.org/licenses/by/4.0/"
+    layer['version'] = " "
+    createNewLayer layer
+
+    layer = Hash.new
+    layer['layer_id'] = @ru + "/layers/Figures"
+    layer['layer_type'] = "sc:layer"
+    layer['label'] = "Sun of Faith Figures"
+    layer['motivation'] = "[oa:commenting]"
+    layer['description'] = "Sun of Faith Figures"
+    layer['license'] = "http://creativecommons.org/licenses/by/4.0/"
+    layer['version'] = " "
+    createNewLayer layer
+  end
+
+  def makeChaptersScenesLists
+    canvas = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+
+    list = Hash.new
+    list['list_id'] = @ru + "/lists/Chapters/_" + canvas
+    list['list_type'] = "sc:list"
+    list['label'] = "Chapters"
+    list['description'] = "Chapters"
+    list['version'] = " "
+    layer =   @ru + "/layers/Chapters"
+    withinArray = Array.new
+    withinArray.push(layer)
+    list['within'] = withinArray
+    createNewList list
+
+    list = Hash.new
+    list['list_id'] = @ru + "/lists/Scenes/_" + canvas
+    list['list_type'] = "sc:list"
+    list['label'] = "Scenes"
+    list['description'] = "Scenes"
+    list['version'] = " "
+    layer =   @ru + "/layers/Scenes"
+    withinArray = Array.new
+    withinArray.push(layer)
+    list['within'] = withinArray
+    createNewList list
+  end
+
+# not used
   def createNewPanel row
     layer = Hash.new
     layer['layer_id'] = @ru + "/layers/Panel_" + row[0]
     layer['layer_type'] = "sc:layer"
     layer['label'] = "Panel " + row[0]
-    layer['motivation'] = " "
+    layer['motivation'] = "[oa:commenting]"
     layer['description'] = "Sun of Faith Panel " + row[0]
     layer['license'] = "http://creativecommons.org/licenses/by/4.0/"
     layer['version'] = " "
@@ -241,16 +444,17 @@ namespace :import do
   end
 
   def createNewChapter row
+=begin
     #create new layer, list and rendering annotation for new Chapter
     layer = Hash.new
     layer['layer_id'] = @ru + "/layers/Panel_" + row[0] + "_Chapter_" + row[1]
     layer['layer_type'] = "sc:layer"
-    layer['motivation'] = " "
+    layer['motivation'] = "[oa:commenting]"
     layer['label'] = "Panel: " + row[0] + " Chapter: " + row[1]
     layer['description'] = "Sun of Faith Panel " + row[0]+ " Chapter: " + row[1]
     layer['license'] = "http://creativecommons.org/licenses/by/4.0/"
     layer['version'] = " "
-    createNewLayer layer
+    #createNewLayer layer
 
     list = Hash.new
     list['list_id'] = @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1]
@@ -261,37 +465,49 @@ namespace :import do
     panelLayer =  @ru + "/layers/Panel_" + row[0]
     thisLayer   = @ru + "/layers/Panel_" + row[0] + "_Chapter_" + row[1]
     withinArray = Array.new
-    withinArray.push(panelLayer)
+    #withinArray.push(panelLayer)
     withinArray.push(thisLayer)
     list['within'] = withinArray
-    createNewList list
-
+    #createNewList list
+=end
     # create the Chapter annotation (for svg) (no scene)
     annotation_id = @ru + "/annotations/Panel_" + row[0] + "_Chapter_" + row[1]
     newAnnotation = Hash.new
     newAnnotation['annotation_id'] = annotation_id
     newAnnotation['annotation_type'] = "oa:annotation"
-    newAnnotation['motivation'] =""
-    #newAnnotation['on'] = @ru + "/annotations/"+ "Panel_" + row[0] + "_Chapter_" + row[1]
+    newAnnotation['motivation'] ="[oa:commenting]"
+    newAnnotation['resource'] = '[{"@type":"dctypes:Text","format":"text/html","chars":"' + newAnnotation['annotation_id'] + '"}]'
 
-    newAnnotation['on'] = '{
-            "@type": "oa:SpecificResource",
-            "full": "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11",
-            "selector": {
-              "@type": "oa:SvgSelector",
-              "value": "<svg ><path xmlns=\"http://www.w3.org/2000/svg\" d=\"M1805.2536,2088.35484l61.85023,0l61.85023,0l0,287.42166l0,287.42166l-61.85023,0l-61.85023,0l0,-287.42166z\" data-paper-data=\"{&quot;rotation&quot;:0,&quot;annotation&quot;:null}\" id=\"rectangle_e0efece0-fe6e-438d-a2fd-384d5c281da6\" fill-opacity=\"0\" fill=\"#00bfff\" stroke=\"#00bfff\" stroke-width=\"7.2765\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke-miterlimit=\"10\" stroke-dasharray=\"\" stroke-dashoffset=\"0\" font-family=\"sans-serif\" font-weight=\"normal\" font-size=\"12\" text-anchor=\"start\" mix-blend-mode=\"normal\"/></svg>"
-                }
-}'
-    newAnnotation['on'] = JSON.parse(newAnnotation['on'])
+    #newAnnotation['on'] = @ru + "/annotations/"+ "Panel_" + row[0] + "_Chapter_" + row[1]
+    #newAnnotation['on'] = JSON.parse(newAnnotation['on'])
+
+    newAnnotation['on'] = '{"@type":"oa:SpecificResource","full":"http://manifests.ydc2.yale.edu/LOTB/canvas/bv11","selector":{"@type":"oa:SvgSelector","value":"<svg >'
+    newAnnotation['on'] += '<path xmlns=\"http://www.w3.org/2000/svg\"'
+    newAnnotation['on'] += ' d=\"M1805.2536,2088.35484l61.85023,0l61.85023,0l0,287.42166l0,287.42166l-61.85023,0l-61.85023,0l0,-287.42166z\"'
+    newAnnotation['on'] += ' data-paper-data=\"{&quot;rotation&quot;:0,&quot;annotation&quot;:null}\"'
+    newAnnotation['on'] += ' id=\"rectangle_e0efece0-fe6e-438d-a2fd-384d5c281da6\" fill-opacity=\"0\"'
+    newAnnotation['on'] += ' fill=\"#00bfff\"'
+    newAnnotation['on'] += ' stroke=\"#00bfff\"'
+    newAnnotation['on'] += ' stroke-width=\"7.2765\"'
+    newAnnotation['on'] += ' stroke-linecap=\"butt\"'
+    newAnnotation['on'] += ' stroke-linejoin=\"miter\"'
+    newAnnotation['on'] += ' stroke-miterlimit=\"10\"'
+    newAnnotation['on'] += ' stroke-dasharray=\"\"'
+    newAnnotation['on'] += ' stroke-dashoffset=\"0\"'
+    newAnnotation['on'] += ' font-family=\"sans-serif\"'
+    newAnnotation['on'] += ' font-weight=\"normal\"'
+    newAnnotation['on'] += ' font-size=\"12\"'
+    newAnnotation['on'] += ' text-anchor=\"start\"'
+    newAnnotation['on'] += ' mix-blend-mode=\"normal\"/></svg>>"}}'
 
     newAnnotation['description'] = "Panel: " + row[0] + " Chapter: " + row[1]
     newAnnotation['annotated_by'] = "annotator"
     newAnnotation['canvas']  = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
     newAnnotation['manifest'] = "tbd"
-    newAnnotation['resource']  = "| |"
     newAnnotation['active'] = true
     newAnnotation['version'] = 1
-    thisList = @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1]
+    #thisList = @ru + "/lists/Panel_" + row[0] + "_Chapters"# + row[1]
+    thisList = @ru + "/lists/Chapters/"
     withinArray = Array.new
     withinArray.push(thisList)
     newAnnotation['within'] = withinArray
@@ -299,81 +515,57 @@ namespace :import do
   end
 
   def createNewScene row
-    # create new list ChapterX_SceneY and attach to layers PanelB and Chapter_X
+
+    # create new list ChapterX_SceneY and attach to layer and Chapter_X
     scene = row[2]
     scene = "0" if (scene.nil?)
-
+=begin
     list = Hash.new
-    list['list_id'] = @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" +scene
+    #list['list_id'] = @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" +scene
+    list['list_id'] = @ru + "/lists/Scenes"
+
     list['list_type'] = "sc:list"
     list['label'] = "Panel:" + row[0] + " Chapter: " + row[1]
     list['description'] = "Sun of Faith Panel: " + row[0] + " Chapter: " + row[1] + " Scene: " +scene
+
     list['version'] = " "
     panelLayer =  @ru + "/layers/Panel_" + row[0]
-    thisLayer   = @ru + "/layers/Panel_" + row[0] + "_Chapter_" + row[1]
+    #thisLayer   = @ru + "/layers/Panel_" + row[0] + "_Chapter"# + row[1]
+    thisLayer   = @ru + "/layers/Chapters"
     withinArray = Array.new
-    withinArray.push(panelLayer)
+    #withinArray.push(panelLayer)
     withinArray.push(thisLayer)
     list['within'] = withinArray
-    createNewList list
+    #createNewList list
+=end
 
     # create new annotation ChapterXSceneY (for svg) and attach to lists for ChapterX and ChapterXSceneY
     annotation_id = @ru + "/annotations/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene
     newAnnotation = Hash.new
     newAnnotation['annotation_id'] = annotation_id
     newAnnotation['annotation_type'] = "oa:annotation"
-    newAnnotation['motivation'] =" "
+    newAnnotation['motivation'] ="[oa:commenting]"
+    newAnnotation['resource'] = '[{"@type":"dctypes:Text","format":"text/html","chars":"' + newAnnotation['annotation_id'] + '"}]'
+
     #newAnnotation['on'] = @ru + "/annotations/"+ "Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene #+ "_0"
-    newAnnotation['on'] = '{
-            "@type": "oa:SpecificResource",
-            "full": "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11",
-            "selector": {
-              "@type": "oa:SvgSelector",
-              "value": "<svg ><path xmlns=\"http://www.w3.org/2000/svg\" d=\"M1805.2536,2088.35484l61.85023,0l61.85023,0l0,287.42166l0,287.42166l-61.85023,0l-61.85023,0l0,-287.42166z\" data-paper-data=\"{&quot;rotation&quot;:0,&quot;annotation&quot;:null}\" id=\"rectangle_e0efece0-fe6e-438d-a2fd-384d5c281da6\" fill-opacity=\"0\" fill=\"#00bfff\" stroke=\"#00bfff\" stroke-width=\"7.2765\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke-miterlimit=\"10\" stroke-dasharray=\"\" stroke-dashoffset=\"0\" font-family=\"sans-serif\" font-weight=\"normal\" font-size=\"12\" text-anchor=\"start\" mix-blend-mode=\"normal\"/></svg>"
-                }
-}'
-    newAnnotation['on'] = JSON.parse(newAnnotation['on'])
+    newAnnotation['on'] = '{"@type": "oa:SpecificResource","full": "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11","selector": {"@type": "oa:SvgSelector","value": "<svg ><path xmlns=\"http://www.w3.org/2000/svg\" d=\"M1805.2536,2088.35484l61.85023,0l61.85023,0l0,287.42166l0,287.42166l-61.85023,0l-61.85023,0l0,-287.42166z\" data-paper-data=\"{&quot;rotation&quot;:0,&quot;annotation&quot;:null}\" id=\"rectangle_e0efece0-fe6e-438d-a2fd-384d5c281da6\" fill-opacity=\"0\" fill=\"#00bfff\" stroke=\"#00bfff\" stroke-width=\"7.2765\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke-miterlimit=\"10\" stroke-dasharray=\"\" stroke-dashoffset=\"0\" font-family=\"sans-serif\" font-weight=\"normal\" font-size=\"12\" text-anchor=\"start\" mix-blend-mode=\"normal\"/></svg>"}}'
+    #newAnnotation['on'] = JSON.parse(newAnnotation['on'])
+    #newAnnotation['on'] = '{"@type":"oa:SpecificResource","full":"http://manifests.ydc2.yale.edu/LOTB/canvas/bv11","selector":{"@type":"oa:SvgSelector","value":"<svg/>"}}'
 
     newAnnotation['description'] = "Panel: " + row[0] + " Chapter: " + row[1] + " Scene: " + scene
     newAnnotation['annotated_by'] = "annotator"
     newAnnotation['canvas']  = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
     newAnnotation['manifest'] = "tbd"
-    newAnnotation['resource']  = "| |"
     newAnnotation['active'] = true
     newAnnotation['version'] = 1
-    thisList = @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene
-    chapterList = @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1]
+    thisList = @ru + "/lists/Scenes/_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+    #chapterList = @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1]
     withinArray = Array.new
     withinArray.push(thisList)
-    withinArray.push(chapterList)
+    #withinArray.push(chapterList)
     newAnnotation['within'] = withinArray
     createNewRenderingAnnotation newAnnotation
     #createNewRenderingAnnotation newAnnotation, withinArray
-
-    # create Tibetan and English lists for this scene
-    list = Hash.new
-    list['list_id'] = @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" +scene + ":Tibetan"
-    list['list_type'] = "sc:list"
-    list['label'] = "Panel:" + row[0] + " Chapter: " + row[1]
-    list['description'] = "Sun of Faith: Panel: " + row[0] + " Chapter: " + row[1] + " Scene: " +scene + ":Tibetan"
-    list['version'] = " "
-    languageLayer =   @ru + "/layers/Tibetan"
-    withinArray = Array.new
-    withinArray.push(languageLayer)
-    list['within'] = withinArray
-    createNewList list
-
-    list = Hash.new
-    list['list_id'] = @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" +scene + ":English"
-    list['list_type'] = "sc:list"
-    list['label'] = "Panel: " + row[0] + " Chapter: " + row[1]
-    list['description'] = "Sun of Faith: Panel:" + row[0] + " Chapter: " + row[1] + " Scene: " +scene + ":English"
-    list['version'] = " "
-    languageLayer =   @ru + "/layers/English"
-    withinArray = Array.new
-    withinArray.push(languageLayer)
-    list['within'] = withinArray
-    createNewList list
   end
 
   def createNewLayer layer
@@ -385,27 +577,27 @@ namespace :import do
   end
 
   def createNewList list
-
     lists = AnnotationList.where(list_id: list['list_id']).first
     if (lists.nil?)
       @newList = AnnotationList.create(list_id: list['list_id'], list_type: list['list_type'],
                                        label:list['label'], description:list['description'], version: list['version'])
       LayerListsMap.setMap list['within'],list['list_id']
     end
+    #LayerListsMap.setMap list['within'],list['list_id']
   end
 
   def createNewRenderingAnnotation newAnnotation
     annotations = Annotation.where(annotation_id: newAnnotation['annotation_id']).first
     if (annotations.nil?)
-      #@annotation = Annotation.create(newAnnotation)
+      #p 'in createNewRenderingAnnotation: resource = ' + newAnnotation['resource'].to_s
       @annotation = Annotation.create(annotation_id:newAnnotation['annotation_id'], annotation_type: newAnnotation['annotation_type'], motivation: newAnnotation['motivation'],
-                                      description:newAnnotation['description'], on: newAnnotation['on'].to_s, canvas: newAnnotation['canvas'], manifest: newAnnotation['manifest'],
+                                      description:newAnnotation['description'], resource:newAnnotation['resource'].to_s, on: newAnnotation['on'].to_s, canvas: newAnnotation['canvas'], manifest: newAnnotation['manifest'],
                                       active: newAnnotation['active'],
                                       version: newAnnotation['version'])
       ListAnnotationsMap.setMap newAnnotation['within'], newAnnotation['annotation_id']
     end
   end
-
+#================= end LotB ================
 
   desc "imports LayerListsMaps data from a csv file"
   task :layerListsMaps => :environment do

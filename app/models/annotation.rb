@@ -24,8 +24,10 @@ class Annotation < ActiveRecord::Base
     #iiif['motivation'] = JSON.parse(motivation)
     #iiif['motivation'] = JSON.parse(motivation.gsub(/=>/,":"))
     iiif['within'] = ListAnnotationsMap.getListsForAnnotation annotation_id
-    iiif['resource'] = JSON.parse(resource) if !resource.nil?
-    iiif['annnotatedBy'] = JSON.parse(annotated_by) if !iiif['annnotatedBy'].nil?
+    p "resource = #{resource.to_s}"
+    #iiif['resource'] = JSON.parse(resource) if !resource.nil?
+    iiif['resource'] = '[{"@type": "dctypes:Text", "format": "text/html", "chars":' + annotation_id + '"}]'
+    #iiif['annnotatedBy'] = JSON.parse(annotated_by) if !annnotated_by.nil?
     iiif['on'] = on
     if (on.start_with?("{"))
       iiif['on'] = JSON.parse(on.gsub(/=>/,":"))
@@ -40,8 +42,8 @@ class Annotation < ActiveRecord::Base
     version_content['@context'] = "http://iiif.io/api/presentation/2/context.json"
     version_content['motivation'] = motivation
     version_content['within'] = ListAnnotationsMap.getListsForAnnotation annotation_id
-    version_content['resource'] = resource.to_json
-    version_content['annnotatedBy'] = annotated_by.to_json
+    #version_content['resource'] = resource.to_json
+    #version_content['annnotatedBy'] = annotated_by.to_json
     version_content['on'] = on
     version_content.to_json
   end

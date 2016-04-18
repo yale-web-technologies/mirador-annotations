@@ -45,7 +45,11 @@ class AnnotationsController < ApplicationController
       annoWLayerArray = Array.new
       iiif = Array.new
       @annotation.each do |annotation|
+        p " "
+        p "getAnnotationsForCanvas: doing annotation: #{annotation.annotation_id}"
+
         within = ListAnnotationsMap.getListsForAnnotation annotation.annotation_id
+
         #authorized = false
         authorized = true
         # TODO: turn authorization back on for next pass
@@ -61,26 +65,38 @@ class AnnotationsController < ApplicationController
 
         if (authorized==true)
           #iiif.push(annotation.to_iiif)
-          # return not just array of annotations but layers as well
+          # return not just array of annotations but including an array of layers for each annotation as well
           lists = ListAnnotationsMap.getListsForAnnotation annotation.annotation_id
           lists.each do |list_id|
-            p "list = #{list_id}"
+            p "getAnnotationsForCanvas: doing list: #{list_id}"
             layers = LayerListsMap.getLayersForList list_id
             # 4/7/2016
+            p "layers count = #{layers.count().to_s}"
+            annoWLayerHash= Hash.new
             if (layers.nil?)
-              annoWLayerHash= Hash.new
+              #p "layers = nil"
+              #annoWLayerHash= Hash.new
               annoWLayerHash["layer_id"] = "no layer"
               annoWLayerHash["annotation"] = annotation.to_iiif
               annoWLayerArray.push(annoWLayerHash)
             else
+              p "layers = NOT nil"
               layers.each do |layer_id|
-                #p "layer = #{layer_id}"
+                p "getAnnotationsForCanvas: doing layer: #{layer_id}"
+                p " "
+
                 annoWLayerHash= Hash.new
                 annoWLayerHash["layer_id"] = layer_id
-                #p "layer now = #{layer_id}"
                 annoWLayerHash["annotation"] = annotation.to_iiif
                 annoWLayerArray.push(annoWLayerHash)
               end
+
+              #layers.each do |layer_id|
+              #  p "layer = #{layer_id}"
+              #  annoWLayerHash["layer_id"] = layer_id
+              #  annoWLayerHash["annotation"] = annotation.to_iiif
+              #  annoWLayerArray.push(annoWLayerHash)
+              #end
             end
           end
         end
@@ -96,6 +112,9 @@ class AnnotationsController < ApplicationController
   def show
     p 'in show method for annotations'
     @ru = request.protocol + request.host_with_port + "/annotations/#{params['id']}"
+
+    p "in controller_show: annotation @ru = " + @ru
+
     @annotation = Annotation.where(annotation_id: @ru).first
     #authorize! :show, @annotation_list
     request.format = "json"
@@ -347,6 +366,7 @@ class AnnotationsController < ApplicationController
   def  getTargetingAnnos inputAnnos
     return if (inputAnnos.nil?)
     inputAnnos.each do |anno|
+      p 'getTargetingAnnos: anno_id = ' + anno.annotation_id
       targetingAnnotations = Annotation.where(canvas:anno.annotation_id)
       getTargetingAnnos targetingAnnotations
       @annotation += targetingAnnotations if !targetingAnnotations.nil?
