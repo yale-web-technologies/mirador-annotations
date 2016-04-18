@@ -11,7 +11,8 @@ default: &default
 
 development:
   <<: *default
-  database: db/development.sqlite3
+  #database: db/development.sqlite3
+  database: ~/rails_project_forks/ten-thousand-rooms-annotation-server-lotb/db/development.sqlite3
 
 #development:
 #    adapter: postgresql
