@@ -26,7 +26,8 @@ class Annotation < ActiveRecord::Base
     iiif['within'] = ListAnnotationsMap.getListsForAnnotation annotation_id
     p "resource = #{resource.to_s}"
     #iiif['resource'] = JSON.parse(resource) if !resource.nil?
-    iiif['resource'] = '[{"@type": "dctypes:Text", "format": "text/html", "chars":' + annotation_id + '"}]'
+    iiif['resource'] = resource if !resource.nil?
+    #iiif['resource'] = '[{"@type": "dctypes:Text", "format": "text/html", "chars":' + annotation_id + '"}]'
     #iiif['annnotatedBy'] = JSON.parse(annotated_by) if !annnotated_by.nil?
     iiif['on'] = on
     if (on.start_with?("{"))
