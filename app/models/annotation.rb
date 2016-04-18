@@ -12,7 +12,8 @@ class Annotation < ActiveRecord::Base
                   :annotated_by,
                   :active,
                   :version,
-                  :service_block
+                  :service_block,
+                  :orderWeight
   has_many :webacls, foreign_key: "resource_id"
 
   def to_iiif
@@ -33,6 +34,7 @@ class Annotation < ActiveRecord::Base
     if (on.start_with?("{"))
       iiif['on'] = JSON.parse(on.gsub(/=>/,":"))
     end
+    iiif['orderWeight'] =  order_weight
     iiif#.to_json
   end
 

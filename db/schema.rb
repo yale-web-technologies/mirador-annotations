@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160125193742) do
+ActiveRecord::Schema.define(version: 20160418160537) do
 
   create_table "anno_list_layer_versions", force: :cascade do |t|
     t.string   "all_id"
@@ -64,6 +64,7 @@ ActiveRecord::Schema.define(version: 20160125193742) do
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
     t.string   "service_block"
+    t.integer  "order_weight"
   end
 
   add_index "annotations", ["annotation_id"], name: "index_annotations_on_annotation_id"
@@ -88,11 +89,11 @@ ActiveRecord::Schema.define(version: 20160125193742) do
 
   create_table "groups_webacls", id: false, force: :cascade do |t|
     t.integer "group_id"
-    t.integer "webacl_id"
+    t.integer "webacls_id"
   end
 
   add_index "groups_webacls", ["group_id"], name: "index_groups_webacls_on_group_id"
-  add_index "groups_webacls", ["webacl_id"], name: "index_groups_webacls_on_webacl_id"
+  add_index "groups_webacls", ["webacls_id"], name: "index_groups_webacls_on_webacls_id"
 
   create_table "layer_lists_maps", force: :cascade do |t|
     t.string   "layer_id"
@@ -144,8 +145,15 @@ ActiveRecord::Schema.define(version: 20160125193742) do
   add_index "users", ["email"], name: "index_users_on_email", unique: true
   add_index "users", ["tgToken"], name: "index_users_on_tgToken", unique: true
 
-# Could not dump table "users_webacls" because of following NoMethodError
-#   undefined method `[]' for nil:NilClass
+  create_table "users_webacls", force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "group_id"
+    t.integer "webacls_id"
+  end
+
+  add_index "users_webacls", ["group_id"], name: "index_users_webacls_on_group_id"
+  add_index "users_webacls", ["user_id"], name: "index_users_webacls_on_user_id"
+  add_index "users_webacls", ["webacls_id"], name: "index_users_webacls_on_webacls_id"
 
   create_table "webacls", force: :cascade do |t|
     t.string   "resource_id"
