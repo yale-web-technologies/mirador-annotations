@@ -13,7 +13,7 @@ Mirador-Annotations:
 	- Webacls Authz: creates webacls based on user groups to determine if the calling user has access to a given resource
 
 
-**Getting Started**- Mirador-Annotations is basically a standard Ruby on Rails application with the usual deployment steps:
+**Getting Started** - Mirador-Annotations is basically a standard Ruby on Rails application with the usual deployment steps:
 
 	**Installation:**
 		- git clone
@@ -30,6 +30,6 @@ Mirador-Annotations:
 		- For use with Mirador, the central thought is to allow both standard annotations which are bound to a canvas,
 		and "targeting" annotations which are bound to another annotation.
 		- layers should be created manually, and when an canvas-bound annotation is entered it will automatically add to a list defined by layer and canvas
-		- Custom Method getAnnotations is an API call method which will return all annotations which are bound to a given canvas,
+		- Custom Method *getAnnotationsForCanvas* is an API call method which will return all annotations which are bound to a given canvas,
 		along with all annotations which target it either directly or indirectly
 		(i.e. Annotation 3 targets Annotation 2 which targets standard Annotation 1, which is bound to a canvas)
