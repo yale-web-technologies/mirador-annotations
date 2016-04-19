@@ -14,8 +14,9 @@ Mirador-Annotations:
 
 
 **Getting Started** - Mirador-Annotations is basically a standard Ruby on Rails application with the usual deployment steps:
+--------------------
 
-	**Installation:**
+	*Installation:*
 		- git clone
 		- bundle
 		- rake db:migrate
@@ -24,7 +25,7 @@ Mirador-Annotations:
 	3.	Rake db:migrate
 
 
-	**Usage:**
+	*Usage:*
 		- Mirador-Annotations receives new annotations in IIIF format and will save to whichever relational database
 		 is configured. It will also return requested annotations in IIIF format.
 		- For use with Mirador, the central thought is to allow both standard annotations which are bound to a canvas,
