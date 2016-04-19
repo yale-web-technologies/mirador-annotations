@@ -28,6 +28,7 @@ Getting Started- Mirador-Annotations is basically a standard Ruby on Rails appli
 		 is configured. It will also return requested annotations in IIIF format.
 		- For use with Mirador, the central thought is to allow both standard annotations which are bound to a canvas,
 		and "targeting" annotations which are bound to another annotation.
-		- Custon Method getAnnotations is an API call method which will return all annotations which are bound to a given canvas,
+		- layers should be created manually, and when an canvas-bound annotation is entered it will automatically add to a list defined by layer and canvas
+		- Custom Method getAnnotations is an API call method which will return all annotations which are bound to a given canvas,
 		along with all annotations which target it either directly or indirectly
 		(i.e. Annotation 3 targets Annotation 2 which targets standard Annotation 1, which is bound to a canvas)
