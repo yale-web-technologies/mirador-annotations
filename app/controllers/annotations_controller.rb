@@ -161,6 +161,7 @@ class AnnotationsController < ApplicationController
       @annotationOut['version'] = 1
 
       # determine the required list for this layer and canvas (this is project-specific)
+      # TODO: this should be configurable by defining a profile per deployment
       # and create as needed (if this is the first annotation for this layer/canvas)
       handleRequiredList
 
