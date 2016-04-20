@@ -39,6 +39,7 @@ class AnnotationsController < ApplicationController
     @annotation = Annotation.where(canvas:params['canvas_id'])
     if params['includeTargetingAnnos']== 'true'
       @annotationsOnAnnotations = getTargetingAnnos @annotation
+      p 'calling getTargetingAnnos'
     end
 
     respond_to do |format|
