@@ -17,6 +17,7 @@ class Annotation < ActiveRecord::Base
   has_many :webacls, foreign_key: "resource_id"
 
   def to_iiif
+    #return if (label.startsWith?=='Tibetan')
     iiif = Hash.new
     iiif['@id'] = annotation_id
     iiif['@type'] = annotation_type
@@ -24,11 +25,21 @@ class Annotation < ActiveRecord::Base
     iiif['motivation'] = motivation
     #iiif['motivation'] = JSON.parse(motivation)
     #iiif['motivation'] = JSON.parse(motivation.gsub(/=>/,":"))
+
     iiif['within'] = ListAnnotationsMap.getListsForAnnotation annotation_id
-    p "resource = #{resource.to_s}"
-    #iiif['resource'] = JSON.parse(resource) if !resource.nil?
-    iiif['resource'] = resource if !resource.nil?
-    #iiif['resource'] = '[{"@type": "dctypes:Text", "format": "text/html", "chars":' + annotation_id + '"}]'
+
+    p "annotation_id = #{annotation_id} resource = #{resource}"
+    p resource.instance_of? String #true
+    p resource.instance_of? Array  #false
+
+    #resource = [{"@type":"dctypes:Text","format":"text/html","chars":"ཉེར་དྲུག་པ་ནགས་ཁྲོད་དུ་དལ་བར་བཞུགས་པ་ནི།"}].to_s
+    #resource = '[{"@type":"dctypes:Text","format":"text/html","chars":"ཉེར་དྲུག་པ་ནགས་ཁྲོད་དུ་དལ་བར་བཞུགས་པ་ནི།"}]'
+    #resource = resource.encode("UTF-8") # no effect
+    #resource.gsub!(/=>/,":")
+    p "resource now = #{resource}"
+    iiif['resource'] = JSON.parse(resource)
+    #iiif['resource'] = resource
+
     #iiif['annnotatedBy'] = JSON.parse(annotated_by) if !annnotated_by.nil?
     iiif['on'] = on
     if (on.start_with?("{"))
