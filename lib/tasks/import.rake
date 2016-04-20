@@ -88,6 +88,8 @@ namespace :import do
     makeLanguageLists
     makeChaptersScenesLayers
     makeChaptersScenesLists
+    makeCanonicalSourceLayer
+    makeCanonicalSourceList
     CSV.foreach('importData/lotb26_norm.txt') do |row|
       i+=1;
       puts "i = #{i}"
@@ -287,11 +289,11 @@ namespace :import do
         end
         #===================================================================================================================================================================
         # create the Canonical annotation for this row ([11]
-=begin
+
         unless row[11].nil?
           annotation_id = @ru + "/annotations/"+ "Panel_" + panel + "_Chapter_" + chapter + "_Scene_" + scene + "_" + nextSceneSeq.to_s + "Canonical Source"
           annotation_type = "oa:annotation"
-          motivation = "[oa:transcribing]"
+          motivation = "[oa:commenting]"
           label = "Canonical Source"
           on = '{
               "@type": "oa:Annotation",
@@ -300,6 +302,7 @@ namespace :import do
           on += '"}'
           on = JSON.parse(on)
           canvas = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+          canvas = on['full']
           manifest = "tbd"
           chars = row[11]
           resource = '[{"@type":"dctypes:Text","format":"text/html","chars":"' + chars+'"}]'
@@ -309,13 +312,14 @@ namespace :import do
           result = @annotation.save!(options={validate: false})
           #sceneList =  @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene
           #languageList = @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" +scene + ":Tibetan"
-          languageList = @ru + "/lists/Tibetan"
+          #list = @ru + "/lists/CanonicalSource"
+          list = @ru + "/lists/CanonicalSources/_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
           withinArray = Array.new
           #withinArray.push(sceneList)
-          withinArray.push(languageList)
+          withinArray.push(list)
           ListAnnotationsMap.setMap withinArray, @annotation['annotation_id']
          end
-=end
+
         #===================================================================================================================================================================
       end
     end
@@ -430,6 +434,33 @@ namespace :import do
     createNewList list
   end
 
+  def makeCanonicalSourceLayer
+    layer = Hash.new
+    layer['layer_id'] = @ru + "/layers/CanonicalSources"
+    layer['layer_type'] = "sc:layer"
+    layer['label'] = "Sun of Faith Canonical Sources"
+    layer['motivation'] = "[oa:commenting]"
+    layer['description'] = "Sun of Faith Canonical Sources"
+    layer['license'] = "http://creativecommons.org/licenses/by/4.0/"
+    layer['version'] = " "
+    createNewLayer layer
+  end
+
+  def makeCanonicalSourceList
+    canvas = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+    list = Hash.new
+    list['list_id'] = @ru + "/lists/CanonicalSources/_" + canvas
+    list['list_type'] = "sc:list"
+    list['label'] = "Canonical Sources"
+    list['description'] = "Canonical Sources"
+    list['version'] = " "
+    layer =   @ru + "/layers/CanonicalSources"
+    withinArray = Array.new
+    withinArray.push(layer)
+    list['within'] = withinArray
+    createNewList list
+  end
+
 # not used
   def createNewPanel row
     layer = Hash.new
@@ -480,7 +511,6 @@ namespace :import do
 
     #newAnnotation['on'] = @ru + "/annotations/"+ "Panel_" + row[0] + "_Chapter_" + row[1]
     #newAnnotation['on'] = JSON.parse(newAnnotation['on'])
-
     newAnnotation['on'] = '{"@type":"oa:SpecificResource","full":"http://manifests.ydc2.yale.edu/LOTB/canvas/bv11","selector":{"@type":"oa:SvgSelector","value":"<svg >'
     newAnnotation['on'] += '<path xmlns=\"http://www.w3.org/2000/svg\"'
     newAnnotation['on'] += ' d=\"M1805.2536,2088.35484l61.85023,0l61.85023,0l0,287.42166l0,287.42166l-61.85023,0l-61.85023,0l0,-287.42166z\"'
@@ -541,6 +571,9 @@ namespace :import do
 
     # create new annotation ChapterXSceneY (for svg) and attach to lists for ChapterX and ChapterXSceneY
     annotation_id = @ru + "/annotations/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene
+    if (scene=="0")
+      annotation_id = @ru + "/annotations/Panel_" + row[0] + "_Chapter_" + row[1]
+    end
     newAnnotation = Hash.new
     newAnnotation['annotation_id'] = annotation_id
     newAnnotation['annotation_type'] = "oa:annotation"
@@ -549,17 +582,20 @@ namespace :import do
     newAnnotation['resource'] = '[{"@type":"dctypes:Text","format":"text/html","chars":"' + "Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene + '"}]'
 
     #newAnnotation['on'] = @ru + "/annotations/"+ "Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene #+ "_0"
-    newAnnotation['on'] = '{"@type": "oa:SpecificResource","full": "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11","selector": {"@type": "oa:SvgSelector","value": "<svg ><path xmlns=\"http://www.w3.org/2000/svg\" d=\"M1805.2536,2088.35484l61.85023,0l61.85023,0l0,287.42166l0,287.42166l-61.85023,0l-61.85023,0l0,-287.42166z\" data-paper-data=\"{&quot;rotation&quot;:0,&quot;annotation&quot;:null}\" id=\"rectangle_e0efece0-fe6e-438d-a2fd-384d5c281da6\" fill-opacity=\"0\" fill=\"#00bfff\" stroke=\"#00bfff\" stroke-width=\"7.2765\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke-miterlimit=\"10\" stroke-dasharray=\"\" stroke-dashoffset=\"0\" font-family=\"sans-serif\" font-weight=\"normal\" font-size=\"12\" text-anchor=\"start\" mix-blend-mode=\"normal\"/></svg>"}}'
+    #newAnnotation['on'] = '{"@type": "oa:SpecificResource","full": "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11","selector": {"@type": "oa:SvgSelector","value": "<svg ><path xmlns=\"http://www.w3.org/2000/svg\" d=\"M1805.2536,2088.35484l61.85023,0l61.85023,0l0,287.42166l0,287.42166l-61.85023,0l-61.85023,0l0,-287.42166z\" data-paper-data=\"{&quot;rotation&quot;:0,&quot;annotation&quot;:null}\" id=\"rectangle_e0efece0-fe6e-438d-a2fd-384d5c281da6\" fill-opacity=\"0\" fill=\"#00bfff\" stroke=\"#00bfff\" stroke-width=\"7.2765\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke-miterlimit=\"10\" stroke-dasharray=\"\" stroke-dashoffset=\"0\" font-family=\"sans-serif\" font-weight=\"normal\" font-size=\"12\" text-anchor=\"start\" mix-blend-mode=\"normal\"/></svg>"}}'
+    newAnnotation['on'] = '{"@type": "oa:SpecificResource","full": "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11","selector": {"@type": "oa:SvgSelector","value": "<svg></svg>"}}'
     #newAnnotation['on'] = JSON.parse(newAnnotation['on'])
     #newAnnotation['on'] = '{"@type":"oa:SpecificResource","full":"http://manifests.ydc2.yale.edu/LOTB/canvas/bv11","selector":{"@type":"oa:SvgSelector","value":"<svg/>"}}'
 
     newAnnotation['description'] = "Panel: " + row[0] + " Chapter: " + row[1] + " Scene: " + scene
+    newAnnotation['description'] = "Panel: " + row[0] + " Chapter: " + row[1] if (scene=="0")
     newAnnotation['annotated_by'] = "annotator"
     newAnnotation['canvas']  = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
     newAnnotation['manifest'] = "tbd"
     newAnnotation['active'] = true
     newAnnotation['version'] = 1
     thisList = @ru + "/lists/Scenes/_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+    thisList = @ru + "/lists/Chapters/_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11" if (scene=="0")
     #chapterList = @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1]
     withinArray = Array.new
     withinArray.push(thisList)
