@@ -74,8 +74,8 @@ namespace :import do
     require 'csv'
     #@ru = request.original_url.split('?').first
     #@ru += '/'   if !ru.end_with? '/'
-    @ru = "http://localhost:5000"
-    #@ru = "mirador-annotations-lotb.herokuapp.com"
+    #@ru = "http://localhost:5000"
+    @ru = "mirador-annotations-lotb-staging.herokuapp.com"
     labels = Array.new
     i = 0
     j=0
