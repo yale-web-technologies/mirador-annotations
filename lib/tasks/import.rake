@@ -72,10 +72,15 @@ namespace :import do
   # Iterating through sheet needs to check for new scene, but not for new panel or chapter
   task :LoTB_annotations => :environment do
     require 'csv'
+    require 'socket'
+
+    p "Socket.getHostname = #{Socket.gethostname}"
     #@ru = request.original_url.split('?').first
     #@ru += '/'   if !ru.end_with? '/'
     #@ru = "http://localhost:5000"
-    @ru = "http://mirador-annotations-lotb-stg.herokuapp.com"
+    #@ru = "http://mirador-annotations-lotb-stg.herokuapp.com"
+    @ru = "http://mirador-annotations-lotb.herokuapp.com"
+
     labels = Array.new
     i = 0
     j=0
