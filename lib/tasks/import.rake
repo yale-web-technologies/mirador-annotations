@@ -78,8 +78,8 @@ namespace :import do
     #@ru = request.original_url.split('?').first
     #@ru += '/'   if !ru.end_with? '/'
     #@ru = "http://localhost:5000"
-    #@ru = "http://mirador-annotations-lotb-stg.herokuapp.com"
-    @ru = "http://mirador-annotations-lotb.herokuapp.com"
+    @ru = "http://mirador-annotations-lotb-stg.herokuapp.com"
+    #@ru = "http://mirador-annotations-lotb.herokuapp.com"
 
     labels = Array.new
     i = 0
@@ -89,12 +89,17 @@ namespace :import do
     scene = " "
     lastScene = 0
     nextSceneSeq = 0
-    makeLanguageLayers
-    makeLanguageLists
-    makeChaptersScenesLayers
-    makeChaptersScenesLists
-    makeCanonicalSourceLayer
-    makeCanonicalSourceList
+    makeLanguageLayers # comment out for prod re-do
+    makeLanguageLists  #comment out for prod re-do
+    makeTibetanLayersInscriptionAndManual
+    makeTibetanListsInscriptionAndManual
+    makeEnglishLayersInscriptionAndManual
+    makeEnglishListsInscriptionAndManual
+
+    makeChaptersScenesLayers # comment out for prod re-do
+    makeChaptersScenesLists # comment out for prod re-do
+    makeCanonicalSourceLayer # comment out for prod re-do
+    makeCanonicalSourceList # comment out for prod re-do
     CSV.foreach('importData/lotb26_norm.txt') do |row|
       i+=1;
       puts "i = #{i}"
@@ -152,6 +157,9 @@ namespace :import do
         version = 1
         @annotation = Annotation.create(annotation_id: annotation_id, annotation_type: annotation_type, motivation: motivation, label:label, on: on, canvas: canvas, manifest: manifest,  resource: resource, active: active, version: version)
         result = @annotation.save!(options={validate: false})
+
+        p 'just created tibetan annotation: ' + annotation_id
+
         #sceneList =  @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene
         languageList = @ru + "/lists/Tibetan"
         withinArray = Array.new
@@ -184,7 +192,7 @@ namespace :import do
           version = 1
           @annotation = Annotation.create(annotation_id: annotation_id, annotation_type: annotation_type, motivation: motivation, label:label, on: on, canvas: canvas, manifest: manifest,  resource: resource, active: active, version: version)
           result = @annotation.save!(options={validate: false})
-          languageList = @ru + "/lists/Tibetan"
+          languageList = @ru + "/lists/Tibetan_Inscription"
           withinArray = Array.new
           #withinArray.push(sceneList)
           withinArray.push(languageList)
@@ -216,7 +224,7 @@ namespace :import do
           version = 1
           @annotation = Annotation.create(annotation_id: annotation_id, annotation_type: annotation_type, motivation: motivation, label:label, on: on, canvas: canvas, manifest: manifest,  resource: resource, active: active, version: version)
           result = @annotation.save!(options={validate: false})
-          languageList = @ru + "/lists/Tibetan"
+          languageList = @ru + "/lists/Tibetan_PaintingManual"
           withinArray = Array.new
           #withinArray.push(sceneList)
           withinArray.push(languageList)
@@ -278,7 +286,7 @@ namespace :import do
           version = 1
           @annotation = Annotation.create(annotation_id: annotation_id, annotation_type: annotation_type, motivation: motivation, label:label, on: on, canvas: canvas, manifest: manifest,  resource: resource, active: active, version: version)
           result = @annotation.save!(options={validate: false})
-          languageList = @ru + "/lists/English"
+          languageList = @ru + "/lists/English_Inscription"
           withinArray = Array.new
           #withinArray.push(sceneList)
           withinArray.push(languageList)
@@ -310,7 +318,7 @@ namespace :import do
           version = 1
           @annotation = Annotation.create(annotation_id: annotation_id, annotation_type: annotation_type, motivation: motivation, label:label, on: on, canvas: canvas, manifest: manifest,  resource: resource, active: active, version: version)
           result = @annotation.save!(options={validate: false})
-          languageList = @ru + "/lists/English"
+          languageList = @ru + "/lists/English_Manual"
           withinArray = Array.new
           #withinArray.push(sceneList)
           withinArray.push(languageList)
@@ -320,7 +328,7 @@ namespace :import do
         # create the Canonical annotation for this row ([11]
 
         unless row[11].nil?
-          annotation_id = @ru + "/annotations/"+ "Panel_" + panel + "_Chapter_" + chapter + "_Scene_" + scene + "_" + nextSceneSeq.to_s + "Canonical Source"
+          annotation_id = @ru + "/annotations/"+ "Panel_" + panel + "_Chapter_" + chapter + "_Scene_" + scene + "_" + nextSceneSeq.to_s + "_Canonical Source"
           annotation_type = "oa:annotation"
           motivation = "[oa:commenting]"
           label = "Canonical Source"
@@ -380,6 +388,50 @@ namespace :import do
     createNewLayer layer
   end
 
+  def makeEnglishLayersInscriptionAndManual
+    layer = Hash.new
+    layer['layer_id'] = @ru + "/layers/English_Inscription"
+    layer['layer_type'] = "sc:layer"
+    layer['label'] = "Inscription English"
+    layer['motivation'] = "[oa:commenting]"
+    layer['description'] = "Sun of Faith Inscription English"
+    layer['license'] = "http://creativecommons.org/licenses/by/4.0/"
+    layer['version'] = " "
+    createNewLayer layer
+
+    layer = Hash.new
+    layer['layer_id'] = @ru + "/layers/English_PaintingManual"
+    layer['layer_type'] = "sc:layer"
+    layer['label'] = "Painting Manual English"
+    layer['motivation'] = "[oa:commenting]"
+    layer['description'] = "Sun of Faith Painting Manual English"
+    layer['license'] = "http://creativecommons.org/licenses/by/4.0/"
+    layer['version'] = " "
+    createNewLayer layer
+  end
+
+  def makeTibetanLayersInscriptionAndManual
+    layer = Hash.new
+    layer['layer_id'] = @ru + "/layers/Tibetan_Inscription"
+    layer['layer_type'] = "sc:layer"
+    layer['label'] = "Inscription Tibetan"
+    layer['motivation'] = "[oa:commenting]"
+    layer['description'] = "Sun of Faith Inscription Tibetan"
+    layer['license'] = "http://creativecommons.org/licenses/by/4.0/"
+    layer['version'] = " "
+    createNewLayer layer
+
+    layer = Hash.new
+    layer['layer_id'] = @ru + "/layers/Tibetan_PaintingManual"
+    layer['layer_type'] = "sc:layer"
+    layer['label'] = "Painting Manual Tibetan"
+    layer['motivation'] = "[oa:commenting]"
+    layer['description'] = "Sun of Faith Painting Manual Tibetan"
+    layer['license'] = "http://creativecommons.org/licenses/by/4.0/"
+    layer['version'] = " "
+    createNewLayer layer
+  end
+
   def makeLanguageLists
     # create Tibetan and English lists for this scene
     list = Hash.new
@@ -406,6 +458,67 @@ namespace :import do
     list['within'] = withinArray
     createNewList list
   end
+
+  def makeEnglishListsInscriptionAndManual
+    list = Hash.new
+    list['list_id'] = @ru + "/lists/English_Inscription"
+    list['list_type'] = "sc:list"
+    list['label'] = "English Inscription"
+    list['description'] = "English Inscription"
+    list['version'] = " "
+    languageLayer =   @ru + "/layers/English"
+    languageLayer2 = @ru + "/layers/English_Inscription"
+    withinArray = Array.new
+    withinArray.push(languageLayer)
+    withinArray.push(languageLayer2)
+    list['within'] = withinArray
+    createNewList list
+
+    list = Hash.new
+    list['list_id'] = @ru + "/lists/English_Manual"
+    list['list_type'] = "sc:list"
+    list['label'] = "English Painting Manual"
+    list['description'] = "English Painting Manual"
+    list['version'] = " "
+    languageLayer =   @ru + "/layers/English"
+    languageLayer2 = @ru + "/layers/English_PaintingManual"
+    withinArray = Array.new
+    withinArray.push(languageLayer)
+    withinArray.push(languageLayer2)
+    list['within'] = withinArray
+    createNewList list
+  end
+
+  def makeTibetanListsInscriptionAndManual
+    list = Hash.new
+    list['list_id'] = @ru + "/lists/Tibetan_Inscription"
+    list['list_type'] = "sc:list"
+    list['label'] = "Tibetan Inscription"
+    list['description'] = "English Inscription"
+    list['version'] = " "
+    languageLayer =   @ru + "/layers/Tibetan"
+    languageLayer2 = @ru + "/layers/Tibetan_Inscription"
+    withinArray = Array.new
+    withinArray.push(languageLayer)
+    withinArray.push(languageLayer2)
+    list['within'] = withinArray
+    createNewList list
+
+    list = Hash.new
+    list['list_id'] = @ru + "/lists/Tibetan_PaintingManual"
+    list['list_type'] = "sc:list"
+    list['label'] = "Tibetan Painting Manual"
+    list['description'] = "Tibetan Painting Manual"
+    list['version'] = " "
+    languageLayer =   @ru + "/layers/Tibetan"
+    languageLayer2 =   @ru + "/layers/Tibetan_PaintingManual"
+    withinArray = Array.new
+    withinArray.push(languageLayer)
+    withinArray.push(languageLayer2)
+    list['within'] = withinArray
+    createNewList list
+  end
+
 
   def makeChaptersScenesLayers
     layer = Hash.new
