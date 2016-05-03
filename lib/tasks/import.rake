@@ -466,10 +466,10 @@ namespace :import do
     list['label'] = "English Inscription"
     list['description'] = "English Inscription"
     list['version'] = " "
-    #languageLayer =   @ru + "/layers/English"
+    languageLayer =   @ru + "/layers/English"
     languageLayer2 = @ru + "/layers/English_Inscription"
     withinArray = Array.new
-    withinArray.push(languageLayer)
+    #withinArray.push(languageLayer)
     withinArray.push(languageLayer2)
     list['within'] = withinArray
     createNewList list
