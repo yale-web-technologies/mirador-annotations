@@ -207,9 +207,12 @@ class AnnotationsController < ApplicationController
         render :json => { :error => errMsg },
                :status => :unprocessable_entity
       end
+
+      #comment map handling below until we receive layer and ['within'] from caller
       # rewrite the ListAnnotationsMap for this annotation: first delete, then re-write based on ['within']
-      ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
-      ListAnnotationsMap.setMap @annotationIn['within'], @annotation.annotation_id
+      #ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
+      #ListAnnotationsMap.setMap @annotationIn['within'], @annotation.annotation_id
+
       newVersion = @annotation.version + 1
       request.format = "json"
       respond_to do |format|
