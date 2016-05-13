@@ -326,7 +326,8 @@ class AnnotationsController < ApplicationController
     if (!@annotationIn['on']['full'].to_s.include?('/canvas/'))
       @annotation = Annotation.where(annotation_id:@annotationIn['on']['full']).first
       p "in handleRequireList: annotation_id = #{@annotation.annotation_id}"
-      @canvas_id = getTargetingAnnosCanvas(@annotation)
+      # comment out until list_annos_maps is straightened out 5/16/16
+      #@canvas_id = getTargetingAnnosCanvas(@annotation)
     end
 
     @required_list_id = constructRequiredListId
@@ -384,6 +385,7 @@ class AnnotationsController < ApplicationController
       @annotation += targetingAnnotations if !targetingAnnotations.nil?
     end
   end
+
 
 # this needs to move backwards from an annotations' target until the last (or first) targeted anno, then return this one's canvas
   def getTargetingAnnosCanvas inputAnno
