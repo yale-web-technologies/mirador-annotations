@@ -101,6 +101,7 @@ namespace :checkData do
         end
       else
         p "no layer for #{annotation.annotation_id}"
+        annoWLayerArray.push("No Layer")
       end
     end
     annoWLayerArray
