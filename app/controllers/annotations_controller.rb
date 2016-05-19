@@ -155,6 +155,7 @@ class AnnotationsController < ApplicationController
       @annotationOut['description'] = @annotationIn['description']
       @annotationOut['annotated_by'] = @annotationIn['annotatedBy'].to_json
       #@annotationOut['canvas']  = @annotationIn['on']['source']#.to_json
+      #TODO: consider if canvas field should be set to original canvas for targeting annotations as well.
       @annotationOut['canvas']  = @annotationIn['on']['full']
       @annotationOut['resource']  = @annotationIn['resource'].to_json
       @annotationOut['order_weight']  = @annotationIn['orderWeight']
@@ -343,7 +344,6 @@ class AnnotationsController < ApplicationController
   end
 
   def checkListExists list_id
-    #@annotation_list = AnnotationList.where(list_id: @ru).first # never finding this and was causing dupes
     @annotation_list = AnnotationList.where(list_id: list_id).first
     if @annotation_list.nil?
       createAnnotationListForMap(list_id, @layer_id, @canvas_id)
