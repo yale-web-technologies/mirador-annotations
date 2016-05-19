@@ -106,7 +106,11 @@ namespace :checkData do
   end
 
   def constructRequiredListId layer_id, canvas_id
-    list_id = @ru +"/lists/"+ layer_id + "_" + canvas_id
+    if (!layer_id=='')
+      list_id = @ru +"/lists/"+ layer_id + "_" + canvas_id
+    else
+      list_id = @ru + "/lists/" + "_" + canvas_id
+    end
   end
 
   def createAnnotationListForMap list_id, layer_id, canvas_id
