@@ -95,24 +95,21 @@ namespace :checkData do
       #p "getAnnosLayers: doing list: #{list_id}"
       layers = LayerListsMap.getLayersForList list_id
       #p "layers count = #{layers.count().to_s}"
-      annoWLayerHash= Hash.new
       if (!layers.nil?)
         layers.each do |layer_id|
           annoWLayerArray.push(layer_id)
         end
+      else
+        p "no layer for #{annotation.annotation_id}"
       end
     end
     annoWLayerArray
   end
 
   def constructRequiredListId layer_id, canvas_id
-    if (!layer_id=='')
-      list_id = @ru +"/lists/"+ layer_id + "_" + canvas_id
-    else
-      list_id = @ru + "/lists/" + "_" + canvas_id
-    end
-    @ru.gsub!(/annotations/,"lists")
-    return list_id
+    ru = @ru
+    ru.gsub!(/annotations/,"lists")
+    list_id = ru +"/lists/"+ layer_id + "_" + canvas_id
   end
 
   def createAnnotationListForMap list_id, layer_id, canvas_id
