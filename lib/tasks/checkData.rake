@@ -107,7 +107,7 @@ namespace :checkData do
   end
 
   def constructRequiredListId layer_id, canvas_id
-    ru = @ru
+    ru = @ru.to_s
     ru.gsub!(/annotations/,"lists")
     list_id = ru +"/lists/"+ layer_id + "_" + canvas_id
   end
