@@ -111,6 +111,8 @@ namespace :checkData do
     else
       list_id = @ru + "/lists/" + "_" + canvas_id
     end
+    @ru.gsub!(/annotations/,"lists")
+    return list_id
   end
 
   def createAnnotationListForMap list_id, layer_id, canvas_id
