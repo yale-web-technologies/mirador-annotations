@@ -66,6 +66,7 @@ namespace :checkData do
         # Get layer
         annoLayers = getAnnosLayers anno
         layer_id = annoLayers[0]
+        if layer_id.nil? layer_id = "No Layer"
         p "layer = #{layer_id}"
         # construct required list url
         required_list_id = constructRequiredListId layer_id, canvas
