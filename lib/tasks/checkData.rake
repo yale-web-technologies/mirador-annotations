@@ -1,8 +1,10 @@
 namespace :checkData do
 
-  @ru = "http://localhost:5000"
+  #@ru = "http://localhost:5000"
   #@ru = "http://mirador-annotations-lotb-stg.herokuapp.com"
   #@ru = "http://mirador-annotations-lotb.herokuapp.com"
+  #@ru = "http://annotations.tenkr.yale.edu"
+  @ru = "http://mirador-annotations-tenkr-stg.herokuapp.com"
 
   desc "checks annotation data to ensure all targeting annotations (not on canvas) ultimately refer to a canvas-bound annotation"
   task :annotationGetOrigCanvas => :environment do
