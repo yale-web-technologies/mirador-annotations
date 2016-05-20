@@ -52,6 +52,18 @@ namespace :checkData do
     end
   end
   #==========================================================================
+  desc "gets all layers for annotations"
+  task :annotationGetLayers => :environment do
+    @annotations = Annotation.all
+    allAnnos  = getTargetingAnnos @annotations
+    allAnnos.each do |annotation|
+      annoLayers = getAnnosLayers annotation
+          puts "getTargetingAnnoLoop: annotation_id: #{annotation.annotation_id} and layer = #{annoLayers[0]}"
+      puts
+    end
+  end
+
+  #==========================================================================
 
   desc "gets all annos that target another anno"
   # this task assumes one layer for an annotation for purposes of creating required list of layer_id_canvas_id
