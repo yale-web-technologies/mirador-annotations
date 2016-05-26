@@ -77,9 +77,9 @@ namespace :import do
     p "Socket.getHostname = #{Socket.gethostname}"
     #@ru = request.original_url.split('?').first
     #@ru += '/'   if !ru.end_with? '/'
-    #@ru = "http://localhost:5000"
+    @ru = "http://localhost:5000"
     #@ru = "http://mirador-annotations-lotb-stg.herokuapp.com"
-    @ru = "http://mirador-annotations-lotb.herokuapp.com"
+    #@ru = "http://mirador-annotations-lotb.herokuapp.com"
 
     labels = Array.new
     i = 0
@@ -100,6 +100,7 @@ namespace :import do
     makeChaptersScenesLists # comment out for prod re-do
     makeCanonicalSourceLayer # comment out for prod re-do
     makeCanonicalSourceList # comment out for prod re-do
+
     CSV.foreach('importData/lotb26_norm.txt') do |row|
       i+=1;
       puts "i = #{i}"
@@ -161,7 +162,8 @@ namespace :import do
         p 'just created tibetan annotation: ' + annotation_id
 
         #sceneList =  @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene
-        languageList = @ru + "/lists/Tibetan"
+        #languageList = @ru + "/lists/Tibetan_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+        languageList = @ru + "/lists/" + @ru + "/layers/Tibetan_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
         withinArray = Array.new
         #withinArray.push(sceneList)
         withinArray.push(languageList)
@@ -192,7 +194,9 @@ namespace :import do
           version = 1
           @annotation = Annotation.create(annotation_id: annotation_id, annotation_type: annotation_type, motivation: motivation, label:label, on: on, canvas: canvas, manifest: manifest,  resource: resource, active: active, version: version)
           result = @annotation.save!(options={validate: false})
-          languageList = @ru + "/lists/Tibetan_Inscription"
+          #languageList = @ru + "/lists/Tibetan_Inscription_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+          languageList = @ru + "/lists/" + @ru + "/layers/Tibetan_Inscription_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+
           withinArray = Array.new
           #withinArray.push(sceneList)
           withinArray.push(languageList)
@@ -224,7 +228,9 @@ namespace :import do
           version = 1
           @annotation = Annotation.create(annotation_id: annotation_id, annotation_type: annotation_type, motivation: motivation, label:label, on: on, canvas: canvas, manifest: manifest,  resource: resource, active: active, version: version)
           result = @annotation.save!(options={validate: false})
-          languageList = @ru + "/lists/Tibetan_PaintingManual"
+          #languageList = @ru + "/lists/Tibetan_PaintingManual_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+          languageList = @ru + "/lists/" + @ru + "/layers/Tibetan_PaintingManual_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+
           withinArray = Array.new
           #withinArray.push(sceneList)
           withinArray.push(languageList)
@@ -255,7 +261,9 @@ namespace :import do
         version = 1
         @annotation = Annotation.create(annotation_id: annotation_id, annotation_type: annotation_type, motivation: motivation, label:label, on: on, canvas: canvas, manifest: manifest,  resource: resource, active: active, version: version)
         result = @annotation.save!(options={validate: false})
-        languageList = @ru + "/lists/English"
+        #languageList = @ru + "/lists/English_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+        languageList = @ru + "/lists/" + @ru + "/layers/English_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+
         withinArray = Array.new
         #withinArray.push(sceneList)
         withinArray.push(languageList)
@@ -286,7 +294,9 @@ namespace :import do
           version = 1
           @annotation = Annotation.create(annotation_id: annotation_id, annotation_type: annotation_type, motivation: motivation, label:label, on: on, canvas: canvas, manifest: manifest,  resource: resource, active: active, version: version)
           result = @annotation.save!(options={validate: false})
-          languageList = @ru + "/lists/English_Inscription"
+          #languageList = @ru + "/lists/English_Inscription_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+          languageList = @ru + "/lists/" + @ru + "/layers/English_Inscription_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+
           withinArray = Array.new
           #withinArray.push(sceneList)
           withinArray.push(languageList)
@@ -318,7 +328,9 @@ namespace :import do
           version = 1
           @annotation = Annotation.create(annotation_id: annotation_id, annotation_type: annotation_type, motivation: motivation, label:label, on: on, canvas: canvas, manifest: manifest,  resource: resource, active: active, version: version)
           result = @annotation.save!(options={validate: false})
-          languageList = @ru + "/lists/English_Manual"
+          #languageList = @ru + "/lists/English_Manual_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+          languageList = @ru + "/lists/" + @ru + "/layers/English_PaintingManual_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+
           withinArray = Array.new
           #withinArray.push(sceneList)
           withinArray.push(languageList)
@@ -354,7 +366,9 @@ namespace :import do
           #sceneList =  @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene
           #languageList = @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" +scene + ":Tibetan"
           #list = @ru + "/lists/CanonicalSource"
-          list = @ru + "/lists/CanonicalSources/_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+          #list = @ru + "/lists/CanonicalSources/_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+          list = @ru + "/lists/" + @ru + "/layers/CanonicalSources_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+
           withinArray = Array.new
           #withinArray.push(sceneList)
           withinArray.push(list)
@@ -434,8 +448,10 @@ namespace :import do
 
   def makeLanguageLists
     # create Tibetan and English lists for this scene
+    canvas = "_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
     list = Hash.new
-    list['list_id'] = @ru + "/lists/Tibetan"
+    #list['list_id'] = @ru + "/lists/Tibetan" + canvas
+    list['list_id'] = @ru + "/lists/" + @ru + "/layers/Tibetan_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
     list['list_type'] = "sc:list"
     list['label'] = "Tibetan"
     list['description'] = "Tibetan"
@@ -447,7 +463,8 @@ namespace :import do
     createNewList list
 
     list = Hash.new
-    list['list_id'] = @ru + "/lists/English"
+    #list['list_id'] = @ru + "/lists/English" + canvas
+    list['list_id'] = @ru + "/lists/" + @ru + "/layers/English_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
     list['list_type'] = "sc:list"
     list['label'] = "English"
     list['description'] = "English"
@@ -460,8 +477,10 @@ namespace :import do
   end
 
   def makeEnglishListsInscriptionAndManual
+    canvas = "_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
     list = Hash.new
-    list['list_id'] = @ru + "/lists/English_Inscription"
+    #list['list_id'] = @ru + "/lists/English_Inscription" + canvas
+    list['list_id'] = @ru + "/lists/" + @ru + "/layers/English_Inscription_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
     list['list_type'] = "sc:list"
     list['label'] = "English Inscription"
     list['description'] = "English Inscription"
@@ -475,7 +494,8 @@ namespace :import do
     createNewList list
 
     list = Hash.new
-    list['list_id'] = @ru + "/lists/English_Manual"
+    #list['list_id'] = @ru + "/lists/English_Manual" + canvas
+    list['list_id'] = @ru + "/lists/" + @ru + "/layers/English_PaintingManual_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
     list['list_type'] = "sc:list"
     list['label'] = "English Painting Manual"
     list['description'] = "English Painting Manual"
@@ -490,8 +510,10 @@ namespace :import do
   end
 
   def makeTibetanListsInscriptionAndManual
+    canvas = "_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
     list = Hash.new
-    list['list_id'] = @ru + "/lists/Tibetan_Inscription"
+    #list['list_id'] = @ru + "/lists/Tibetan_Inscription" + canvas
+    list['list_id'] = @ru + "/lists/" + @ru + "/layers/Tibetan_Inscription_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
     list['list_type'] = "sc:list"
     list['label'] = "Tibetan Inscription"
     list['description'] = "English Inscription"
@@ -505,7 +527,8 @@ namespace :import do
     createNewList list
 
     list = Hash.new
-    list['list_id'] = @ru + "/lists/Tibetan_PaintingManual"
+    #list['list_id'] = @ru + "/lists/Tibetan_PaintingManual" + canvas
+    list['list_id'] = @ru + "/lists/" + @ru + "/layers/Tibetan_PaintingManual_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
     list['list_type'] = "sc:list"
     list['label'] = "Tibetan Painting Manual"
     list['description'] = "Tibetan Painting Manual"
@@ -556,7 +579,8 @@ namespace :import do
     canvas = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
 
     list = Hash.new
-    list['list_id'] = @ru + "/lists/Chapters/_" + canvas
+    #list['list_id'] = @ru + "/lists/Chapters/_" + canvas
+    list['list_id'] = @ru + "/lists/" + @ru + "/layers/Chapters_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
     list['list_type'] = "sc:list"
     list['label'] = "Chapters"
     list['description'] = "Chapters"
@@ -568,7 +592,8 @@ namespace :import do
     createNewList list
 
     list = Hash.new
-    list['list_id'] = @ru + "/lists/Scenes/_" + canvas
+    #list['list_id'] = @ru + "/lists/Scenes/_" + canvas
+    list['list_id'] = @ru + "/lists/" + @ru + "/layers/Scenes_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
     list['list_type'] = "sc:list"
     list['label'] = "Scenes"
     list['description'] = "Scenes"
@@ -595,7 +620,8 @@ namespace :import do
   def makeCanonicalSourceList
     canvas = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
     list = Hash.new
-    list['list_id'] = @ru + "/lists/CanonicalSources/_" + canvas
+    #list['list_id'] = @ru + "/lists/CanonicalSources/_" + canvas
+    list['list_id'] = @ru + "/lists/" + @ru + "/layers/CanonicalSources_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
     list['list_type'] = "sc:list"
     list['label'] = "Canonical Sources"
     list['description'] = "Canonical Sources"
@@ -683,7 +709,9 @@ namespace :import do
     newAnnotation['active'] = true
     newAnnotation['version'] = 1
     #thisList = @ru + "/lists/Panel_" + row[0] + "_Chapters"# + row[1]
-    thisList = @ru + "/lists/Chapters/"
+    #thisList = @ru + "/lists/Chapters/"
+    thisList = @ru + "/lists/" + @ru + "/layers/Chapters_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+
     withinArray = Array.new
     withinArray.push(thisList)
     newAnnotation['within'] = withinArray
@@ -768,8 +796,12 @@ namespace :import do
     newAnnotation['manifest'] = "tbd"
     newAnnotation['active'] = true
     newAnnotation['version'] = 1
-    thisList = @ru + "/lists/Scenes/_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
-    thisList = @ru + "/lists/Chapters/_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11" if (scene=="0")
+    #thisList = @ru + "/lists/Scenes/_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+    thisList = @ru + "/lists/" + @ru + "/layers/Scenes_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+
+    #thisList = @ru + "/lists/Chapters/_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11" if (scene=="0")
+    thisList = @ru + "/lists/" + @ru + "/layers/Chapters_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"  if (scene=="0")
+
     #chapterList = @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1]
     withinArray = Array.new
     withinArray.push(thisList)
@@ -808,6 +840,7 @@ namespace :import do
       ListAnnotationsMap.setMap newAnnotation['within'], newAnnotation['annotation_id']
     end
   end
+
 #================= end LotB ================
 
   desc "imports LayerListsMaps data from a csv file"
