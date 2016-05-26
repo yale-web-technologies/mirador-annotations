@@ -4,7 +4,7 @@ class AnnotationListsController < ApplicationController
 
   skip_before_action :verify_authenticity_token
 
-  respond_to :html, :json
+  respond_to :json #; :html, :json
 
   # GET /list
   # GET /list.json
@@ -140,6 +140,31 @@ class AnnotationListsController < ApplicationController
   def CORS_preflight
     respond_to do |format|
       format.json { head :no_content }
+    end
+  end
+
+  def resequence_list
+    layer_id = params['layer_id']
+    canvas_id = params['canvas_id']
+    p "annotations_id = #{params['annotation_ids']}"
+    annotation_ids = Array.new
+    annotation_ids = params['annotation_ids'].split(",")
+    ru = request.original_url.split('/resequence').first
+    ru += '/'   if !ru.end_with? '/'
+    list_id = ru + "lists/" + layer_id + "_" + canvas_id
+    puts "resequence_list: constructed list_id: #{list_id}"
+    within = Array.new
+    within.push(list_id)
+    # Clear the maps of all entries for this list
+    ListAnnotationsMap.deleteAnnotationsFromList list_id
+    # Now rewrite the maps for this list based on annotation_ids array passed in
+    annotation_ids.each do |anno_id|
+      ListAnnotationsMap.setMap within, anno_id
+    end
+    request.format = "json"
+    respond_to do |format|
+      response_msg = '{"list_id":"' + list_id + '"}'
+      format.json { render json:response_msg} #, status: :resequenced}
     end
   end
 

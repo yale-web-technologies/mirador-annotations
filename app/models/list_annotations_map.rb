@@ -6,8 +6,12 @@ class ListAnnotationsMap < ActiveRecord::Base
   def self.setMap within, anno_id
     if !within.nil?
       within.each do |list_id|
-        newHighSeq = getNextSeqForList(list_id)
-        create!(:list_id => list_id, :sequence => newHighSeq, :annotation_id => anno_id)
+        #list_annotation_map = self.where("list_id = ? and annotation_id = ?", list_id, anno_id).first
+        list_annotation_map = self.where(list_id: list_id, annotation_id: anno_id).first
+        if list_annotation_map.nil?
+          newHighSeq = getNextSeqForList(list_id)
+          create!(:list_id => list_id, :sequence => newHighSeq, :annotation_id => anno_id)
+        end
       end
     end
   end
@@ -44,7 +48,8 @@ class ListAnnotationsMap < ActiveRecord::Base
       @annoJson['resource'] = JSON.parse(@Anno.resource)
       #@annoJson['annotatedBy'] = JSON.parse(@Anno.annotated_by) if !@Anno.annotated_by.blank?
       @annoJson['on'] = @Anno.on
-      resources.push(@annoJson)
+      #resources.push(@annoJson)
+      resources.push(@Anno)
     end
     resources
   end
@@ -70,4 +75,10 @@ class ListAnnotationsMap < ActiveRecord::Base
     end
   end
 
+  def self.deleteAnnotationsFromList list_id
+    @annotationLists = self.where(list_id: list_id)
+    @annotationLists.each do |annoList|
+      annoList.destroy
+    end
+  end
 end
