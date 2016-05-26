@@ -3,9 +3,7 @@ include AclCreator
 class AnnotationsController < ApplicationController
   include CanCan::ControllerAdditions
   #skip_before_action :verify_authenticity_token
-
   #before_action :authenticate_user!
-
   respond_to :json
 
   # GET /list
@@ -91,22 +89,67 @@ class AnnotationsController < ApplicationController
                 annoWLayerHash["annotation"] = annotation.to_iiif
                 annoWLayerArray.push(annoWLayerHash)
               end
-
-              #layers.each do |layer_id|
-              #  p "layer = #{layer_id}"
-              #  annoWLayerHash["layer_id"] = layer_id
-              #  annoWLayerHash["annotation"] = annotation.to_iiif
-              #  annoWLayerArray.push(annoWLayerHash)
-              #end
             end
           end
         end
       end
+      format.html {render json: annoWLayerArray}
+      format.json {render json: annoWLayerArray}
+      end
+  end
 
+  def getAnnotationsForCanvasViaLists
+    bearerToken = ''
+    p 'in getAnnotationsForCanvasViaLists: params = ' + params.inspect
+    #p 'in getAnnotationsForCanvasViaLists: headers: ' + request.headers.inspect
+    bearerToken = request.headers["bearer-token"] #user is logged in and has a bearer token
+    #p "bearerToken = #{bearerToken}"
+    if (bearerToken)
+      @user = signInUserByBearerToken bearerToken
+    end
+    lists = AnnotationList.where("list_id like ? and list_id like ?", "%#{params['canvas_id']}%", "%/lists/%")
+    annoWLayerArray = Array.new
+    lists.each do |list|
+      layer_id = getLayerFromListName list.list_id
+      annotations = ListAnnotationsMap.getAnnotationsForList list.list_id
+      annotations.each do |annotation|
+        annoWLayerHash= Hash.new
+        annoWLayerHash["layer_id"] = layer_id
+        annoWLayerHash["annotation"] = annotation.to_iiif
+        annoWLayerArray.push(annoWLayerHash)
+      end
+      puts annoWLayerArray.inspect
+    end
+    respond_to do |format|
       format.html {render json: annoWLayerArray}
       format.json {render json: annoWLayerArray}
     end
   end
+
+  def getLayerFromListName listName
+    #parse out layer name from listName
+    #layerRegExp = /\/http(\S+\/layers\/\S+_)/
+    #match = layerRegExp.match(listName)
+    match = /\/http(\S+\/layers\/\S+_)/.match(listName)
+    layer_id = match[0]
+    layer_id =layer_id[1...-1]
+    puts layer_id
+    layer_id = "No layer" if (layer_id.nil?)
+    layer_id
+  end
+
+  # for future use
+  def getAnnotationsForCanvasLayer
+    if(params.has_key?(:layer_id))
+      layer_id = params['layer_id']
+    else
+      layer_id = 'http://ten-thousand-rooms.herokuapp.com/layers/1ac0123c-1ec6-11e6-b6ba-3e1d05defe78'
+    end
+    #construct the list_id
+    list_id = request.protocol + request.host_with_port + "/lists/" + layer_id + "_" + canvas_id
+    p "gAFCL: #{list_id}"
+  end
+
 
   # GET /annotation/1
   # GET /annotation/1.json
@@ -124,6 +167,7 @@ class AnnotationsController < ApplicationController
       format.json { render json: @annotation.to_iiif }
     end
   end
+
 
   # POST /annotation
   #
@@ -339,7 +383,7 @@ class AnnotationsController < ApplicationController
   def constructRequiredListId
     @ru = request.original_url.split('?').first
     @ru += '/'   if !@ru.end_with? '/'
-    @ru.gsub!(/annotations/,"lists")
+    #@ru.gsub!(/annotations/,"lists")
     list_id = @ru + @layer_id + "_" + @canvas_id
   end
 
