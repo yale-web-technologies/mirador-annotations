@@ -28,7 +28,7 @@ class Annotation < ActiveRecord::Base
 
     iiif['within'] = ListAnnotationsMap.getListsForAnnotation annotation_id
 
-    motivation.gsub!(/""/,"")
+    motivation.gsub!(/'"''/,"")
     #iiif['motivation'] = motivation
     iiif['motivation'] = motivation.split(",")
 
