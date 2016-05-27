@@ -22,30 +22,21 @@ class Annotation < ActiveRecord::Base
     iiif['@id'] = annotation_id
     iiif['@type'] = annotation_type
     iiif['@context'] = "http://iiif.io/api/presentation/2/context.json"
-    iiif['motivation'] = motivation
-    #iiif['motivation'] = JSON.parse(motivation)
-    #iiif['motivation'] = JSON.parse(motivation.gsub(/=>/,":"))
+
+    #iiif['resource'] = resource
+    iiif['resource'] = JSON.parse(resource)
 
     iiif['within'] = ListAnnotationsMap.getListsForAnnotation annotation_id
 
-    p "annotation_id = #{annotation_id} resource = #{resource}"
-    p resource.instance_of? String #true
-    p resource.instance_of? Array  #false
-
-    #resource = [{"@type":"dctypes:Text","format":"text/html","chars":"ཉེར་དྲུག་པ་ནགས་ཁྲོད་དུ་དལ་བར་བཞུགས་པ་ནི།"}].to_s
-    #resource = '[{"@type":"dctypes:Text","format":"text/html","chars":"ཉེར་དྲུག་པ་ནགས་ཁྲོད་དུ་དལ་བར་བཞུགས་པ་ནི།"}]'
-    #resource = resource.encode("UTF-8") # no effect
-    #resource.gsub!(/=>/,":")
-    p "resource now = #{resource}"
-    iiif['resource'] = JSON.parse(resource)
-    #iiif['resource'] = resource
+    #iiif['motivation'] = motivation
+    iiif['motivation'] = motivation.split(",")
 
     #iiif['annnotatedBy'] = JSON.parse(annotated_by) if !annnotated_by.nil?
     iiif['on'] = on
     if (on.start_with?("{"))
       iiif['on'] = JSON.parse(on.gsub(/=>/,":"))
     end
-    iiif['orderWeight'] =  order_weight
+    #iiif['orderWeight'] =  order_weight
     iiif#.to_json
   end
 

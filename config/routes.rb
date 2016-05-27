@@ -15,7 +15,7 @@ MiradorAnnotationsServer::Application.routes.draw do
   #get '/getAll', to: 'services#getAllCanvasesLayersLists'
   get '/getCanvasData', to: 'services#getLayersListsForCanvas'
   get '/getAnnotations', to: 'annotations#getAnnotationsForCanvas'
-  get '/getAnnotationsViaLists', to: 'annotations#getAnnotationsForCanvasViaLists'
+  get '/getAnnotationsViaList', to: 'annotations#getAnnotationsForCanvasViaLists'
   get '/resequenceList', to: 'annotation_lists#resequence_list'
   put '/resequenceList', to: 'annotation_lists#resequence_list'
 
