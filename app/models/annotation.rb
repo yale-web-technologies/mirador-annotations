@@ -28,16 +28,13 @@ class Annotation < ActiveRecord::Base
 
     iiif['within'] = ListAnnotationsMap.getListsForAnnotation annotation_id
 
-   # p "motivation: #{motivation}"
     motivation.gsub!(/\"/,'')
-   # p "motivation no quotes: #{motivation}"
     motivation.gsub!(/\]/,'')
     motivation.gsub!(/\[/,'')
+    motivation.gsub!(' ','')
    # p "motivation no quotes or brackets: #{motivation}"
     #iiif['motivation'] = motivation
     iiif['motivation'] = motivation.split(",")
-
-
 
 
     #iiif['annnotatedBy'] = JSON.parse(annotated_by) if !annnotated_by.nil?
