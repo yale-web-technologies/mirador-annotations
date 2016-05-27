@@ -184,7 +184,6 @@ class AnnotationsController < ApplicationController
       render :json => { :error => errMsg },
              :status => :unprocessable_entity
     else
-      #@ru = request.original_url
       @ru = request.original_url.split('?').first
       @ru += '/'   if !@ru.end_with? '/'
       @annotation_id = @ru + SecureRandom.uuid
