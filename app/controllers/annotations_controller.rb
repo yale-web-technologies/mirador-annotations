@@ -230,6 +230,8 @@ class AnnotationsController < ApplicationController
   # PUT /layer/1.json
   def update
     @ru = request.original_url
+
+
     @annotationIn = JSON.parse(params.to_json)
     @problem = ''
     if !validate_annotation @annotationIn
@@ -253,7 +255,11 @@ class AnnotationsController < ApplicationController
       end
 
       #comment map handling below until we receive layer and ['within'] from caller
-      # rewrite the ListAnnotationsMap for this annotation: first delete, then re-write based on ['within']
+      # if params['old_layer'] and ['new_layer'] are received:
+        # determine the old and new required list names
+        # modify ['within']: remove old required list name and add new required list name
+
+        # rewrite the ListAnnotationsMap for this annotation: first delete, then re-write based on ['within']
       #ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
       #ListAnnotationsMap.setMap @annotationIn['within'], @annotation.annotation_id
 
@@ -372,6 +378,7 @@ class AnnotationsController < ApplicationController
       p "in handleRequireList: annotation_id = #{@annotation.annotation_id}"
       # comment out until list_annos_maps is straightened out 5/16/16
       #@canvas_id = getTargetingAnnosCanvas(@annotation)
+      @canvas_id = getTargetingAnnosCanvas(@annotation)
     end
 
     @required_list_id = constructRequiredListId

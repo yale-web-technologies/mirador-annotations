@@ -6,6 +6,8 @@ class AnnotationLayersController < ApplicationController
   # GET /layer.json
   def index
     @annotation_layers = AnnotationLayer.all
+    p "index: params.inspect " +      params.inspect
+    p "index: params[id] = #{params['id']}"
     respond_to do |format|
       format.html #index.html.erb
       iiif = []
@@ -20,8 +22,12 @@ class AnnotationLayersController < ApplicationController
   # GET /layer/1
   # GET /layer/1.json
   def show
+    p "show: params.inspect " +  params.inspect
+    p "show: params[id] = #{params['id']}"
     #@ru = request.original_url
     @ru = request.protocol + request.host_with_port + "/layers/#{params['id']}"
+    #@ru = params['id']
+    p "@ru for get = #{@ru}"
     @annotation_layer = AnnotationLayer.where(layer_id: @ru).first
     #authorize! :show, @annotation_layer
     respond_to do |format|
