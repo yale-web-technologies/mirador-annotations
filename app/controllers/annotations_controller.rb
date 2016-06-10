@@ -127,9 +127,6 @@ class AnnotationsController < ApplicationController
   end
 
   def getLayerFromListName listName
-    #parse out layer name from listName
-    #layerRegExp = /\/http(\S+\/layers\/\S+_)/
-    #match = layerRegExp.match(listName)
     match = /\/http(\S+\/layers\/\S+_)/.match(listName)
     layer_id = match[0]
     layer_id =layer_id[1...-1]
@@ -168,7 +165,6 @@ class AnnotationsController < ApplicationController
     end
   end
 
-
   # POST /annotation
   #
   def create
@@ -192,12 +188,9 @@ class AnnotationsController < ApplicationController
       @annotationOut['annotation_id'] = @annotation_id
       @annotationOut['annotation_type'] = @annotationIn['@type']
       @annotationOut['motivation'] = @annotationIn['motivation']
-      #@on = @annotationIn['on']
-      #@annotationOut['on'] = @on.gsub(/=>/,":")
       @annotationOut['on'] = @annotationIn['on']
       @annotationOut['description'] = @annotationIn['description']
       @annotationOut['annotated_by'] = @annotationIn['annotatedBy'].to_json
-      #@annotationOut['canvas']  = @annotationIn['on']['source']#.to_json
       #TODO: consider if canvas field should be set to original canvas for targeting annotations as well.
       @annotationOut['canvas']  = @annotationIn['on']['full']
       @annotationOut['resource']  = @annotationIn['resource'].to_json
@@ -206,8 +199,8 @@ class AnnotationsController < ApplicationController
       @annotationOut['version'] = 1
 
       # determine the required list for this layer and canvas (this is project-specific)
-      # TODO: this should be configurable by defining a profile per deployment
       # and create as needed (if this is the first annotation for this layer/canvas)
+      # TODO: this could be configurable by defining a profile per deployment
       handleRequiredList
 
       ListAnnotationsMap.setMap @annotationIn['within'], @annotation_id
@@ -226,12 +219,11 @@ class AnnotationsController < ApplicationController
     end
   end
 
-  # PUT /layer/1
-  # PUT /layer/1.json
+  # PUT /annotation/1
+  # PUT /annotation/1.json
   def update
+    p "in update"
     @ru = request.original_url
-
-
     @annotationIn = JSON.parse(params.to_json)
     @problem = ''
     if !validate_annotation @annotationIn
@@ -255,11 +247,6 @@ class AnnotationsController < ApplicationController
       end
 
       #comment map handling below until we receive layer and ['within'] from caller
-      # if params['old_layer'] and ['new_layer'] are received:
-        # determine the old and new required list names
-        # modify ['within']: remove old required list name and add new required list name
-
-        # rewrite the ListAnnotationsMap for this annotation: first delete, then re-write based on ['within']
       #ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
       #ListAnnotationsMap.setMap @annotationIn['within'], @annotation.annotation_id
 
@@ -285,6 +272,78 @@ class AnnotationsController < ApplicationController
     end
   end
 
+  # PUT /annotation/1
+  # PUT /annotation/1.json
+  def updateTest
+    p "in updateTest"
+    @ru = request.original_url
+
+    p "params = #{params}"
+    updateLists = false
+    editObject = JSON.parse(params.to_json)
+    if editObject['@id']
+      p "editObject['@id'] = #{editObject['@id']}"
+      @annotationIn = editObject
+    else if editObject['annotation']
+           p "editObject['layer_id'] = #{editObject['layer_id'][0]}"
+           @annotationIn = JSON.parse(editObject['annotation'].to_json)
+           new_layer_id = editObject['layer_id'][0]
+           updateLists = true
+         end
+    end
+    #@annotationIn = JSON.parse(params.to_json)
+
+    @problem = ''
+    if !validate_annotation @annotationIn
+      errMsg = "Annotation not valid and could not be updated: " + @problem
+      render :json => { :error => errMsg },
+             :status => :unprocessable_entity
+    else
+      @annotation = Annotation.where(annotation_id: @annotationIn['@id']).first
+      p 'just searched for this annotation: id = ' + @annotation.annotation_id
+
+      #authorize! :update, @annotation
+
+      if @annotation.version.nil? ||  @annotation.version < 1
+        @annotation.version = 1
+      end
+      if !version_annotation @annotation
+        errMsg = "Annotation could not be updated: " + @problem
+        render :json => { :error => errMsg },
+               :status => :unprocessable_entity
+      end
+
+      if (updateLists == true)
+        p "updating lists for anno: #{@annotation.annotation_id}"
+        list_id =  constructRequiredListId new_layer_id, @annotation.canvas
+        canvas_id = getTargetingAnnosCanvas(@annotation)
+        p "updating lists: constructed list = #{list_id}"
+        checkListExists list_id, new_layer_id, canvas_id
+        ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
+        ListAnnotationsMap.setMap @annotationIn['within'], @annotation.annotation_id
+      end
+
+      newVersion = @annotation.version + 1
+      request.format = "json"
+      respond_to do |format|
+        if @annotation.update_attributes(
+            :annotation_type => @annotationIn['@type'],
+            :motivation => @annotationIn['motivation'],
+            :on => @annotationIn['on'],
+            :resource => @annotationIn['resource'].to_json,
+            :annotated_by => @annotationIn['annotatedBy'].to_json,
+            :version => newVersion,
+            :order_weight => @annotationIn['orderWeight']
+        )
+          format.html { redirect_to @annotation, notice: 'Annotation was successfully updated.' }
+          format.json { render json: @annotation.to_iiif, status: 200}
+        else
+          format.html { render action: "edit" }
+          format.json { render json: @annotation.errors, status: :unprocessable_entity }
+        end
+      end
+    end
+  end
 
   # DELETE /annotation/1
   # DELETE /annotation/1.json
@@ -317,11 +376,6 @@ class AnnotationsController < ApplicationController
   end
 
   def validate_annotation annotation
-    #p 'validate: ' + annotation.inspect
-    #p '@type = ' + annotation['@type'].to_s
-    #p 'on = ' + annotation['on'].to_s
-    #p 'resource = ' + annotation['resource'].to_s
-
     valid = true
     if !annotation['@type'].to_s.downcase! == 'oa:annotation'
       @problem = "invalid '@type' + #{annotation['@type']}"
@@ -371,32 +425,32 @@ class AnnotationsController < ApplicationController
     versioned
   end
 
+#########################################################
+
   def handleRequiredList
     @canvas_id =  @annotationIn['on']['full']
     if (!@annotationIn['on']['full'].to_s.include?('/canvas/'))
       @annotation = Annotation.where(annotation_id:@annotationIn['on']['full']).first
       p "in handleRequireList: annotation_id = #{@annotation.annotation_id}"
       # comment out until list_annos_maps is straightened out 5/16/16
-      #@canvas_id = getTargetingAnnosCanvas(@annotation)
       @canvas_id = getTargetingAnnosCanvas(@annotation)
     end
 
-    @required_list_id = constructRequiredListId
+    @required_list_id = constructRequiredListId @layer_id, @canvas_id
     p "constructed Required List = " + @required_list_id
-    checkListExists @required_list_id
+    checkListExists @required_list_id, @layer_id, @canvas_id
   end
 
-  def constructRequiredListId
+  def constructRequiredListId layer_id, canvas_id
     @ru = request.original_url.split('?').first
     @ru += '/'   if !@ru.end_with? '/'
-    #@ru.gsub!(/annotations/,"lists")
-    list_id = @ru + @layer_id + "_" + @canvas_id
+    list_id = @ru + layer_id + "_" + canvas_id
   end
 
-  def checkListExists list_id
+  def checkListExists list_id, layer_id, canvas_id
     @annotation_list = AnnotationList.where(list_id: list_id).first
     if @annotation_list.nil?
-      createAnnotationListForMap(list_id, @layer_id, @canvas_id)
+      createAnnotationListForMap(list_id, layer_id, canvas_id)
     end
     # add to within if necessary
     #if @annotation['within'].nil?
@@ -426,6 +480,8 @@ class AnnotationsController < ApplicationController
     @annotation_list = AnnotationList.create(@list)
   end
 
+##############################################
+
   def  getTargetingAnnos inputAnnos
     return if (inputAnnos.nil?)
     inputAnnos.each do |anno|
@@ -436,12 +492,12 @@ class AnnotationsController < ApplicationController
     end
   end
 
-
 # this needs to move backwards from an annotations' target until the last (or first) targeted anno, then return this one's canvas
   def getTargetingAnnosCanvas inputAnno
-    p "getTargetingAnnosCanvas: anno_id = " + inputAnno.annotation_id
     return(inputAnno.canvas) if (inputAnno.canvas.to_s.include?('/canvas/'))
-    targetAnnotation = Annotation.where(annotation_id:inputAnno.canvas)
+    p "getTargetingAnnosCanvas:                        anno_id = #{inputAnno.annotation_id}  and canvas = #{inputAnno.canvas}"
+    targetAnnotation = Annotation.where(annotation_id:inputAnno.canvas).first
+    p "just got targetAnnotation based on that canvas: anno_id = #{targetAnnotation.annotation_id}  and canvas = #{targetAnnotation.canvas} "
     getTargetingAnnosCanvas targetAnnotation
   end
 

@@ -53,7 +53,7 @@ class Annotation < ActiveRecord::Base
     version_content['@context'] = "http://iiif.io/api/presentation/2/context.json"
     version_content['motivation'] = motivation
     version_content['within'] = ListAnnotationsMap.getListsForAnnotation annotation_id
-    #version_content['resource'] = resource.to_json
+    version_content['resource'] = resource.to_json
     #version_content['annnotatedBy'] = annotated_by.to_json
     version_content['on'] = on
     version_content.to_json
