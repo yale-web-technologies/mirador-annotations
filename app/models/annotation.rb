@@ -28,16 +28,13 @@ class Annotation < ActiveRecord::Base
 
     iiif['within'] = ListAnnotationsMap.getListsForAnnotation annotation_id
 
-   # p "motivation: #{motivation}"
     motivation.gsub!(/\"/,'')
-   # p "motivation no quotes: #{motivation}"
     motivation.gsub!(/\]/,'')
     motivation.gsub!(/\[/,'')
+    motivation.gsub!(' ','')
    # p "motivation no quotes or brackets: #{motivation}"
     #iiif['motivation'] = motivation
     iiif['motivation'] = motivation.split(",")
-
-
 
 
     #iiif['annnotatedBy'] = JSON.parse(annotated_by) if !annnotated_by.nil?
@@ -56,7 +53,7 @@ class Annotation < ActiveRecord::Base
     version_content['@context'] = "http://iiif.io/api/presentation/2/context.json"
     version_content['motivation'] = motivation
     version_content['within'] = ListAnnotationsMap.getListsForAnnotation annotation_id
-    #version_content['resource'] = resource.to_json
+    version_content['resource'] = resource.to_json
     #version_content['annnotatedBy'] = annotated_by.to_json
     version_content['on'] = on
     version_content.to_json
