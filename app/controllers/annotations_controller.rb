@@ -67,27 +67,29 @@ class AnnotationsController < ApplicationController
           # return not just array of annotations but including an array of layers for each annotation as well
           lists = ListAnnotationsMap.getListsForAnnotation annotation.annotation_id
           lists.each do |list_id|
-            p "getAnnotationsForCanvas: doing list: #{list_id}"
-            layers = LayerListsMap.getLayersForList list_id
-            # 4/7/2016
-            p "layers count = #{layers.count().to_s}"
-            annoWLayerHash= Hash.new
-            if (layers.nil?)
-              #p "layers = nil"
-              #annoWLayerHash= Hash.new
-              annoWLayerHash["layer_id"] = "no layer"
-              annoWLayerHash["annotation"] = annotation.to_iiif
-              annoWLayerArray.push(annoWLayerHash)
-            else
-              p "layers = NOT nil"
-              layers.each do |layer_id|
-                p "getAnnotationsForCanvas: doing layer: #{layer_id}"
-                p " "
-
-                annoWLayerHash= Hash.new
-                annoWLayerHash["layer_id"] = layer_id
+            if (!list_id.include?('/canvas/'))
+              p "getAnnotationsForCanvas: doing list: #{list_id}"
+              layers = LayerListsMap.getLayersForList list_id
+              # 4/7/2016
+              p "layers count = #{layers.count().to_s}"
+              annoWLayerHash= Hash.new
+              if (layers.nil?)
+                #p "layers = nil"
+                #annoWLayerHash= Hash.new
+                annoWLayerHash["layer_id"] = "no layer"
                 annoWLayerHash["annotation"] = annotation.to_iiif
                 annoWLayerArray.push(annoWLayerHash)
+              else
+                p "layers = NOT nil"
+                layers.each do |layer_id|
+                  p "getAnnotationsForCanvas: doing layer: #{layer_id}"
+                  p " "
+
+                  annoWLayerHash= Hash.new
+                  annoWLayerHash["layer_id"] = layer_id
+                  annoWLayerHash["annotation"] = annotation.to_iiif
+                  annoWLayerArray.push(annoWLayerHash)
+                end
               end
             end
           end
