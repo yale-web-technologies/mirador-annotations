@@ -67,7 +67,7 @@ class AnnotationsController < ApplicationController
           # return not just array of annotations but including an array of layers for each annotation as well
           lists = ListAnnotationsMap.getListsForAnnotation annotation.annotation_id
           lists.each do |list_id|
-            if (!list_id.include?('/canvas/'))
+            #if (!list_id.include?('/canvas/'))
               p "getAnnotationsForCanvas: doing list: #{list_id}"
               layers = LayerListsMap.getLayersForList list_id
               # 4/7/2016
@@ -91,7 +91,7 @@ class AnnotationsController < ApplicationController
                   annoWLayerArray.push(annoWLayerHash)
                 end
               end
-            end
+            #end
           end
         end
       end
