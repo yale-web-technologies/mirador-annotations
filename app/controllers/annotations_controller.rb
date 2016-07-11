@@ -489,14 +489,14 @@ class AnnotationsController < ApplicationController
     #****************************************************
     # manipulate "on" to test multiples
     #****************************************************
-    @annotationIn['on'] = '[{
-      "@type": "oa:Annotation",
-      "full": "http://localhost:5000/annotations/Panel_B_Chapter_26_Scene_1_1_Tibetan_Sun_Of_Faith"
-       },
-      {
-      "@type": "oa:Annotation",
-      "full": "http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01"
-     }]'
+   # @annotationIn['on'] = '[{
+   #   "@type": "oa:Annotation",
+   #   "full": "http://localhost:5000/annotations/Panel_B_Chapter_26_Scene_1_1_Tibetan_Sun_Of_Faith"
+   #    },
+   #   {
+   #   "@type": "oa:Annotation",
+   #   "full": "http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01"
+   #  }]'
     @annotationOut['on'] = @annotationIn['on']
 
     on_array = JSON.parse(@annotationIn['on'])
