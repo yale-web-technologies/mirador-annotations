@@ -11,6 +11,8 @@ class ListAnnotationsMap < ActiveRecord::Base
         if list_annotation_map.nil?
           newHighSeq = getNextSeqForList(list_id)
           create!(:list_id => list_id, :sequence => newHighSeq, :annotation_id => anno_id)
+        else
+          p "#{now()}:  map record already exists for annotation: #{anno_id}:  list: #{list_id}"
         end
       end
     end

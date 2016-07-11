@@ -8,21 +8,30 @@
 
         <p>
             <b>Identifier (URI):</b>
-            <%= @annotation_list['@id'] %>
+            <%= @annotation_list.list_id %>
+        </p>
+
+        <p>
+            <b>Label:</b>
+            <%= @annotation_list.label %>
+        </p>
+        <p>
+            <b>Type:</b>
+            <%= @annotation_list.list_type %>
         </p>
 
         <p>
             <b>Within:</b>
-            <%= @annotation_list.within %>
+            <%= LayerListsMap.getLayersForList @annotation_list.list_id %>
         </p>
 
         <p>
             <b>Resources:</b>
-            <%= @annotation_list.resources %>
-        </p>
+            <%= ListAnnotationsMap.getAnnotationsForList  @annotation_list.list_id     %>
+         </p>
 
-        <%= link_to 'Edit', edit_annotation_list_path(@annotation_list) %> |
-        <%= link_to 'Back', annotation_list_path %>
+        <%#= link_to 'Edit', edit_annotation_list_path(@annotation_list) %> |
+        <%#= link_to 'Back', annotation_list_path %>
     </div>
 </div>
 

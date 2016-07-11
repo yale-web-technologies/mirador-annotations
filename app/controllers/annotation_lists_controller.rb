@@ -24,8 +24,9 @@ class AnnotationListsController < ApplicationController
   # GET /list/1
   # GET /list/1.json
   def show
-    #@ru = request.original_url
-    @ru = request.protocol + request.host_with_port + "/lists/#{params['id']}"
+    @ru = request.original_url
+    #@ru = request.protocol + request.host_with_port + "/lists/#{params['id']}"
+    p "in lists#show: @ru = #{@ru}"
     @annotation_list = AnnotationList.where(list_id: @ru).first
     #authorize! :show, @annotation_list
     respond_to do |format|
