@@ -64,7 +64,7 @@ namespace :checkData do
   end
   #==========================================================================
 
-  desc "gets all annos that target another anno"
+  desc "list and fix list_annotations_maps so that they are constructed of layer + canvas, where canvas is the original canvas regardless of whether an annotation targets another annotation"
   # this task assumes one layer for an annotation for purposes of creating required list of layer_id_canvas_id
   task :listAnnoMapsCheckAndFix => :environment do
     @annotations = Annotation.all
