@@ -1,4 +1,5 @@
 include AclCreator
+require "json"
 
 class AnnotationsController < ApplicationController
   include CanCan::ControllerAdditions
@@ -44,9 +45,8 @@ class AnnotationsController < ApplicationController
       annoWLayerArray = Array.new
       iiif = Array.new
       @annotation.each do |annotation|
-        p " "
-        p "getAnnotationsForCanvas: doing annotation: #{annotation.annotation_id}"
-
+        #p " "
+        #p "getAnnotationsForCanvas: doing annotation: #{annotation.annotation_id}"
         within = ListAnnotationsMap.getListsForAnnotation annotation.annotation_id
 
         #authorized = false
@@ -61,17 +61,16 @@ class AnnotationsController < ApplicationController
             end
         end
 =end
-
         if (authorized==true)
           #iiif.push(annotation.to_iiif)
           # return not just array of annotations but including an array of layers for each annotation as well
           lists = ListAnnotationsMap.getListsForAnnotation annotation.annotation_id
           lists.each do |list_id|
             #if (!list_id.include?('/canvas/'))
-              p "getAnnotationsForCanvas: doing list: #{list_id}"
+              #p "getAnnotationsForCanvas: doing list: #{list_id}"
               layers = LayerListsMap.getLayersForList list_id
               # 4/7/2016
-              p "layers count = #{layers.count().to_s}"
+              #p "layers count = #{layers.count().to_s}"
               annoWLayerHash= Hash.new
               if (layers.nil?)
                 #p "layers = nil"
@@ -80,10 +79,10 @@ class AnnotationsController < ApplicationController
                 annoWLayerHash["annotation"] = annotation.to_iiif
                 annoWLayerArray.push(annoWLayerHash)
               else
-                p "layers = NOT nil"
+                #p "layers = NOT nil"
                 layers.each do |layer_id|
-                  p "getAnnotationsForCanvas: doing layer: #{layer_id}"
-                  p " "
+                  #p "getAnnotationsForCanvas: doing layer: #{layer_id}"
+                  #p " "
 
                   annoWLayerHash= Hash.new
                   annoWLayerHash["layer_id"] = layer_id
@@ -95,6 +94,9 @@ class AnnotationsController < ApplicationController
           end
         end
       end
+
+      p annoWLayerArray.inspect
+
       format.html {render json: annoWLayerArray}
       format.json {render json: annoWLayerArray}
       end
@@ -154,6 +156,26 @@ class AnnotationsController < ApplicationController
   # GET /annotation/1.json
   def show
     p 'in show method for annotations'
+
+    testParam =  '"on": {
+        "@type": "oa:Annotation",
+        "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884261"
+    }'.split(",")
+    testParamArr =  '["on": {
+        "@type": "oa:Annotation",
+        "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884261"
+    }, {
+        "@type": "oa:Annotation",
+        "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884262"
+    }]'.split(",")
+
+    puts "testParam.kind_of?testParam.kind_of?(testParam) = #{testParam.kind_of?(Array)}"
+    puts "testParamArr.kind_of?testParam.kind_of?(testParam) = #{testParamArr.kind_of?(Array)}"
+    puts ''
+
+
+
+
     @ru = request.protocol + request.host_with_port + "/annotations/#{params['id']}"
 
     p "in controller_show: annotation @ru = " + @ru
@@ -190,10 +212,21 @@ class AnnotationsController < ApplicationController
       @annotationOut['annotation_id'] = @annotation_id
       @annotationOut['annotation_type'] = @annotationIn['@type']
       @annotationOut['motivation'] = @annotationIn['motivation']
+
+      # test multiple on:
+      #@annotationIn['on'] = '"on": [ {
+      #"@type": "oa:Annotation",
+      #"full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884261"
+      # },
+      #  {
+      #    "@type": "oa:Annotation",
+      #    "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884262"
+      # } ]'
+
       @annotationOut['on'] = @annotationIn['on']
       @annotationOut['description'] = @annotationIn['description']
       @annotationOut['annotated_by'] = @annotationIn['annotatedBy'].to_json
-      #TODO: consider if canvas field should be set to original canvas for targeting annotations as well.
+      #TODO: consider if canvas convenience field should be set to original canvas for targeting annotations as well.
       @annotationOut['canvas']  = @annotationIn['on']['full']
       @annotationOut['resource']  = @annotationIn['resource'].to_json
       @annotationOut['order_weight']  = @annotationIn['orderWeight']
@@ -203,7 +236,10 @@ class AnnotationsController < ApplicationController
       # determine the required list for this layer and canvas (this is project-specific)
       # and create as needed (if this is the first annotation for this layer/canvas)
       # TODO: this could be configurable by defining a profile per deployment
-      handleRequiredList
+      # handleRequiredList
+      saveOn = @annotationIn['on']
+      handleRequiredListMultipleOn  # temp
+      @annotationOut['on'] = saveOn
 
       ListAnnotationsMap.setMap @annotationIn['within'], @annotation_id
       create_annotation_acls_via_parent_lists @annotation_id
@@ -431,6 +467,7 @@ class AnnotationsController < ApplicationController
 
   def handleRequiredList
     @canvas_id =  @annotationIn['on']['full']
+
     if (!@annotationIn['on']['full'].to_s.include?('/canvas/'))
       @annotation = Annotation.where(annotation_id:@annotationIn['on']['full']).first
       p "in handleRequireList: annotation_id = #{@annotation.annotation_id}"
@@ -441,12 +478,48 @@ class AnnotationsController < ApplicationController
     @required_list_id = constructRequiredListId @layer_id, @canvas_id
     p "constructed Required List = " + @required_list_id
     checkListExists @required_list_id, @layer_id, @canvas_id
+
+  end
+
+  def handleRequiredListMultipleOn
+    # handle multiple ['on']['full']'s: if there are multiples put the body of this def in a loop
+    #
+    p 'in HandleRequiredListMultipleOn'
+
+    #****************************************************
+    # manipulate "on" to test multiples
+    #****************************************************
+    @annotationIn['on'] = '[{
+      "@type": "oa:Annotation",
+      "full": "http://localhost:5000/annotations/Panel_B_Chapter_26_Scene_1_1_Tibetan_Sun_Of_Faith"
+       },
+      {
+      "@type": "oa:Annotation",
+      "full": "http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01"
+     }]'
+    @annotationOut['on'] = @annotationIn['on']
+
+    on_array = JSON.parse(@annotationIn['on'])
+     on_array.each do |on|
+        on = JSON.parse(on.to_json)
+        p "should I target? on['full'] = #{on['full']}"
+        @canvas_id = on['full']
+        if (!on['full'].include?('/canvas/'))
+          p 'am targeting'
+          @annotation = Annotation.where(annotation_id:on['full']).first
+          @canvas_id = getTargetingAnnosCanvas(@annotation)
+        end
+
+        @required_list_id = constructRequiredListId @layer_id, @canvas_id
+        p "constructed Required List = " + @required_list_id
+        checkListExists @required_list_id, @layer_id, @canvas_id
+     end
   end
 
   def constructRequiredListId layer_id, canvas_id
     @ru = request.original_url.split('?').first
     @ru += '/'   if !@ru.end_with? '/'
-    list_id = @ru + layer_id + "_" + canvas_id
+    list_id = request.protocol + request.host_with_port + "/lists/" + layer_id + "_" + canvas_id
   end
 
   def checkListExists list_id, layer_id, canvas_id
@@ -455,13 +528,17 @@ class AnnotationsController < ApplicationController
       createAnnotationListForMap(list_id, layer_id, canvas_id)
     end
     # add to within if necessary
-    #if @annotation['within'].nil?
-    if !@annotationIn.key?(:within)
+    if @annotationIn['within'].nil?
+    #if !@annotationIn.key?(:within)
       withinArray = Array.new
       withinArray.push(list_id)
       @annotationIn['within'] = withinArray
     else
-      withinArray = @annotationIn['within'].to_arr
+      if (@annotationIn['within'].kind_of?(Array))
+        withinArray = @annotationIn['within']
+      else
+        withinArray = @annotationIn['within'].to_arr
+      end
       withinArray.push(list_id)
       @annotationIn['within'] = withinArray
     end
@@ -477,7 +554,6 @@ class AnnotationsController < ApplicationController
     @within = Array.new
     @within.push(layer_id)
     LayerListsMap.setMap @within,@list['list_id']
-
     create_list_acls_via_parent_layers @list['list_id']
     @annotation_list = AnnotationList.create(@list)
   end
@@ -494,12 +570,12 @@ class AnnotationsController < ApplicationController
     end
   end
 
-# this needs to move backwards from an annotations' target until the last (or first) targeted anno, then return this one's canvas
+#  move backwards from an annotations' target until the last (or first) targeted anno, then return this one's canvas
   def getTargetingAnnosCanvas inputAnno
     return(inputAnno.canvas) if (inputAnno.canvas.to_s.include?('/canvas/'))
-    p "getTargetingAnnosCanvas:                        anno_id = #{inputAnno.annotation_id}  and canvas = #{inputAnno.canvas}"
+    #p "getTargetingAnnosCanvas:                        anno_id = #{inputAnno.annotation_id}  and canvas = #{inputAnno.canvas}"
     targetAnnotation = Annotation.where(annotation_id:inputAnno.canvas).first
-    p "just got targetAnnotation based on that canvas: anno_id = #{targetAnnotation.annotation_id}  and canvas = #{targetAnnotation.canvas} "
+    #p "just got targetAnnotation based on that canvas: anno_id = #{targetAnnotation.annotation_id}  and canvas = #{targetAnnotation.canvas} "
     getTargetingAnnosCanvas targetAnnotation
   end
 
