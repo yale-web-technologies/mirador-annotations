@@ -236,9 +236,9 @@ class AnnotationsController < ApplicationController
       # determine the required list for this layer and canvas (this is project-specific)
       # and create as needed (if this is the first annotation for this layer/canvas)
       # TODO: this could be configurable by defining a profile per deployment
-      # handleRequiredList
+      handleRequiredList
       saveOn = @annotationIn['on']
-      handleRequiredListMultipleOn  # temp
+      #handleRequiredListMultipleOn  # temp
       @annotationOut['on'] = saveOn
 
       ListAnnotationsMap.setMap @annotationIn['within'], @annotation_id
