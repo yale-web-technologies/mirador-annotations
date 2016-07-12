@@ -115,14 +115,16 @@ class AnnotationsController < ApplicationController
     annoWLayerArray = Array.new
     lists.each do |list|
       layer_id = getLayerFromListName list.list_id
-      annotations = ListAnnotationsMap.getAnnotationsForList list.list_id
-      annotations.each do |annotation|
-        annoWLayerHash= Hash.new
-        annoWLayerHash["layer_id"] = layer_id
-        annoWLayerHash["annotation"] = annotation.to_iiif
-        annoWLayerArray.push(annoWLayerHash)
+      if !layer_id.nil?
+        annotations = ListAnnotationsMap.getAnnotationsForList list.list_id
+        annotations.each do |annotation|
+          annoWLayerHash= Hash.new
+          annoWLayerHash["layer_id"] = layer_id
+          annoWLayerHash["annotation"] = annotation.to_iiif
+          annoWLayerArray.push(annoWLayerHash)
+        end
+        puts annoWLayerArray.inspect
       end
-      puts annoWLayerArray.inspect
     end
     respond_to do |format|
       format.html {render json: annoWLayerArray}
@@ -132,6 +134,7 @@ class AnnotationsController < ApplicationController
 
   def getLayerFromListName listName
     match = /\/http(\S+\/layers\/\S+_)/.match(listName)
+    return if match.nil?
     layer_id = match[0]
     layer_id =layer_id[1...-1]
     puts layer_id
