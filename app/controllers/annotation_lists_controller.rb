@@ -161,6 +161,7 @@ class AnnotationListsController < ApplicationController
     ListAnnotationsMap.deleteAnnotationsFromList list_id
     # Now rewrite the maps for this list based on annotation_ids array passed in
     annotation_ids.each do |anno_id|
+      anno_id = anno_id.to_s
       anno_id.gsub!(/\[/,'')
       anno_id.gsub!(/\]/,'')
       anno_id.gsub!(/\]/,'')
