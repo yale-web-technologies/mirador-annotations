@@ -29,10 +29,11 @@ MiradorAnnotationsServer::Application.routes.draw do
   match '/' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
   match 'getAccessToken' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
   match 'getAnnotations' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
+  match 'getAnnotations' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
   match 'annotations' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
   match 'annotations/*all' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
   match 'lists' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
   match 'layers' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
-  match 'getAnnotations' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
+  match 'getAnnotationsViaList' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
   match 'resequenceList' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
 end
