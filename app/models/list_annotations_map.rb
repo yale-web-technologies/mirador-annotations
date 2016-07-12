@@ -42,7 +42,7 @@ class ListAnnotationsMap < ActiveRecord::Base
     p "in getAnnotationsForList"
     p "list_id passed in: #{list_id}"
     @annoIds = self.where(list_id: list_id).order(:sequence)
-    p "annoIds found in list:#{@annotIds.count}"
+    p "annoIds found in list:#{@annoIds.count}"
     @annoIds.each do |annotation|
       #resources.push(annotation.annotation_id)
       @Anno = Annotation.where(annotation_id: annotation.annotation_id).first
