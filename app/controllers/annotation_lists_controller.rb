@@ -145,13 +145,12 @@ class AnnotationListsController < ApplicationController
   end
 
   def resequence_list
-    layer_id = params['layer_id']
-    canvas_id = params['canvas_id']
+    layer_id = params['layer_id'].gsub!(/"/,'')
+    canvas_id = params['canvas_id'].gsub!(/"/,'')
     p "annotations_id = #{params['annotation_ids']}"
     annotation_ids = Array.new
-    annotation_ids = params['annotation_ids'].split(",")
-    #anno_id.gsub!(/\[/,'')
-    #anno_id.gsub!(/\]/,'')
+    anno_ids = params['annotation_ids'].gsub!(/\[/,'').gsub!(/\]/,'')
+    annotation_ids = anno_ids.split(",")
     p "processed annotations_id = #{annotation_ids}"
     ru = request.original_url.split('/resequence').first
     ru += '/'   if !ru.end_with? '/'
