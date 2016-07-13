@@ -150,6 +150,8 @@ class AnnotationListsController < ApplicationController
     p "annotations_id = #{params['annotation_ids']}"
     annotation_ids = Array.new
     annotation_ids = params['annotation_ids'].split(",")
+    #anno_id.gsub!(/\[/,'')
+    #anno_id.gsub!(/\]/,'')
     p "processed annotations_id = #{annotation_ids}"
     ru = request.original_url.split('/resequence').first
     ru += '/'   if !ru.end_with? '/'
@@ -162,9 +164,6 @@ class AnnotationListsController < ApplicationController
     # Now rewrite the maps for this list based on annotation_ids array passed in
     annotation_ids.each do |anno_id|
       anno_id = anno_id.to_s
-      anno_id.gsub!(/\[/,'')
-      anno_id.gsub!(/\]/,'')
-      anno_id.gsub!(/\]/,'')
       anno_id.gsub!(/"/,'')
       ListAnnotationsMap.setMap within, anno_id
     end
