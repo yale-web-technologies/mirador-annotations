@@ -145,8 +145,8 @@ class AnnotationListsController < ApplicationController
   end
 
   def resequence_list
-    layer_id = params['layer_id'].gsub!(/"/,'').to_s
-    canvas_id = params['canvas_id'].gsub!(/"/,'').to_s
+    layer_id = params['layer_id'].gsub!(/"/,'').to_s.strip!
+    canvas_id = params['canvas_id'].gsub!(/"/,'').to_s.strip!
     p "annotations_id = #{params['annotation_ids']}"
     annotation_ids = Array.new
     anno_ids = params['annotation_ids'].gsub!(/\[/,'').gsub!(/\]/,'')
