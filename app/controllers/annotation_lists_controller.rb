@@ -163,7 +163,7 @@ class AnnotationListsController < ApplicationController
     # Now rewrite the maps for this list based on annotation_ids array passed in
     annotation_ids.each do |anno_id|
       anno_id = anno_id.to_s
-      anno_id.gsub!(/"/,'')
+      anno_id.gsub!(/"/,'').strip!
       p "in resequence_id: anno_id = #{anno_id}"
       ListAnnotationsMap.setMap within, anno_id
     end
