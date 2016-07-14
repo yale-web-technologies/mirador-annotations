@@ -21,7 +21,7 @@ class AnnotationsController < ApplicationController
         end
         iiif.to_json
         format.html {render json: iiif}
-        format.json {render json: iiif}
+        format.json {render json: iiif, content_type: "application/json"}
       end
     end
 
@@ -34,6 +34,10 @@ class AnnotationsController < ApplicationController
     if (bearerToken)
       @user = signInUserByBearerToken bearerToken
     end
+
+    p 'request.headers["Content-Type"] = ' +  request.headers["Content-Type"]
+    request.headers["Content-Type"] = "application/json"
+    p 'request.headers["Content-Type"] = ' +  request.headers["Content-Type"]
 
     @annotation = Annotation.where(canvas:params['canvas_id'])
     if params['includeTargetingAnnos']== 'true'
@@ -98,7 +102,7 @@ class AnnotationsController < ApplicationController
       p annoWLayerArray.inspect
 
       format.html {render json: annoWLayerArray}
-      format.json {render json: annoWLayerArray}
+      format.json {render json: annoWLayerArray, content_type: "application/json"}
       end
   end
 
@@ -128,7 +132,7 @@ class AnnotationsController < ApplicationController
     end
     respond_to do |format|
       format.html {render json: annoWLayerArray}
-      format.json {render json: annoWLayerArray}
+      format.json {render json: annoWLayerArray, content_type: "application/json"}
     end
   end
 
@@ -188,7 +192,7 @@ class AnnotationsController < ApplicationController
     request.format = "json"
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @annotation.to_iiif }
+      format.json { render json: @annotation.to_iiif, content_type: "application/json" }
     end
   end
 
@@ -252,9 +256,9 @@ class AnnotationsController < ApplicationController
       p 'about to respond in create'
       respond_to do |format|
         if @annotation.save
-          format.json { render json: @annotation.to_iiif, status: :created} #, location: @annotation }
+          format.json { render json: @annotation.to_iiif, status: :created, content_type: "application/json"} #, location: @annotation }
         else
-          format.json { render json: @annotation.errors, status: :unprocessable_entity }
+          format.json { render json: @annotation.errors, status: :unprocessable_entity, content_type: "application/json" }
         end
       end
     end
@@ -304,10 +308,10 @@ class AnnotationsController < ApplicationController
             :order_weight => @annotationIn['orderWeight']
         )
           format.html { redirect_to @annotation, notice: 'Annotation was successfully updated.' }
-          format.json { render json: @annotation.to_iiif, status: 200}
+          format.json { render json: @annotation.to_iiif, status: 200, content_type: "application/json"}
         else
           format.html { render action: "edit" }
-          format.json { render json: @annotation.errors, status: :unprocessable_entity }
+          format.json { render json: @annotation.errors, status: :unprocessable_entity, content_type: "application/json" }
         end
       end
     end
@@ -377,10 +381,10 @@ class AnnotationsController < ApplicationController
             :order_weight => @annotationIn['orderWeight']
         )
           format.html { redirect_to @annotation, notice: 'Annotation was successfully updated.' }
-          format.json { render json: @annotation.to_iiif, status: 200}
+          format.json { render json: @annotation.to_iiif, status: 200, content_type: "application/json"}
         else
           format.html { render action: "edit" }
-          format.json { render json: @annotation.errors, status: :unprocessable_entity }
+          format.json { render json: @annotation.errors, status: :unprocessable_entity, content_type: "application/json" }
         end
       end
     end
