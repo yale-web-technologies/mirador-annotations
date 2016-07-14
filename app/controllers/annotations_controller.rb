@@ -35,9 +35,10 @@ class AnnotationsController < ApplicationController
       @user = signInUserByBearerToken bearerToken
     end
 
-    p 'request.headers["Content-Type"] = ' +  request.headers["Content-Type"]
+    p 'request.headers["Content-Type"] = ' +  request.headers["Content-Type"] unless request.headers["Content-Type"].nil?
     request.headers["Content-Type"] = "application/json"
-    p 'request.headers["Content-Type"] = ' +  request.headers["Content-Type"]
+    p 'request.headers["Content-Type"] = ' +  request.headers["Content-Type"] unless request.headers["Content-Type"].nil?
+    #response.headers["Content-Type"] = "application/json"
 
     @annotation = Annotation.where(canvas:params['canvas_id'])
     if params['includeTargetingAnnos']== 'true'

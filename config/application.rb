@@ -29,7 +29,11 @@ module MiradorAnnotationsServer
         'Access-Control-Allow-Origin' => '*',
         'Access-Control-Request-Method' => %w{GET POST OPTIONS}.join(","),
         'Access-Control-Allow-Methods' => 'POST, PUT, DELETE, GET, OPTIONS',
-        'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Accept, Authorization, tgtoken, tgToken, bearer-token'
+        'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Accept, Authorization, tgtoken, tgToken, bearer-token',
+        'Content-Type' => 'application/json'
+
+    #config.action_dispatch.default_headers.merge!('Content-Type' => 'application/json')
+
     }
   end
 end
