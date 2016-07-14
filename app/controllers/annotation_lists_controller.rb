@@ -1,4 +1,5 @@
 include AclCreator
+require "json"
 
 class AnnotationListsController < ApplicationController
 
@@ -145,19 +146,24 @@ class AnnotationListsController < ApplicationController
   end
 
   def resequence_list
-    p "resequence_list: layer_id  = " + params['layer_id']
-    layer_id = params['layer_id'].gsub!(/"/,'')
-    p "layer_id after gsub!: #{layer_id}"
-    layer_id.strip!
-    p "layer_id after strip!: #{layer_id}"
+    p 'params.inspect = ' + params.inspect
+    paramsIn = JSON.parse(params.to_json)
 
-    canvas_id = params['canvas_id'].gsub!(/"/,'')
-    canvas_id.strip!
-    p "annotations_id = #{params['annotation_ids']}"
-    annotation_ids = Array.new
-    anno_ids = params['annotation_ids'].gsub!(/\[/,'').gsub!(/\]/,'')
-    annotation_ids = anno_ids.split(",")
-    p "processed annotations_id = #{annotation_ids}"
+    #paramsIn = JSON.parse('{
+    #"canvas_id":"http://manifests.ydc2.yale.edu/LOTB/canvas/bv11",
+    #"layer_id":"http://localhost:5000/layers/English",
+    #"annotation_ids":["http://localhost:5000/annotations/Panel_B_Chapter_26_Scene_0_5_English_Sun_Of_Faith","http://localhost:5000/annotations/Panel_B_Chapter_26_Scene_1_4_English_Sun_Of_Faith"]
+    #}')
+
+    p 'paramsIn.inspect = ' + paramsIn.inspect
+    layer_id = paramsIn['layer_id']
+    canvas_id = paramsIn['canvas_id']
+    annotation_ids = paramsIn['annotation_ids']
+
+    p "layer_id = #{layer_id}"
+    p "canvas_id = #{canvas_id}"
+    p "annotations_id = " + annotation_ids.inspect
+
     ru = request.original_url.split('/resequence').first
     ru += '/'   if !ru.end_with? '/'
     list_id = ru + "lists/" + layer_id + "_" + canvas_id
@@ -168,9 +174,10 @@ class AnnotationListsController < ApplicationController
     ListAnnotationsMap.deleteAnnotationsFromList list_id
     # Now rewrite the maps for this list based on annotation_ids array passed in
     annotation_ids.each do |anno_id|
-      anno_id = anno_id.to_s
-      anno_id.gsub!(/"/,'').strip!
-      p "in resequence_id: anno_id = #{anno_id}"
+      p "a) in resequence_id: anno_id = #{anno_id}"
+      #anno_id = anno_id.to_s
+      #anno_id.gsub!(/"/,'').strip!
+      p "b) in resequence_id: anno_id = #{anno_id}"
       ListAnnotationsMap.setMap within, anno_id
     end
     request.format = "json"
