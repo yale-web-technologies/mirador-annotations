@@ -146,24 +146,10 @@ class AnnotationListsController < ApplicationController
   end
 
   def resequence_list
-    p 'params.inspect = ' + params.inspect
     paramsIn = JSON.parse(params.to_json)
-
-    #paramsIn = JSON.parse('{
-    #"canvas_id":"http://manifests.ydc2.yale.edu/LOTB/canvas/bv11",
-    #"layer_id":"http://localhost:5000/layers/English",
-    #"annotation_ids":["http://localhost:5000/annotations/Panel_B_Chapter_26_Scene_0_5_English_Sun_Of_Faith","http://localhost:5000/annotations/Panel_B_Chapter_26_Scene_1_4_English_Sun_Of_Faith"]
-    #}')
-
-    p 'paramsIn.inspect = ' + paramsIn.inspect
     layer_id = paramsIn['layer_id']
     canvas_id = paramsIn['canvas_id']
     annotation_ids = paramsIn['annotation_ids']
-
-    p "layer_id = #{layer_id}"
-    p "canvas_id = #{canvas_id}"
-    p "annotations_id = " + annotation_ids.inspect
-
     ru = request.original_url.split('/resequence').first
     ru += '/'   if !ru.end_with? '/'
     list_id = ru + "lists/" + layer_id + "_" + canvas_id
