@@ -17,7 +17,7 @@ class AnnotationListsController < ApplicationController
         iiif << annotation_list.to_iiif
       end
       iiif.to_json
-      format.json {render json: iiif}
+      format.json {render json: iiif, content_type: "application/json"}
     end
   end
 
@@ -31,7 +31,7 @@ class AnnotationListsController < ApplicationController
     #authorize! :show, @annotation_list
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @annotation_list.to_iiif }
+      format.json { render json: @annotation_list.to_iiif, content_type: "application/json" }
     end
   end
 
@@ -63,10 +63,10 @@ class AnnotationListsController < ApplicationController
       respond_to do |format|
         if @annotation_list.save
           format.html { redirect_to @annotation_list, notice: 'Annotation list was successfully created.' }
-          format.json { render json: @annotation_list.to_iiif, status: :created, location: @annotation_list }
+          format.json { render json: @annotation_list.to_iiif, status: :created, location: @annotation_list, content_type: "application/json" }
         else
           format.html { render action: "new" }
-          format.json { render json: @annotation_list.errors, status: :unprocessable_entity }
+          format.json { render json: @annotation_list.errors, status: :unprocessable_entity, content_type: "application/json" }
         end
       end
     end
@@ -105,10 +105,10 @@ class AnnotationListsController < ApplicationController
             :version => newVersion
         )
           format.html { redirect_to @annotationList, notice: 'AnnotationList was successfully updated.' }
-          format.json { render json: @annotationList.to_iiif, status: 200}
+          format.json { render json: @annotationList.to_iiif, status: 200, content_type: "application/json"}
         else
           format.html { render action: "edit" }
-          format.json { render json: @annotationList.errors, status: :unprocessable_entity }
+          format.json { render json: @annotationList.errors, status: :unprocessable_entity, content_type: "application/json" }
         end
       end
     end
@@ -145,8 +145,12 @@ class AnnotationListsController < ApplicationController
   end
 
   def resequence_list
+    p "resequence_list: layer_id  = " + params['layer_id']
     layer_id = params['layer_id'].gsub!(/"/,'')
+    p "layer_id after gsub!: #{layer_id}"
     layer_id.strip!
+    p "layer_id after strip!: #{layer_id}"
+
     canvas_id = params['canvas_id'].gsub!(/"/,'')
     canvas_id.strip!
     p "annotations_id = #{params['annotation_ids']}"
@@ -172,7 +176,7 @@ class AnnotationListsController < ApplicationController
     request.format = "json"
     respond_to do |format|
       response_msg = '{"list_id":"' + list_id + '"}'
-      format.json { render json:response_msg} #, status: :resequenced}
+      format.json { render json:response_msg, content_type: "application/json"} #, status: :resequenced}
     end
   end
 

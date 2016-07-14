@@ -15,7 +15,7 @@ class AnnotationLayersController < ApplicationController
         iiif << annotation_layer.to_iiif
       end
       iiif.to_json
-      format.json {render json: iiif}
+      format.json {render json: iiif, content_type: "application/json"}
     end
   end
 
@@ -32,7 +32,7 @@ class AnnotationLayersController < ApplicationController
     #authorize! :show, @annotation_layer
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @annotation_layer.to_iiif }
+      format.json { render json: @annotation_layer.to_iiif, content_type: "application/json" }
     end
   end
 
@@ -58,10 +58,10 @@ class AnnotationLayersController < ApplicationController
     respond_to do |format|
       if @annotation_layer.save
         format.html { redirect_to @annotation_layer, notice: 'Annotation layer was successfully created.' }
-        format.json { render json: @annotation_layer.to_iiif, status: :created, location: @annotation_layer }
+        format.json { render json: @annotation_layer.to_iiif, status: :created, location: @annotation_layer, content_type: "application/json" }
       else
         format.html { render action: "new" }
-        format.json { render json: @annotation_layer.errors, status: :unprocessable_entity }
+        format.json { render json: @annotation_layer.errors, status: :unprocessable_entity, content_type: "application/json" }
       end
     end
   end
@@ -104,10 +104,10 @@ class AnnotationLayersController < ApplicationController
             :version => newVersion
         )
           format.html { redirect_to @annotationLayer, notice: 'AnnotationLayer was successfully updated.' }
-          format.json { render json: @annotationLayer.to_iiif, status: 200 }
+          format.json { render json: @annotationLayer.to_iiif, status: 200, content_type: "application/json" }
         else
           format.html { render action: "edit" }
-          format.json { render json: @annotationLayer.errors, status: :unprocessable_entity }
+          format.json { render json: @annotationLayer.errors, status: :unprocessable_entity, content_type: "application/json" }
         end
       end
     end
