@@ -151,7 +151,7 @@ class AnnotationsController < ApplicationController
 
   # for future use
   def getAnnotationsForCanvasLayer
-    if(params.has_key?(:laye r_id))
+    if(params.has_key?(:layer_id))
       layer_id = params['layer_id']
     else
       layer_id = 'http://ten-thousand-rooms.herokuapp.com/layers/1ac0123c-1ec6-11e6-b6ba-3e1d05defe78'
