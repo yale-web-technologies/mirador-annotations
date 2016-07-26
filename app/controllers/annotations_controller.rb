@@ -117,6 +117,7 @@ class AnnotationsController < ApplicationController
       @user = signInUserByBearerToken bearerToken
     end
     lists = AnnotationList.where("list_id like ? and list_id like ?", "%#{params['canvas_id']}%", "%/lists/%")
+    p "lists found for bv11: #{lists.count}"
     annoWLayerArray = Array.new
     lists.each do |list|
       layer_id = getLayerFromListName list.list_id
@@ -138,18 +139,19 @@ class AnnotationsController < ApplicationController
   end
 
   def getLayerFromListName listName
+    p "***** getLayerFromListName: listName = #{listName}"
     match = /\/http(\S+\/layers\/\S+_)/.match(listName)
     return if match.nil?
     layer_id = match[0]
     layer_id =layer_id[1...-1]
-    puts layer_id
+    puts "***** getLayerFromListName: layer_id = #{layer_id}"
     layer_id = "No layer" if (layer_id.nil?)
     layer_id
   end
 
   # for future use
   def getAnnotationsForCanvasLayer
-    if(params.has_key?(:layer_id))
+    if(params.has_key?(:laye r_id))
       layer_id = params['layer_id']
     else
       layer_id = 'http://ten-thousand-rooms.herokuapp.com/layers/1ac0123c-1ec6-11e6-b6ba-3e1d05defe78'
