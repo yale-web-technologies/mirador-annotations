@@ -140,10 +140,10 @@ class AnnotationsController < ApplicationController
 
   def getLayerFromListName listName
     p "***** getLayerFromListName: listName = #{listName}"
-    match = /\/http(\S+\/layers\/\S+_)/.match(listName)
+    match = /\/http(\S+\/layers\/\S+_h)/.match(listName)
     return if match.nil?
     layer_id = match[0]
-    layer_id =layer_id[1...-1]
+    layer_id =layer_id[1...-2]
     puts "***** getLayerFromListName: layer_id = #{layer_id}"
     layer_id = "No layer" if (layer_id.nil?)
     layer_id
