@@ -8,7 +8,7 @@ MiradorAnnotationsServer::Application.routes.draw do
 
   root 'annotation_layers#index'
   resources :annotation_layers, path: 'layers',defaults: {format: :json}
-  #resources :annotation_lists, path: 'lists',defaults: {format: :json}
+  resources :annotation_lists, path: 'lists',defaults: {format: :json}
   get '/lists/*url' => 'annotation_lists#show', :format => false
   resources :annotation_lists, path: 'lists', :format => false
   #get '/annotations/*url' => 'annotation_lists#show', :format => false

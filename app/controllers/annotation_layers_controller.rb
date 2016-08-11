@@ -5,7 +5,7 @@ class AnnotationLayersController < ApplicationController
   # GET /layer
   # GET /layer.json
   def index
-    @annotation_layers = AnnotationLayer.all
+    @annotation_layers = AnnotationLayer.all#.order("layer_id")
     p "index: params.inspect " +      params.inspect
     p "index: params[id] = #{params['id']}"
     respond_to do |format|

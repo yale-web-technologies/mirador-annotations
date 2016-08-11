@@ -48,15 +48,23 @@ class ListAnnotationsMap < ActiveRecord::Base
       p "looking for annotation_id: #{annotation.annotation_id}"
 
       @Anno = Annotation.where(annotation_id: annotation.annotation_id).first
+=begin
       @annoJson = Hash.new
       @annoJson['@id'] = @Anno.annotation_id
       @annoJson['@type'] = @Anno.annotation_type
       @annoJson['@context'] = "http://iiif.io/api/presentation/2/context.json"
+
+      p "resource = #{@Anno.resource}"
+      #@Anno.resource.gsub!(/\r\n/,"")
+      #@Anno.resource.gsub!(/\n/,"")
+      #@Anno.resource.chomp
       @annoJson['resource'] = JSON.parse(@Anno.resource)
+      #@annoJson['resource'] = @Anno.resource.to_json
       #@annoJson['annotatedBy'] = JSON.parse(@Anno.annotated_by) if !@Anno.annotated_by.blank?
       @annoJson['on'] = @Anno.on
       #resources.push(@annoJson)
-      resources.push(@Anno)
+=end
+     resources.push(@Anno)
     end
     resources
   end
