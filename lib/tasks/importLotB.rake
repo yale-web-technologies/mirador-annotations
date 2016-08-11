@@ -5,7 +5,8 @@ namespace :importLotB do
   # Assumption: will be loaded by worksheet per chapter: first column holds panel, second column holds chapter, third column holds scene
   # Iterating through sheet needs to check for new scene, but not for new panel or chapter
   #task :LoTB_annotations => :environment do
-  task :LoTB_annotations, [:startFile, :endFile] do |t, args|
+  #task :LoTB_annotations, [:startFile, :endFile] do |t, args|
+  task :my_task , [:startFile, :endFile] => :environment do |t, args|
     require 'csv'
     require 'socket'
 
@@ -895,7 +896,9 @@ an anno with chapter and scene tags:
 
 #================= end LotB ================
   # with args = 19,28
-  task :my_task, [:startFile, :endFile] do |t, args|
+  #task :LoTB_annotations => :environment do
+  #task :my_task, [:startFile, :endFile] do |t, args|
+  task :my_task , [:startFile, :endFile] => :environment do |t, args|
     puts "StartFile = #{args.startFile}"
     puts "EndFile = #{args.endFile}"
     for i in args.startFile..args.endFile
