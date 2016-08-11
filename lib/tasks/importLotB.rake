@@ -74,7 +74,7 @@ namespace :importLotB do
     #CSV.foreach('importData/LotB_ch17.csv') do |row|
     #CSV.foreach('importData/LotB_ch18.csv') do |row|
     for i in args.startFile..args.endFile
-      chapterFilename = "importData/LotB_ch#{i}.csv"
+      chapterFilename = "importData/lotb_ch#{i}.csv"
 
       # comment
       CSV.foreach(chapterFilename) do |row|
