@@ -6,7 +6,7 @@ namespace :importLotB do
   # Iterating through sheet needs to check for new scene, but not for new panel or chapter
   #task :LoTB_annotations => :environment do
   #task :LoTB_annotations, [:startFile, :endFile] do |t, args|
-  task :my_task , [:startFile, :endFile] => :environment do |t, args|
+  task :LoTB_annotations, [:startFile, :endFile] => :environment do |t, args|
     require 'csv'
     require 'socket'
 
