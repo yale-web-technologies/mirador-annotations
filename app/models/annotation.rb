@@ -19,24 +19,21 @@ class Annotation < ActiveRecord::Base
   def to_iiif
     #return if (label.startsWith?=='Tibetan')
     iiif = Hash.new
+    p "to_iiif: annotation_id = #{annotation_id}: resource: #{resource}"
     iiif['@id'] = annotation_id
     iiif['@type'] = annotation_type
     iiif['@context'] = "http://iiif.io/api/presentation/2/context.json"
-
     #iiif['resource'] = resource
+    resource.gsub!(/\n/,"")
     iiif['resource'] = JSON.parse(resource)
-
+    #iiif['resource'] = resource.to_json # becomes blank in mirador
     iiif['within'] = ListAnnotationsMap.getListsForAnnotation annotation_id
-
     motivation.gsub!(/\"/,'')
     motivation.gsub!(/\]/,'')
     motivation.gsub!(/\[/,'')
     motivation.gsub!(' ','')
-   # p "motivation no quotes or brackets: #{motivation}"
     #iiif['motivation'] = motivation
     iiif['motivation'] = motivation.split(",")
-
-
     #iiif['annnotatedBy'] = JSON.parse(annotated_by) if !annnotated_by.nil?
     iiif['on'] = on
     if (on.start_with?("{"))
@@ -66,7 +63,5 @@ class Annotation < ActiveRecord::Base
     p preAuth.to_s
     preAuth.to_json
   end
-
-
 
 end

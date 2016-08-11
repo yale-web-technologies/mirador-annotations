@@ -124,6 +124,7 @@ class AnnotationsController < ApplicationController
       if !layer_id.nil?
         annotations = ListAnnotationsMap.getAnnotationsForList list.list_id
         annotations.each do |annotation|
+          p "***** annotation_id in getViaList: #{annotation.annotation_id}"
           annoWLayerHash= Hash.new
           annoWLayerHash["layer_id"] = layer_id
           annoWLayerHash["annotation"] = annotation.to_iiif
@@ -160,7 +161,6 @@ class AnnotationsController < ApplicationController
     list_id = request.protocol + request.host_with_port + "/lists/" + layer_id + "_" + canvas_id
     p "gAFCL: #{list_id}"
   end
-
 
   # GET /annotation/1
   # GET /annotation/1.json
