@@ -41,7 +41,8 @@ namespace :importLotB do
     makeSecondaryCanonicalSourceLists # comment out for prod re-do
 #=end
 
-    for i in args.startFile..args.endFile
+    #for i in args.startFile..args.endFile
+    for i in 1..28
       chapterFilename = "importData/lotb_ch#{i}.csv"
       firstLineInChapter = 0
       CSV.foreach(chapterFilename) do |row|
