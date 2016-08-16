@@ -163,7 +163,7 @@ class AnnotationListsController < ApplicationController
       p "a) in resequence_id: anno_id = #{anno_id}"
       #anno_id = anno_id.to_s
       #anno_id.gsub!(/"/,'').strip!
-      p "b) in resequence_id: anno_id = #{anno_id}"
+      #p "b) in resequence_id: anno_id = #{anno_id}"
       ListAnnotationsMap.setMap within, anno_id
     end
     request.format = "json"

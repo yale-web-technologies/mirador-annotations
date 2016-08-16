@@ -10,11 +10,8 @@ namespace :importLotB do
   # annotations, [:startFile, :endFile] do |t, args|
   task :LoTB_annotations, [:startFile, :endFile] => :environment do |t, args|
     require 'csv'
-    require 'socket'
+    #require 'socket'
 
-    p "Socket.getHostname = #{Socket.gethostname}"
-    #@ru = request.original_url.split('?').first
-    #@ru += '/'   if !ru.end_with? '/'
     #@ru = "http://localhost:5000"
     @ru = "http://mirador-annotations-lotb-stg.herokuapp.com"
     #@ru = "http://mirador-annotations-lotb.herokuapp.com"
@@ -22,6 +19,7 @@ namespace :importLotB do
     labels = Array.new
     i = 0
     j=0
+    ctr=0
     panel = " "
     chapter = " "
     scene = " "
@@ -43,73 +41,34 @@ namespace :importLotB do
     makeSecondaryCanonicalSourceLists # comment out for prod re-do
 #=end
 
-    #CSV.foreach('importData/lotb26_norm.txt') do |row|
-    #CSV.foreach('importData/LotB_ch26.csv') do |row|
-    #CSV.foreach('importData/LotB_ch23.csv') do |row|
-    #CSV.foreach('importData/LotB_ch24.csv') do |row|
-    #CSV.foreach('importData/LotB_ch25.csv') do |row|
-    #CSV.foreach('importData/LotB_ch19.csv') do |row|
-    #CSV.foreach('importData/LotB_ch20.csv') do |row|
-    #CSV.foreach('importData/LotB_ch21.csv') do |row|
-    #CSV.foreach('importData/LotB_ch22.csv') do |row|
-    #CSV.foreach('importData/LotB_ch27.csv') do |row|
-    #CSV.foreach('importData/LotB_ch28.csv') do |row|
-    #CSV.foreach('importData/LotB_ch1.csv') do |row|
-    #CSV.foreach('importData/LotB_ch2.csv') do |row|
-    #CSV.foreach('importData/LotB_ch3.csv') do |row|
-    #CSV.foreach('importData/LotB_ch4.csv') do |row|
-    #CSV.foreach('importData/LotB_ch5.csv') do |row|
-    #CSV.foreach('importData/LotB_ch6.csv') do |row|
-    #CSV.foreach('importData/LotB_ch7.csv') do |row|
-
-    #CSV.foreach('importData/LotB_ch8.csv') do |row|
-    #CSV.foreach('importData/LotB_ch9.csv') do |row|
-    #CSV.foreach('importData/LotB_ch10.csv') do |row|
-    #CSV.foreach('importData/LotB_ch11.csv') do |row|
-    #CSV.foreach('importData/LotB_ch12.csv') do |row|
-    #CSV.foreach('importData/LotB_ch13.csv') do |row|
-    #CSV.foreach('importData/LotB_ch14.csv') do |row|
-    #CSV.foreach('importData/LotB_ch15.csv') do |row|
-    #CSV.foreach('importData/LotB_ch16.csv') do |row|
-    #CSV.foreach('importData/LotB_ch17.csv') do |row|
-    #CSV.foreach('importData/LotB_ch18.csv') do |row|
     for i in args.startFile..args.endFile
       chapterFilename = "importData/lotb_ch#{i}.csv"
-
-      # comment
+      firstLineInChapter = 0
       CSV.foreach(chapterFilename) do |row|
-        #i+=1;
+        firstLineInChapter += 1; # total counter
         puts "i = #{i.to_s}  chapter: #{chapterFilename}"
-        #next if i > 3
-        j=0
-        while j < row.size
-          labels[j] = row[j]
-          puts "labels[#{j}] = #{labels[j]}"
-          j += 1
-        end
         puts 'row.size = ' + row.size.to_s
+
         # First Row: set labels from column headings
-        if (i==1)
-          #while j < row.size
+        if (firstLineInChapter==1)   # gets cleared for each new chapter
           while j <= 12
-            #labels[j] = row[j]
-            #puts "labels[#{j}] = #{labels[j]}"
+            labels[j] = row[j]
             j += 1
           end
         else
-          puts "past labels row = " + row.to_s
+          #Process as an annotation
           panel = row[0]
           chapter = row[1]
 
           #set the canvas based on the chapter number, since row[0] is not always filled in
-          if (chapter.to_i > 18)
+          if (panel == "B")
             canvas = 'http://manifests.ydc2.yale.edu/LOTB/canvas/bv11'
           else
             canvas = 'http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01'
           end
 
-
-          # check for new Chaptewr
+          # new Chapter now handled in newScene
+          # check for new Chapter
           #if (lastChapter != chapter)
           #  p "about to call newChapter:  #{row[1]}"
           #  createNewChapter row
@@ -131,43 +90,45 @@ namespace :importLotB do
   #===================================================================================================================================================================
 
           # 1) create the Tibetan Sun of Faith transcription annotation for this row ([3]
-          annotation_id = @ru + "/annotations/"+ "Panel_" + panel + "_Chapter_" + chapter + "_Scene_" + scene + "_" + nextSceneSeq.to_s +
-              "_Tibetan_Sun_Of_Faith"
-          annotation_type = "oa:annotation"
-          motivation = "[oa:transcribing]"
-          label = "Tibetan transcription: Sun of Faith"
-          on = '{
-              "@type": "oa:Annotation",
-              "full": "'
-          if (scene=="0")
-            on += @ru + '/annotations/'+ 'Panel_' + row[0] + '_Chapter_' + row[1]
-          else
-            on += @ru + '/annotations/'+ 'Panel_' + row[0] + '_Chapter_' + row[1] + '_Scene_' + scene
+          unless row[3].nil?
+            annotation_id = @ru + "/annotations/"+ "Panel_" + panel + "_Chapter_" + chapter + "_Scene_" + scene + "_" + nextSceneSeq.to_s +
+                "_Tibetan_Sun_Of_Faith"
+            annotation_type = "oa:annotation"
+            motivation = "[oa:transcribing]"
+            label = "Tibetan transcription: Sun of Faith"
+            on = '{
+                "@type": "oa:Annotation",
+                "full": "'
+            if (scene=="0")
+              on += @ru + '/annotations/'+ 'Panel_' + row[0] + '_Chapter_' + row[1]
+            else
+              on += @ru + '/annotations/'+ 'Panel_' + row[0] + '_Chapter_' + row[1] + '_Scene_' + scene
+            end
+            on += '"}'
+            on = JSON.parse(on)
+            #canvas = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+            #canvas = on['full']
+            manifest = "tbd"
+            chars = row[3]
+            #p "chars = " + chars.to_s
+            resource = '[{"@type":"dctypes:Text","format":"text/html","chars":"'
+            resource += chars.to_s
+            resource += '"}]'
+            active = true
+            version = 1
+            @annotation = Annotation.create(annotation_id: annotation_id, annotation_type: annotation_type, motivation: motivation, label:label, on: on, canvas: canvas, manifest: manifest,  resource: resource, active: active, version: version)
+            result = @annotation.save!(options={validate: false})
+
+            #p 'just created tibetan annotation: ' + annotation_id
+
+            #sceneList =  @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene
+            #languageList = @ru + "/lists/Tibetan_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+            languageList = @ru + "/lists/" + @ru + "/layers/Tibetan_" + canvas
+            withinArray = Array.new
+            #withinArray.push(sceneList)
+            withinArray.push(languageList)
+            ListAnnotationsMap.setMap withinArray, @annotation['annotation_id']
           end
-          on += '"}'
-          on = JSON.parse(on)
-          #canvas = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
-          #canvas = on['full']
-          manifest = "tbd"
-          chars = row[3]
-          #p "chars = " + chars.to_s
-          resource = '[{"@type":"dctypes:Text","format":"text/html","chars":"'
-          resource += chars.to_s
-          resource += '"}]'
-          active = true
-          version = 1
-          @annotation = Annotation.create(annotation_id: annotation_id, annotation_type: annotation_type, motivation: motivation, label:label, on: on, canvas: canvas, manifest: manifest,  resource: resource, active: active, version: version)
-          result = @annotation.save!(options={validate: false})
-
-          #p 'just created tibetan annotation: ' + annotation_id
-
-          #sceneList =  @ru + "/lists/Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene
-          #languageList = @ru + "/lists/Tibetan_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
-          languageList = @ru + "/lists/" + @ru + "/layers/Tibetan_" + canvas
-          withinArray = Array.new
-          #withinArray.push(sceneList)
-          withinArray.push(languageList)
-          ListAnnotationsMap.setMap withinArray, @annotation['annotation_id']
           #===================================================================================================================================================================
           # 2) create the Tibetan Inscription transcription annotation for this row ([5]
           unless row[5].nil?
@@ -238,38 +199,40 @@ namespace :importLotB do
             end
           #===================================================================================================================================================================
           # 4) create the English Sun of Faith translation annotation for this row ([4]
-          annotation_id = @ru + "/annotations/"+ "Panel_" + panel + "_Chapter_" + chapter + "_Scene_" + scene + "_" + nextSceneSeq.to_s + "_English_Sun_Of_Faith"
+          unless row[4].nil?
+            annotation_id = @ru + "/annotations/"+ "Panel_" + panel + "_Chapter_" + chapter + "_Scene_" + scene + "_" + nextSceneSeq.to_s + "_English_Sun_Of_Faith"
 
-          annotation_type = "oa:annotation"
-          motivation = "[oa:translating]"
-          label = "English Translation: Sun Of Faith"
-          on = '{
-              "@type": "oa:Annotation",
-              "full": "'
-          if (scene=="0")
-            on += @ru + '/annotations/'+ 'Panel_' + row[0] + '_Chapter_' + row[1]
-          else
-            on += @ru + '/annotations/'+ 'Panel_' + row[0] + '_Chapter_' + row[1] + '_Scene_' + scene
+            annotation_type = "oa:annotation"
+            motivation = "[oa:translating]"
+            label = "English Translation: Sun Of Faith"
+            on = '{
+                "@type": "oa:Annotation",
+                "full": "'
+            if (scene=="0")
+              on += @ru + '/annotations/'+ 'Panel_' + row[0] + '_Chapter_' + row[1]
+            else
+              on += @ru + '/annotations/'+ 'Panel_' + row[0] + '_Chapter_' + row[1] + '_Scene_' + scene
+            end
+            on += '"}'
+            on = JSON.parse(on)
+            #canvas = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+            #canvas = on['full']
+            manifest = "tbd"
+            row[4].gsub!(/"/,39.chr) if (!row[4].nil?)
+            chars = row[4]
+            resource = '[{"@type":"dctypes:Text","format":"text/html","chars":"' + chars+'"}]'
+            active = true
+            version = 1
+            @annotation = Annotation.create(annotation_id: annotation_id, annotation_type: annotation_type, motivation: motivation, label:label, on: on, canvas: canvas, manifest: manifest,  resource: resource, active: active, version: version)
+            result = @annotation.save!(options={validate: false})
+            #languageList = @ru + "/lists/English_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
+            languageList = @ru + "/lists/" + @ru + "/layers/English_" + canvas
+
+            withinArray = Array.new
+            #withinArray.push(sceneList)
+            withinArray.push(languageList)
+            ListAnnotationsMap.setMap withinArray, @annotation['annotation_id']
           end
-          on += '"}'
-          on = JSON.parse(on)
-          #canvas = "http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
-          #canvas = on['full']
-          manifest = "tbd"
-          row[4].gsub!(/"/,39.chr)
-          chars = row[4]
-          resource = '[{"@type":"dctypes:Text","format":"text/html","chars":"' + chars+'"}]'
-          active = true
-          version = 1
-          @annotation = Annotation.create(annotation_id: annotation_id, annotation_type: annotation_type, motivation: motivation, label:label, on: on, canvas: canvas, manifest: manifest,  resource: resource, active: active, version: version)
-          result = @annotation.save!(options={validate: false})
-          #languageList = @ru + "/lists/English_http://manifests.ydc2.yale.edu/LOTB/canvas/bv11"
-          languageList = @ru + "/lists/" + @ru + "/layers/English_" + canvas
-
-          withinArray = Array.new
-          #withinArray.push(sceneList)
-          withinArray.push(languageList)
-          ListAnnotationsMap.setMap withinArray, @annotation['annotation_id']
           #===================================================================================================================================================================
           # 5) create the English Inscription annotation for this row ([6]
           unless row[6].nil?
@@ -782,12 +745,13 @@ namespace :importLotB do
   def createNewScene row
     puts "**** row[1] = #{row[1]} ***"
     puts "**** row[1].to_i = #{row[1].to_i} ***"
-    if (row[1].to_i > 18)
+    #if (row[1].to_i > 18)
+    if (row[0] == "B")
       canvas = 'http://manifests.ydc2.yale.edu/LOTB/canvas/bv11'
     else
       canvas = 'http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01'
     end
-    puts "creteNewScene: setting canvas to: #{canvas}"
+    puts "createNewScene: setting canvas to: #{canvas}"
 
 
     # create new list ChapterX_SceneY and attach to layer and Chapter_X
@@ -818,6 +782,7 @@ namespace :importLotB do
     newAnnotation['on'] = '{"@type": "oa:SpecificResource","full": "' + canvas + '","selector": {"@type": "oa:SvgSelector","value": "'
     newAnnotation['on'] =  newAnnotation['on'] + row[12] unless row[12].nil?
     newAnnotation['on'] =  newAnnotation['on'] + '"}}'
+    p "********* ON = #{newAnnotation['on']}"
 
     #newAnnotation['on'] = JSON.parse(newAnnotation['on'])
 
@@ -862,8 +827,9 @@ namespace :importLotB do
   end
 
   def createNewRenderingAnnotation newAnnotation
+    p "*********====> createNewRenderingAnnotation: ON = #{newAnnotation['on'].to_s}"
     annotations = Annotation.where(annotation_id: newAnnotation['annotation_id']).first
-    if (annotations.nil?)
+    #if (annotations.nil?)
       #addTagsToRenderingAnnotation newAnnotation
       #p 'in createNewRenderingAnnotation: resource = ' + newAnnotation['resource'].to_s
       @annotation = Annotation.create(annotation_id:newAnnotation['annotation_id'], annotation_type: newAnnotation['annotation_type'], motivation: newAnnotation['motivation'],
@@ -871,7 +837,7 @@ namespace :importLotB do
                                       active: newAnnotation['active'],
                                       version: newAnnotation['version'])
       ListAnnotationsMap.setMap newAnnotation['within'], newAnnotation['annotation_id']
-    end
+    #end
   end
 
 
