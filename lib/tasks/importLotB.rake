@@ -13,8 +13,8 @@ namespace :importLotB do
     #require 'socket'
 
     #@ru = "http://localhost:5000"
-    @ru = "http://mirador-annotations-lotb-stg.herokuapp.com"
-    #@ru = "http://mirador-annotations-lotb.herokuapp.com"
+    #@ru = "http://mirador-annotations-lotb-stg.herokuapp.com"
+    @ru = "http://mirador-annotations-lotb.herokuapp.com"
 
     labels = Array.new
     i = 0
