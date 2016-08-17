@@ -13,8 +13,8 @@ namespace :importLotB do
     #require 'socket'
 
     #@ru = "http://localhost:5000"
-    #@ru = "http://mirador-annotations-lotb-stg.herokuapp.com"
-    @ru = "http://mirador-annotations-lotb.herokuapp.com"
+    @ru = "http://mirador-annotations-lotb-stg.herokuapp.com"
+    #@ru = "http://mirador-annotations-lotb.herokuapp.com"
 
     labels = Array.new
     i = 0
@@ -771,7 +771,11 @@ namespace :importLotB do
     newAnnotation['annotation_type'] = "oa:annotation"
     newAnnotation['motivation'] ="[oa:commenting]"
     #newAnnotation['resource'] = '[{"@type":"dctypes:Text","format":"text/html","chars":"' + "Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene + '"}]'
+    if (scene.include?('svg'))
+      scene.gsub!(/svg/,'')
+    end
     newAnnotation['resource'] = '[{"@type":"dctypes:Text","format":"text/html","chars":"' + "Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene + '"},{"@type": "oa:Tag","chars":"chapter'  + row[1] + '"},{"@type": "oa:Tag","chars":"scene'  + scene + '"}]'
+    #newAnnotation['resource'] = '[{"@type":"dctypes:Text","format":"text/html","chars":"' + "Panel_" + row[0] + "_Chapter_" + row[1] + "_Scene_" + scene + '"},{"@type": "oa:Tag","chars":"chapter'  + row[1] + '"},{"@type": "oa:Tag","chars":"scene'  + scene.gsub!(/svg/,'') + '"}]'
 
     if (scene=="0")
       #newAnnotation['resource'] = '[{"@type":"dctypes:Text","format":"text/html","chars":"' + "Panel_" + row[0] + "_Chapter_" + row[1] + '"}]'
