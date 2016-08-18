@@ -27,8 +27,6 @@ class AnnotationsController < ApplicationController
 
   def getAnnotationsForCanvas
     bearerToken = ''
-    p 'in getAnnotationsForCanvas: params = ' + params.inspect
-    p 'in getAnnotationsForCanvas: headers: ' + request.headers.inspect
     bearerToken = request.headers["bearer-token"] #user is logged in and has a bearer token
     #p "bearerToken = #{bearerToken}"
     if (bearerToken)
@@ -38,20 +36,16 @@ class AnnotationsController < ApplicationController
     p 'request.headers["Content-Type"] = ' +  request.headers["Content-Type"] unless request.headers["Content-Type"].nil?
     request.headers["Content-Type"] = "application/json"
     p 'request.headers["Content-Type"] = ' +  request.headers["Content-Type"] unless request.headers["Content-Type"].nil?
-    #response.headers["Content-Type"] = "application/json"
 
     @annotation = Annotation.where(canvas:params['canvas_id'])
     if params['includeTargetingAnnos']== 'true'
       @annotationsOnAnnotations = getTargetingAnnos @annotation
-      p 'calling getTargetingAnnos'
     end
 
     respond_to do |format|
       annoWLayerArray = Array.new
       iiif = Array.new
       @annotation.each do |annotation|
-        #p " "
-        #p "getAnnotationsForCanvas: doing annotation: #{annotation.annotation_id}"
         within = ListAnnotationsMap.getListsForAnnotation annotation.annotation_id
 
         #authorized = false
@@ -117,20 +111,18 @@ class AnnotationsController < ApplicationController
       @user = signInUserByBearerToken bearerToken
     end
     lists = AnnotationList.where("list_id like ? and list_id like ?", "%#{params['canvas_id']}%", "%/lists/%")
-    p "lists found for bv11: #{lists.count}"
+    #p "lists found for bv11: #{lists.count}"
     annoWLayerArray = Array.new
     lists.each do |list|
       layer_id = getLayerFromListName list.list_id
       if !layer_id.nil?
         annotations = ListAnnotationsMap.getAnnotationsForList list.list_id
         annotations.each do |annotation|
-          p "***** annotation_id in getViaList: #{annotation.annotation_id}"
           annoWLayerHash= Hash.new
           annoWLayerHash["layer_id"] = layer_id
           annoWLayerHash["annotation"] = annotation.to_iiif
           annoWLayerArray.push(annoWLayerHash)
         end
-        puts annoWLayerArray.inspect
       end
     end
     respond_to do |format|
@@ -140,12 +132,10 @@ class AnnotationsController < ApplicationController
   end
 
   def getLayerFromListName listName
-    p "***** getLayerFromListName: listName = #{listName}"
     match = /\/http(\S+\/layers\/\S+_h)/.match(listName)
     return if match.nil?
     layer_id = match[0]
     layer_id =layer_id[1...-2]
-    puts "***** getLayerFromListName: layer_id = #{layer_id}"
     layer_id = "No layer" if (layer_id.nil?)
     layer_id
   end
@@ -159,14 +149,11 @@ class AnnotationsController < ApplicationController
     end
     #construct the list_id
     list_id = request.protocol + request.host_with_port + "/lists/" + layer_id + "_" + canvas_id
-    p "gAFCL: #{list_id}"
   end
 
   # GET /annotation/1
   # GET /annotation/1.json
   def show
-    p 'in show method for annotations'
-
     testParam =  '"on": {
         "@type": "oa:Annotation",
         "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884261"
@@ -179,17 +166,7 @@ class AnnotationsController < ApplicationController
         "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884262"
     }]'.split(",")
 
-    puts "testParam.kind_of?testParam.kind_of?(testParam) = #{testParam.kind_of?(Array)}"
-    puts "testParamArr.kind_of?testParam.kind_of?(testParam) = #{testParamArr.kind_of?(Array)}"
-    puts ''
-
-
-
-
     @ru = request.protocol + request.host_with_port + "/annotations/#{params['id']}"
-
-    p "in controller_show: annotation @ru = " + @ru
-
     @annotation = Annotation.where(annotation_id: @ru).first
     #authorize! :show, @annotation_list
     request.format = "json"

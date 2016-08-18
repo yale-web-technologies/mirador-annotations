@@ -45,7 +45,7 @@ class ListAnnotationsMap < ActiveRecord::Base
     p "annoIds found in list:#{@annoIds.count}"
     @annoIds.each do |annotation|
       #resources.push(annotation.annotation_id)
-      p "looking for annotation_id: #{annotation.annotation_id}"
+      #p "looking for annotation_id: #{annotation.annotation_id}"
 
       @Anno = Annotation.where(annotation_id: annotation.annotation_id).first
 =begin
