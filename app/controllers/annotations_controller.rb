@@ -110,8 +110,8 @@ class AnnotationsController < ApplicationController
     if (bearerToken)
       @user = signInUserByBearerToken bearerToken
     end
-    #lists = AnnotationList.where("list_id like ? and list_id like ?", "%#{params['canvas_id']}%", "%/lists/%")
-    lists = ListAnnotationsMap.where("list_id like ? and list_id like ?", "%#{params['canvas_id']}%", "%/lists/%")
+    lists = AnnotationList.where("list_id like ? and list_id like ?", "%#{params['canvas_id']}%", "%/lists/%")
+    #lists = ListAnnotationsMap.where("list_id like ? and list_id like ?", "%#{params['canvas_id']}%", "%/lists/%") - this returns multiples
     #p "lists found for bv11: #{lists.count}"
     annoWLayerArray = Array.new
     lists.each do |list|
