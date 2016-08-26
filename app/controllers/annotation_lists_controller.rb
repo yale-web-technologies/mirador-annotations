@@ -158,39 +158,6 @@ class AnnotationListsController < ApplicationController
       p "resequencing list: #{@list.list_id}"
     end
     list_id = @list.list_id
-############################################################
-=begin
-    ru = request.original_url.split('/resequence').first
-    ru += '/'   if !ru.end_with? '/'
-    list_id = ru + "lists/" + layer_id + "_" + canvas_id
-    puts "resequence_list: constructed list_id: #{list_id}"
-
-    # Handle possibility of the request host having changed since annos were created it
-    list = AnnotationList.where(list_id: list_id).first
-    if list.nil?
-      # 1) see if other list(s) exist for this layer and canvas (there should just be one). If so delete or inactivate them
-      oldLists = AnnotationList.where("list_id like ? and list_id like ? and list_id like ?", canvas_id, layer_id, "%/lists/%")
-      if !oldLists.nil?
-        oldLists.each do |oldList|
-          oldListId = oldList.list_id.gsub!(/canvas/,'canvasInactiveList')
-          @annotationList.update_attributes(:list_id => oldListId)
-        end
-      # 2) create the new list as constructed above and set the layer_lists_maps record for it (set 'within[]')
-        @list = Hash.new
-        @list['list_id'] = list_id
-        @list['list_type'] = @annotationListIn['@type']
-        #@list['label'] = @annotationListIn['label']
-        #@list['description'] = @annotationListIn['description']
-        @list['version'] = 1
-        within = Array.new
-        within.push(layer_id)
-        LayerListsMap.setMap within,list_id
-        @annotation_list = AnnotationList.create(@list)
-    end
-    end
-=end
-############################################################
-
     within = Array.new
     within.push(list_id)
     # Clear the maps of all entries for this list

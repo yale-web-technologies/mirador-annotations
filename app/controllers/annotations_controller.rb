@@ -322,6 +322,7 @@ class AnnotationsController < ApplicationController
     @problem = ''
     if !validate_annotation @annotationIn
       errMsg = "Annotation not valid and could not be updated: " + @problem
+      p "Annotation not valid and could not be updated: #{errMsg}"
       render :json => { :error => errMsg },
              :status => :unprocessable_entity
     else
