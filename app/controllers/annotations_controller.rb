@@ -421,7 +421,7 @@ class AnnotationsController < ApplicationController
 
     unless annotation['within'].nil?
       annotation['within'].each do |list_id|
-        if !list_id.contains("_INACTIVE")
+        if !list_id.include?("_INACTIVE")
           @annotation_list = AnnotationList.where(list_id: list_id).first
           if @annotation_list.nil?
             @problem = "'within' element: Annotation List " + list_id + " does not exist"
