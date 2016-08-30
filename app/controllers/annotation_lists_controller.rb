@@ -94,7 +94,7 @@ class AnnotationListsController < ApplicationController
                :status => :unprocessable_entity
       end
 
-      # rewrite the ListAnnotationsMap for this annotation: first delete, then re-write based on ['within']
+      # rewrite the LayerListsMap for this annotation: first delete, then re-write based on ['within']
       LayerListsMap.deleteListFromLayer @annotationList.list_id
       LayerListsMap.setMap @annotationListIn['within'],@annotationList.list_id
       newVersion = @annotationList.version + 1
