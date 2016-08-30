@@ -247,7 +247,7 @@ class AnnotationsController < ApplicationController
 
   # PUT /annotation/1
   # PUT /annotation/1.json
-  def update
+  def updateOld
     p "in update"
     @ru = request.original_url
     @annotationIn = JSON.parse(params.to_json)
@@ -300,24 +300,27 @@ class AnnotationsController < ApplicationController
 
   # PUT /annotation/1
   # PUT /annotation/1.json
-  def updateTest
-    p "in updateTest"
+  def update
+    p "in update"
     @ru = request.original_url
-
-    p "params = #{params}"
-    updateLists = false
+    # Determine from the passed-in layer_id if the layer was changed
     editObject = JSON.parse(params.to_json)
-    if editObject['@id']
-      p "editObject['@id'] = #{editObject['@id']}"
-      @annotationIn = editObject
-    else if editObject['annotation']
-           p "editObject['layer_id'] = #{editObject['layer_id'][0]}"
-           @annotationIn = JSON.parse(editObject['annotation'].to_json)
-           new_layer_id = editObject['layer_id'][0]
-           updateLists = true
-         end
+    @layerIdIn = editObject['layer_id'][0]
+    @annotationIn = JSON.parse(editObject['annotation'].to_json)
+    #use @annotationIn['within'] to determine if the anno already belongs to this layer, if so set updateLists = false
+    updateLists = true
+    @annotationIn['within'].each do |list_id|
+    p "updateTest: is passed in layer #{@layerIdIn} in [within]"
+      layersForList = LayerListsMap.getLayersForList list_id
+      layersForList.each do |layerForList|
+        p "withinList #{list_id} has layer #{layerForList}"
+        if layerForList == @layerIdIn
+          updateLists = false
+          break
+        end
+      end
     end
-    #@annotationIn = JSON.parse(params.to_json)
+    p "updateLists = #{updateLists}"
 
     @problem = ''
     if !validate_annotation @annotationIn
@@ -342,11 +345,17 @@ class AnnotationsController < ApplicationController
 
       if (updateLists == true)
         p "updating lists for anno: #{@annotation.annotation_id}"
-        list_id =  constructRequiredListId new_layer_id, @annotation.canvas
+        list_id =  constructRequiredListId @layerIdIn, @annotation.canvas
         canvas_id = getTargetingAnnosCanvas(@annotation)
         p "updating lists: constructed list = #{list_id}"
-        checkListExists list_id, new_layer_id, canvas_id
+        checkListExists list_id, @layerIdIn, canvas_id
+
+        @annotationIn['within'] = Array.new
+        @annotationIn['within'].push(list_id)
+
         ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
+        p "******* just deleted list_anno_maps for #{ @annotation.annotation_id} *************"
+        p "******* within =  #{ @annotationIn['within'].to_s }************"
         ListAnnotationsMap.setMap @annotationIn['within'], @annotation.annotation_id
       end
 

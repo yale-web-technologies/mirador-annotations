@@ -13,8 +13,7 @@ MiradorAnnotationsServer::Application.routes.draw do
   resources :annotation_lists, path: 'lists', :format => false
   #get '/annotations/*url' => 'annotation_lists#show', :format => false
   resources :annotations, path: 'annotations',defaults: {format: :json}, :except => [:update]
-  #put '/annotations', to: 'annotations#update'
-  put '/annotations', to: 'annotations#updateTest'
+  put '/annotations', to: 'annotations#update'
 
   #get '/getAll', to: 'services#getAllCanvasesLayersLists'
   get '/getCanvasData', to: 'services#getLayersListsForCanvas'
