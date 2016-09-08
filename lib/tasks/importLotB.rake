@@ -12,9 +12,9 @@ namespace :importLotB do
     require 'csv'
     #require 'socket'
 
-    #@ru = "http://localhost:5000"
+    @ru = "http://localhost:5000"
     #@ru = "http://mirador-annotations-lotb-stg.herokuapp.com"
-    @ru = "http://mirador-annotations-lotb.herokuapp.com"
+    #@ru = "http://mirador-annotations-lotb.herokuapp.com"
 
     labels = Array.new
     i = 0
@@ -41,8 +41,8 @@ namespace :importLotB do
     makeSecondaryCanonicalSourceLists # comment out for prod re-do
 #=end
 
-    #for i in args.startFile..args.endFile
-    for i in 1..28
+    for i in args.startFile..args.endFile
+    #for i in 1..28
       chapterFilename = "importData/lotb_ch#{i}.csv"
       firstLineInChapter = 0
       CSV.foreach(chapterFilename) do |row|
@@ -872,8 +872,8 @@ an anno with chapter and scene tags:
 #================= end LotB ================
   # with args = 19,28
   #task :LoTB_annotations => :environment do
-  task :my_task, [:startFile, :endFile] do |t, args|
-  #task :my_task , [:startFile, :endFile] => :environment do |t, args|
+  #task :my_task, [:startFile, :endFile] do |t, args|
+  task :my_task , [:startFile, :endFile] => :environment do |t, args|
     puts "StartFile = #{args.startFile}"
     puts "EndFile = #{args.endFile}"
     for i in args.startFile..args.endFile
