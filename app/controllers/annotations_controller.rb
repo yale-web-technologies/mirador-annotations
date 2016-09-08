@@ -579,4 +579,45 @@ class AnnotationsController < ApplicationController
     getTargetingAnnosCanvas targetAnnotation
   end
 
+  def updateSvg
+    annotation_id = params['id']
+    svg = params['svg']
+
+    p 'svg passed in: #{svg}'
+    annotation = Annotation.where(annotation_id: annotation_id).first
+    on = JSON.parse(annotation.on)
+    p "on = #{on.to_json}"
+    svg = on["selector"]["value"]
+    new_svg = "Hey-derr " + svg
+    on["selector"]["value"] = new_svg
+    p "new svg = #{new_svg}"
+
+    request.format = "json"
+=begin
+    respond_to do |format|
+      if annotation.update_attributes(
+          :on => annotation['on'].to_json
+      )
+        format.html { redirect_to annotation, notice: 'Annotation was successfully updated.' }
+        format.json { render json: annotation.to_iiif, status: 200, content_type: "application/json"}
+      else
+        format.html { render action: "edit" }
+        format.json { render json: annotation.errors, status: :unprocessable_entity, content_type: "application/json" }
+      end
+    end
+=end
+  end
+
+  def getSvg
+    annotation_id = params['id']
+    p "id = #{annotation_id}"
+    annotation = Annotation.where(annotation_id: annotation_id).first
+    on = JSON.parse(annotation.on)
+    p "on = #{on.to_json}"
+    svg = on["selector"]["value"]
+    p "svg = #{svg}"
+    #render json: annotation.to_iiif
+    render json: svg.to_s
+  end
+
 end
