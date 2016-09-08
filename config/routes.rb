@@ -21,6 +21,8 @@ MiradorAnnotationsServer::Application.routes.draw do
   get '/getAnnotationsViaList', to: 'annotations#getAnnotationsForCanvasViaLists'
   get '/resequenceList', to: 'annotation_lists#resequence_list'
   put '/resequenceList', to: 'annotation_lists#resequence_list'
+  get '/getSvg', to: 'annotations#getSvg', defaults: {format: :json}
+  put '/updateSvg', to: 'annotations#updateSvg', defaults: {format: :json}
 
   get 'getAccessToken', to: "application#get_access_token", defaults: {format: :json}
   get 'loginToServer', to: "application#login"
