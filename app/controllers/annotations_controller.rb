@@ -17,7 +17,7 @@ class AnnotationsController < ApplicationController
         iiif = []
         @annotation.each do |annotation|
           iiif << annotation.to_iiif
-          p annotation.to_iiif
+          #p annotation.to_iiif
         end
         iiif.to_json
         format.html {render json: iiif}
@@ -579,16 +579,47 @@ class AnnotationsController < ApplicationController
     getTargetingAnnosCanvas targetAnnotation
   end
 
+  # REST call to return canvas_id for an annotations. A wrapper for getTargetingAnnosCanvas
+  def getTargetingAnnosCanvasFromID
+    inputID = params['id']
+    targetingAnno = Annotation.where(annotation_id: inputID).first
+    origCanvasAnno = getTargetingAnnosCanvas(targetingAnno)
+    request.format = "json"
+    respond_to do |format|
+      format.html # show.html.erb
+      format.json { render json: origCanvasAnno, content_type: "application/text" }
+    end
+  end
+
+  def getLayersForAnnotation
+    inputID = params['id']
+    lists = ListAnnotationsMap.getListsForAnnotation inputID
+    layerArray = Array.new
+    lists.each do |list_id|
+      layerLabels = LayerListsMap.getLayerLabelsForList list_id
+      layerHash= Hash.new
+      layerLabels.each do |layerLabel|
+        layerHash= Hash.new
+        layerHash["layer"] = layerLabel
+      end
+      layerArray.push(layerHash)
+    end
+    request.format = "json"
+    respond_to do |format|
+      format.html # show.html.erb
+      format.json { render json: layerArray, content_type: "application/text" }
+    end
+  end
+
   def updateSvg
     annotation_id = params['id']
     svg = params['svg']
-
     p 'svg passed in: #{svg}'
     annotation = Annotation.where(annotation_id: annotation_id).first
     on = JSON.parse(annotation.on)
     p "on = #{on.to_json}"
     svg = on["selector"]["value"]
-    new_svg = "Hey-derr " + svg
+    new_svg = "... " + svg
     on["selector"]["value"] = new_svg
     p "new svg = #{new_svg}"
 
@@ -617,7 +648,8 @@ class AnnotationsController < ApplicationController
     svg = on["selector"]["value"]
     p "svg = #{svg}"
     #render json: annotation.to_iiif
-    render json: svg.to_s
+    #render json: svg.to_s
+    render json: on
   end
 
 end

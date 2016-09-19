@@ -11,7 +11,7 @@ gem 'sprockets', '2.12.3'
 gem 'json'
 
 gem 'therubyracer'
-  gem 'devise', '~> 3.4.0'   # or later
+gem 'devise', '~> 3.4.0'   # or later
 gem 'omniauth'
 gem 'omniauth-cas'
 gem 'uuid'
@@ -77,8 +77,7 @@ gem 'protected_attributes'
 
 gem 'rsolr'
 
-#gem 'mirador-annotation-solr-loader', :path => "~/rails_projects/mirador-annotation-solr-loader/"
-
+gem 'mirador-annotation-solr-loader', :path => "~/rails_projects/mirador-annotation-solr-loader/"
 #gem 'annotation_solr_loader', github: 'ydc2/annotation-solr-loader', tag: 'v1.5'
 #gem 'mirador-annotation-solr-loader', :path => "/Users/rlechich/rails_projects/"
 

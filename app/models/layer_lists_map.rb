@@ -32,6 +32,17 @@ class LayerListsMap < ActiveRecord::Base
     within
   end
 
+  def self.getLayerLabelsForList list_id
+    within = Array.new
+    @annotationLayers = self.where(list_id: list_id)
+    @annotationLayers.each do |thisLayer|
+      p 'layer_id = ' + thisLayer.layer_id
+      layer = AnnotationLayer.where(layer_id: thisLayer.layer_id).first
+      within.push(layer.label)
+    end
+    within
+  end
+
   def self.getListsForLayer layer_id
     otherContent = Array.new
     @annotationLists = self.where(layer_id: layer_id).order(:sequence)
