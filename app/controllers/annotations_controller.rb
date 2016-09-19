@@ -70,7 +70,8 @@ class AnnotationsController < ApplicationController
               layers = LayerListsMap.getLayersForList list_id
               # 4/7/2016
               #p "layers count = #{layers.count().to_s}"
-              annoWLayerHash= Hash.new
+              annoWLayerHash= Hash
+                                  .new
               if (layers.nil?)
                 #p "layers = nil"
                 #annoWLayerHash= Hash.new
