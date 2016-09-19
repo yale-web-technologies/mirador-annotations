@@ -23,6 +23,8 @@ MiradorAnnotationsServer::Application.routes.draw do
   put '/resequenceList', to: 'annotation_lists#resequence_list'
   get '/getSvg', to: 'annotations#getSvg', defaults: {format: :json}
   put '/updateSvg', to: 'annotations#updateSvg', defaults: {format: :json}
+  get '/getCanvasForAnno', to: 'annotations#getTargetingAnnosCanvasFromID', defaults: {format: :json}
+  get '/getLayersForAnnotation', to: 'annotations#getLayersForAnnotation', defaults: {format: :json}
 
   get 'getAccessToken', to: "application#get_access_token", defaults: {format: :json}
   get 'loginToServer', to: "application#login"

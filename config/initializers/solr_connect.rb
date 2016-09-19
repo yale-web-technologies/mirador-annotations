@@ -1,8 +1,10 @@
-#SolrConnectConfig.setup do |config|
+SolrConnectConfig.setup do |config|
 
-#  miradorSolrUrl = ENV['LOTB_SOLR_URL']
-#  config.set("solrUrl", miradorSolrUrl)
+  miradorSolrUrl = ENV['LOTB_SOLR_URL']
+  config.set("solrUrl", miradorSolrUrl)
 
-#  exported_manifests_path = ENV['MIRADOR_MANIFESTS_PATH']
+  p "solr.connect.rb: miradorSolrUrl = #{miradorSolrUrl}"
 
-#end
+  exported_manifests_path = ENV['lotb_MANIFESTS_PATH']
+
+end
