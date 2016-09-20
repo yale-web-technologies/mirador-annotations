@@ -39,7 +39,6 @@ class Annotation < ActiveRecord::Base
     if (on.start_with?("{"))
       iiif['on'] = JSON.parse(on.gsub(/=>/,":"))
     end
-    #iiif['orderWeight'] =  order_weight
     iiif#.to_json
   end
 
@@ -62,6 +61,71 @@ class Annotation < ActiveRecord::Base
     preAuth['serviceBlock'] = service_block
     p preAuth.to_s
     preAuth.to_json
+  end
+
+  def to_solr
+    #return if (label.startsWith?=='Tibetan')
+    solr = Hash.new
+    #p "to_solr: annotation_id = #{annotation_id}: resource: #{resource}"
+    solr['@id'] = annotation_id
+    solr['@type'] = annotation_type
+    solr['@context'] = "http://iiif.io/api/presentation/2/context.json"
+    resource.gsub!(/\n/,"")
+    solr['resource'] = JSON.parse(resource)
+    #solr['within'] = ListAnnotationsMap.getListsForAnnotation annotation_id
+    motivation.gsub!(/\"/,'')
+    motivation.gsub!(/\]/,'')
+    motivation.gsub!(/\[/,'')
+    motivation.gsub!(' ','')
+    solr['motivation'] = motivation.split(",")
+    if !(defined?(annnotated_by)).nil?
+      if !annnotated_by.nil?
+        solr['annnotatedBy'] = JSON.parse(annotated_by)
+      end
+    end
+
+    # todo: just send on[full]. If on['full'] is a canvas leave it blank]
+    #solr['on'] = on
+    #onJSON = JSON.parse(on)
+    onJSON = JSON.parse(on.gsub(/=>/,":"))
+    if onJSON['full'].include?("/canvas/")
+      solr['on'] = ' '
+    else
+      solr['on'] = onJSON['full']
+    end
+
+    # todo: add original canvas, layers ?and manifest into?
+    @canvas_id = onJSON['full']
+    if (!onJSON['full'].include?('/canvas/'))
+      @annotation = Annotation.where(annotation_id:onJSON['full']).first
+      @canvas_id = getTargetingAnnosCanvas(@annotation)
+    end
+    solr['canvas_id'] = @canvas_id
+
+    #todo: add layers
+    layers = Array.new
+    solr['layers'] = getLayersForAnnotation annotation_id
+
+    solr#.to_json
+  end
+
+  def getLayersForAnnotation anno_id
+    lists = ListAnnotationsMap.getListsForAnnotation anno_id
+    layerArray = Array.new
+    lists.each do |list_id|
+      layerLabels = LayerListsMap.getLayerLabelsForList list_id
+      layerLabels.each do |layerLabel|
+        layerArray.push(layerLabel) if !layerArray.include?(layerLabel)
+      end
+    end
+    layerArray
+  end
+
+  #  move backwards from an annotations' target until the last (or first) targeted anno, then return this one's canvas
+  def getTargetingAnnosCanvas inputAnno
+    return(inputAnno.canvas) if (inputAnno.canvas.to_s.include?('/canvas/'))
+    targetAnnotation = Annotation.where(annotation_id:inputAnno.canvas).first
+    getTargetingAnnosCanvas targetAnnotation
   end
 
 end

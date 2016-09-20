@@ -36,7 +36,6 @@ class LayerListsMap < ActiveRecord::Base
     within = Array.new
     @annotationLayers = self.where(list_id: list_id)
     @annotationLayers.each do |thisLayer|
-      p 'layer_id = ' + thisLayer.layer_id
       layer = AnnotationLayer.where(layer_id: thisLayer.layer_id).first
       within.push(layer.label)
     end
