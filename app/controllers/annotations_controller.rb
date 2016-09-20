@@ -218,17 +218,19 @@ class AnnotationsController < ApplicationController
       #TODO: consider if canvas convenience field should be set to original canvas for targeting annotations as well.
       @annotationOut['canvas']  = @annotationIn['on']['full']
       @annotationOut['resource']  = @annotationIn['resource'].to_json
-      @annotationOut['order_weight']  = @annotationIn['orderWeight']
       @annotationOut['active'] = true
       @annotationOut['version'] = 1
 
       # determine the required list for this layer and canvas (this is project-specific)
       # and create as needed (if this is the first annotation for this layer/canvas)
       # TODO: this could be configurable by defining a profile per deployment
-      handleRequiredList
-      saveOn = @annotationIn['on']
-      #handleRequiredListMultipleOn  # temp
-      @annotationOut['on'] = saveOn
+      # Deal with possibility of 'on' being multiple canvases (or annotations); in this case 'on' wil be an array, which will mean multiple lists
+      case @annotationIn['on']
+        when Array
+          handleRequiredListMultipleOn
+        else
+          handleRequiredList
+      end
 
       ListAnnotationsMap.setMap @annotationIn['within'], @annotation_id
       create_annotation_acls_via_parent_lists @annotation_id
@@ -240,59 +242,6 @@ class AnnotationsController < ApplicationController
         if @annotation.save
           format.json { render json: @annotation.to_iiif, status: :created, content_type: "application/json"} #, location: @annotation }
         else
-          format.json { render json: @annotation.errors, status: :unprocessable_entity, content_type: "application/json" }
-        end
-      end
-    end
-  end
-
-  # PUT /annotation/1
-  # PUT /annotation/1.json
-  def updateOld
-    p "in update"
-    @ru = request.original_url
-    @annotationIn = JSON.parse(params.to_json)
-    @problem = ''
-    if !validate_annotation @annotationIn
-      errMsg = "Annotation not valid and could not be updated: " + @problem
-      render :json => { :error => errMsg },
-             :status => :unprocessable_entity
-    else
-      #@annotation = Annotation.where(annotation_id: @annotationIn['annotation_id']).first
-      @annotation = Annotation.where(annotation_id: @annotationIn['@id']).first
-      p 'just searched for this annotation: id = ' + @annotation.annotation_id.to_s
-
-      #authorize! :update, @annotation
-
-      if @annotation.version.nil? ||  @annotation.version < 1
-        @annotation.version = 1
-      end
-      if !version_annotation @annotation
-        errMsg = "Annotation could not be updated: " + @problem
-        render :json => { :error => errMsg },
-               :status => :unprocessable_entity
-      end
-
-      #comment map handling below until we receive layer and ['within'] from caller
-      #ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
-      #ListAnnotationsMap.setMap @annotationIn['within'], @annotation.annotation_id
-
-      newVersion = @annotation.version + 1
-      request.format = "json"
-      respond_to do |format|
-        if @annotation.update_attributes(
-            :annotation_type => @annotationIn['@type'],
-            :motivation => @annotationIn['motivation'],
-            :on => @annotationIn['on'],
-            :resource => @annotationIn['resource'].to_json,
-            :annotated_by => @annotationIn['annotatedBy'].to_json,
-            :version => newVersion,
-            :order_weight => @annotationIn['orderWeight']
-        )
-          format.html { redirect_to @annotation, notice: 'Annotation was successfully updated.' }
-          format.json { render json: @annotation.to_iiif, status: 200, content_type: "application/json"}
-        else
-          format.html { render action: "edit" }
           format.json { render json: @annotation.errors, status: :unprocessable_entity, content_type: "application/json" }
         end
       end
@@ -592,7 +541,7 @@ class AnnotationsController < ApplicationController
     end
   end
 
-  def getLayersForAnnotation
+  def getLayersForAnnotationREST
     inputID = params['id']
     lists = ListAnnotationsMap.getListsForAnnotation inputID
     layerArray = Array.new
@@ -609,6 +558,20 @@ class AnnotationsController < ApplicationController
     respond_to do |format|
       format.html # show.html.erb
       format.json { render json: layerArray, content_type: "application/text" }
+    end
+  end
+
+  # GET /solrFeed.json
+  def getAnnotationsForSolrFeed
+    @annotation = Annotation.all
+    respond_to do |format|
+      solr = []
+      @annotation.each do |annotation|
+        solr << annotation.to_solr
+      end
+      solr.to_json
+      format.html {render json: solr}
+      format.json {render json: solr, content_type: "application/json"}
     end
   end
 
