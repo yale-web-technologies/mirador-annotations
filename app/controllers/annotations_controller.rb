@@ -201,18 +201,6 @@ class AnnotationsController < ApplicationController
       @annotationOut['annotation_id'] = @annotation_id
       @annotationOut['annotation_type'] = @annotationIn['@type']
       @annotationOut['motivation'] = @annotationIn['motivation']
-
-      # test multiple on:
-      #@annotationIn['on'] = '"on": [ {
-      #"@type": "oa:Annotation",
-      #"full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884261"
-      # },
-      #  {
-      #    "@type": "oa:Annotation",
-      #    "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884262"
-      # } ]'
-
-      @annotationOut['on'] = @annotationIn['on']
       @annotationOut['description'] = @annotationIn['description']
       @annotationOut['annotated_by'] = @annotationIn['annotatedBy'].to_json
       #TODO: consider if canvas convenience field should be set to original canvas for targeting annotations as well.
@@ -221,15 +209,28 @@ class AnnotationsController < ApplicationController
       @annotationOut['active'] = true
       @annotationOut['version'] = 1
 
+      # a test for multiple on's:
+      #@annotationIn['on'] = '[{
+      #   "@type": "oa:Annotation",
+      #   "full": "http://localhost:5000/annotations/Panel_B_Chapter_26_Scene_1_1_Tibetan_Sun_Of_Faith"
+      #   },
+      #   {
+      #   "@type": "oa:Annotation",
+      #   "full": "http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01"
+      # }]'
+
+      @annotationOut['on'] = @annotationIn['on']
+      p "@annotationIn['on'] = #{@annotationIn['on']}"
+
       # determine the required list for this layer and canvas (this is project-specific)
       # and create as needed (if this is the first annotation for this layer/canvas)
-      # TODO: this could be configurable by defining a profile per deployment
-      # Deal with possibility of 'on' being multiple canvases (or annotations); in this case 'on' wil be an array, which will mean multiple lists
-      case @annotationIn['on']
-        when Array
-          handleRequiredListMultipleOn
-        else
-          handleRequiredList
+
+      # Deal with possibility of 'on' being multiple canvases (or annotations); in this case 'on' will look like an array, which will mean multiple lists
+
+      if !@annotationIn['on'].to_s.start_with?("[")
+        handleRequiredList
+      else
+        handleRequiredListMultipleOn
       end
 
       ListAnnotationsMap.setMap @annotationIn['within'], @annotation_id
@@ -416,28 +417,20 @@ class AnnotationsController < ApplicationController
 #########################################################
 
   def handleRequiredList
+    p 'in HandleRequiredList'
     @canvas_id =  @annotationIn['on']['full']
-
     if (!@annotationIn['on']['full'].to_s.include?('/canvas/'))
       @annotation = Annotation.where(annotation_id:@annotationIn['on']['full']).first
-      p "in handleRequireList: annotation_id = #{@annotation.annotation_id}"
-      # comment out until list_annos_maps is straightened out 5/16/16
       @canvas_id = getTargetingAnnosCanvas(@annotation)
     end
-
     @required_list_id = constructRequiredListId @layer_id, @canvas_id
-    p "constructed Required List = " + @required_list_id
     checkListExists @required_list_id, @layer_id, @canvas_id
-
   end
 
   def handleRequiredListMultipleOn
-    # handle multiple ['on']['full']'s: if there are multiples put the body of this def in a loop
-    #
-    p 'in HandleRequiredListMultipleOn'
-
+    p 'in HandleRequiredListMultipleOn:'
     #****************************************************
-    # manipulate "on" to test multiples
+    # multiple "on's" will be an array
     #****************************************************
    # @annotationIn['on'] = '[{
    #   "@type": "oa:Annotation",
@@ -447,23 +440,22 @@ class AnnotationsController < ApplicationController
    #   "@type": "oa:Annotation",
    #   "full": "http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01"
    #  }]'
-    @annotationOut['on'] = @annotationIn['on']
-
     on_array = JSON.parse(@annotationIn['on'])
-     on_array.each do |on|
+    on_array.each do |on|
         on = JSON.parse(on.to_json)
-        p "should I target? on['full'] = #{on['full']}"
+        #===================================
         @canvas_id = on['full']
-        if (!on['full'].include?('/canvas/'))
-          p 'am targeting'
+        #@canvas_id = on.full
+        p "@canvas_id = #{@canvas_id}"
+        if (!on['full'].to_s.include?('/canvas/'))
+          #@annotation = Annotation.where(annotation_id:on['full']).first
           @annotation = Annotation.where(annotation_id:on['full']).first
           @canvas_id = getTargetingAnnosCanvas(@annotation)
         end
-
         @required_list_id = constructRequiredListId @layer_id, @canvas_id
-        p "constructed Required List = " + @required_list_id
         checkListExists @required_list_id, @layer_id, @canvas_id
-     end
+        #====================================
+    end
   end
 
   def constructRequiredListId layer_id, canvas_id
