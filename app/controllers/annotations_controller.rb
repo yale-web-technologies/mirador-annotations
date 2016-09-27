@@ -112,8 +112,6 @@ class AnnotationsController < ApplicationController
       @user = signInUserByBearerToken bearerToken
     end
     lists = AnnotationList.where("list_id like ? and list_id like ?", "%#{params['canvas_id']}%", "%/lists/%")
-    #lists = ListAnnotationsMap.where("list_id like ? and list_id like ?", "%#{params['canvas_id']}%", "%/lists/%") - this returns multiples
-    #p "lists found for bv11: #{lists.count}"
     annoWLayerArray = Array.new
     lists.each do |list|
       layer_id = getLayerFromListName list.list_id
@@ -127,9 +125,10 @@ class AnnotationsController < ApplicationController
         end
       end
     end
+    annoWLayerArrayUniq = annoWLayerArray.uniq
     respond_to do |format|
-      format.html {render json: annoWLayerArray}
-      format.json {render json: annoWLayerArray, content_type: "application/json"}
+      format.html {render json: annoWLayerArrayUniq}
+      format.json {render json: annoWLayerArrayUniq, content_type: "application/json"}
     end
   end
 
@@ -224,9 +223,7 @@ class AnnotationsController < ApplicationController
 
       # determine the required list for this layer and canvas (this is project-specific)
       # and create as needed (if this is the first annotation for this layer/canvas)
-
       # Deal with possibility of 'on' being multiple canvases (or annotations); in this case 'on' will look like an array, which will mean multiple lists
-
       if !@annotationIn['on'].to_s.start_with?("[")
         handleRequiredList
       else
