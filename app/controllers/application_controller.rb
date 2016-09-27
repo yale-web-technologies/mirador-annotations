@@ -68,7 +68,7 @@ class ApplicationController < ActionController::Base
   #handles CORS preflight requests for Ajax calls; based on matches in routes
   def CORS_preflight
     p "CORS_preflight: request from: #{request.original_url}"
-    p 'CORS_preflight: ' + request.headers.inspect
+    #p 'CORS_preflight: ' + request.headers.inspect
     headers['Access-Control-Allow-Origin'] = "*"
     respond_to do |format|
       format.json { head :no_content }

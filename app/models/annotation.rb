@@ -64,7 +64,6 @@ class Annotation < ActiveRecord::Base
   end
 
   def to_solr
-    #return if (label.startsWith?=='Tibetan')
     solr = Hash.new
     #p "to_solr: annotation_id = #{annotation_id}: resource: #{resource}"
     solr['@id'] = annotation_id
@@ -89,7 +88,7 @@ class Annotation < ActiveRecord::Base
     #onJSON = JSON.parse(on)
     onJSON = JSON.parse(on.gsub(/=>/,":"))
     if onJSON['full'].include?("/canvas/")
-      solr['on'] = ' '
+      solr['on'] = ''
     else
       solr['on'] = onJSON['full']
     end
