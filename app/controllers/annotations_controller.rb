@@ -118,10 +118,12 @@ class AnnotationsController < ApplicationController
       if !layer_id.nil?
         annotations = ListAnnotationsMap.getAnnotationsForList list.list_id
         annotations.each do |annotation|
-          annoWLayerHash= Hash.new
-          annoWLayerHash["layer_id"] = layer_id
-          annoWLayerHash["annotation"] = annotation.to_iiif
-          annoWLayerArray.push(annoWLayerHash)
+          if !annotation.nil?
+            annoWLayerHash= Hash.new
+            annoWLayerHash["layer_id"] = layer_id
+            annoWLayerHash["annotation"] = annotation.to_iiif
+            annoWLayerArray.push(annoWLayerHash)
+          end
         end
       end
     end
@@ -555,7 +557,10 @@ class AnnotationsController < ApplicationController
     @annotation = Annotation.all
     respond_to do |format|
       solr = []
+      i=0
       @annotation.each do |annotation|
+        break if i > 3
+        i+=1
         solr << annotation.to_solr
       end
       solr.to_json
