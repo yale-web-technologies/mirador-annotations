@@ -64,6 +64,7 @@ class Annotation < ActiveRecord::Base
   end
 
   def to_solr
+    # separate out resource into separate feed, for multiple resource stanzas add a within-resource id (a-z, 1-9 or random)
     solr = Hash.new
     #p "to_solr: annotation_id = #{annotation_id}: resource: #{resource}"
     solr['@id'] = annotation_id
@@ -87,6 +88,9 @@ class Annotation < ActiveRecord::Base
     #solr['on'] = on
     #onJSON = JSON.parse(on)
     onJSON = JSON.parse(on.gsub(/=>/,":"))
+
+    p "getSolrFeed: full = #{onJSON['full']} for annotation #{annotation_id}"
+
     if onJSON['full'].include?("/canvas/")
       solr['on'] = ''
     else
