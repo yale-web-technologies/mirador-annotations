@@ -1,11 +1,13 @@
 include AclCreator
 require "json"
+require "csv"
+require 'date'
 
 class AnnotationsController < ApplicationController
   include CanCan::ControllerAdditions
   #skip_before_action :verify_authenticity_token
   #before_action :authenticate_user!
-  respond_to :json
+  respond_to :json, :text
 
   # GET /list
   # GET /list.json
@@ -460,11 +462,15 @@ class AnnotationsController < ApplicationController
   def constructRequiredListId layer_id, canvas_id
     @ru = request.original_url.split('?').first
     @ru += '/'   if !@ru.end_with? '/'
-    list_id = request.protocol + request.host_with_port + "/lists/" + layer_id + "_" + canvas_id
+    #list_id = request.protocol + request.host_with_port + "/lists/" + layer_id + "_" + canvas_id # host_with_port seems to be returning varying values
+    list_id = @ru + "lists/" + layer_id + "_" + canvas_id
   end
 
   def checkListExists list_id, layer_id, canvas_id
     @annotation_list = AnnotationList.where(list_id: list_id).first
+    #loosen the match to allow any (previous) list with the passed in layer_id and canvas_id
+    @annotation_list = AnnotationList.where(list_id: list_id).first
+
     if @annotation_list.nil?
       createAnnotationListForMap(list_id, layer_id, canvas_id)
     end
@@ -608,6 +614,113 @@ class AnnotationsController < ApplicationController
     #render json: annotation.to_iiif
     #render json: svg.to_s
     render json: on
+  end
+
+
+  # six feeds designed for use by Drupal portal/project mgmg site
+  # initial loads for annotations
+  # ongoing loads for annotations (updated/created within last 7 days)
+  #   both of these will, for convenience:
+  #   split for annotations (sans resources) and resources only (plus anno id and a concocted resource id)
+  # so:
+  # 1a) all annos sans resource
+  # 1b) delta annos sans resource last 7
+  # 2a) all annos resource only
+  # 2b) delta annos resource only last 7
+  # 1a & 1b, and 2a & 2b are combined via use of a paramter
+  # 3) all layers with same label text as gets sent from the getAnnotationsForCanvas api's
+  # 4) all annotation_id's to use as a cross reference for consumer to synchronize deletions
+
+
+  def feedAnnosNoResource
+    #resourceMode = params['resourceMode']
+    #resourceMode = 'none' if resourceMode.nil?
+    allOrDelta = params['delta']
+    allOrDelta = "all" if allOrDelta.nil? or allOrDelta == '0'
+
+    if allOrDelta == 'all'
+      @annotation = Annotation.all
+    else
+      @annotation = Annotation.where(['updated_at > ?', DateTime.now-allOrDelta.to_i.days])
+    end
+    annos = CSV.generate do |csv|
+      headers = "annotation_id, annotation_type, context, on, motivation,label"
+      csv << [headers]
+      @annotation.each do |anno|
+        onJSON = JSON.parse(anno.on.gsub(/=>/,":"))
+        feedOn = ''
+       if !anno.on.start_with?('[')
+          if !onJSON['full'].include?("/canvas/")
+            feedOn = onJSON['full']
+          end
+       end
+        csv << [anno.annotation_id, anno.annotation_type, "http://iiif.io/api/presentation/2/context.json", feedOn, anno.motivation, anno.label]
+      end
+    end
+    respond_with do |format|
+      format.json {render :text => annos}
+      format.text {render :text => annos}
+    end
+  end
+
+  def feedAnnosResourceOnly
+    allOrDelta = params['delta']
+    allOrDelta = "all" if allOrDelta.nil? or allOrDelta == '0'
+
+    if allOrDelta == 'all'
+      @annotation = Annotation.all
+    else
+      @annotation = Annotation.where(['updated_at > ?', DateTime.now-allOrDelta.to_i.days])
+    end
+
+    annos = CSV.generate do |csv|
+      headers = "annotation_id, resource_id, type, format, chars"
+      csv << [headers]
+      @annotation.each do |anno|
+        resourceJSON = JSON.parse(anno.resource)
+        resourceJSON.each do |resource|
+          resource_id = anno.annotation_id + "_" + SecureRandom.uuid
+          csv << [anno.annotation_id, resource_id, resource['@type'], resource['format'], resource['chars']]
+        end
+      end
+    end
+    respond_with do |format|
+      format.json {render :text => annos}
+      format.text {render :text => annos}
+    end
+  end
+
+  def feedAllAnnoIds
+    @annotation = Annotation.all
+    allAnnoIds = CSV.generate do |csv|
+      headers = "annotation_id"
+      csv << [headers]
+      @annotation.each do |annotation|
+        csv << [annotation.annotation_id]
+      end
+    end
+    respond_with do |format|
+      format.json {render :text => allAnnoIds}
+      format.text {render :text => allAnnoIds}
+    end
+  end
+
+  def feedAllLayers
+    @layer = AnnotationLayer.all
+    allLayers = CSV.generate do |csv|
+      headers = "layer_label"
+      csv << [headers]
+      @layer.each do |layer|
+        csv << [layer.label]
+      end
+    end
+    response.content_type ='xml'
+
+    respond_with do |format|
+      #format.json {render :text => allLayers}
+      #format.text {render xml: allLayers, content_type: "xml"}
+      format.text {render :text => allLayers, :content_type => Mime::TEXT.to_s}
+    end
   end
 
 end

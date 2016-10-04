@@ -89,7 +89,7 @@ class Annotation < ActiveRecord::Base
     #onJSON = JSON.parse(on)
     onJSON = JSON.parse(on.gsub(/=>/,":"))
 
-    p "getSolrFeed: full = #{onJSON['full']} for annotation #{annotation_id}"
+    #p "getSolrFeed: full = #{onJSON['full']} for annotation #{annotation_id}"
 
     if onJSON['full'].include?("/canvas/")
       solr['on'] = ''
