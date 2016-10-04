@@ -25,7 +25,12 @@ MiradorAnnotationsServer::Application.routes.draw do
   put '/updateSvg', to: 'annotations#updateSvg', defaults: {format: :json}
   get '/getCanvasForAnno', to: 'annotations#getTargetingAnnosCanvasFromID', defaults: {format: :json}
   get '/getLayersForAnnotation', to: 'annotations#getLayersForAnnotation', defaults: {format: :json}
+
   get '/getSolrFeed', to: 'annotations#getAnnotationsForSolrFeed',  defaults: {format: :json}
+  get '/feedAllAnnoIds', to: 'annotations#feedAllAnnoIds', defaults: {format: :text}
+  get '/feedAllLayers', to: 'annotations#feedAllLayers', defaults: {format: :text}
+  get '/feedAllAnnosNoResource', to: 'annotations#feedAnnosNoResource', defaults: {format: :text}
+  get '/feedAllAnnosResourceOnly', to: 'annotations#feedAnnosResourceOnly', defaults: {format: :text}
 
   get 'getAccessToken', to: "application#get_access_token", defaults: {format: :json}
   get 'loginToServer', to: "application#login"
