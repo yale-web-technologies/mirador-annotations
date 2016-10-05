@@ -37,7 +37,7 @@ class LayerListsMap < ActiveRecord::Base
     @annotationLayers = self.where(list_id: list_id)
     @annotationLayers.each do |thisLayer|
       layer = AnnotationLayer.where(layer_id: thisLayer.layer_id).first
-      within.push(layer.label)
+      within.push(layer.label) if not layer.nil?
     end
     within
   end
