@@ -647,10 +647,11 @@ class AnnotationsController < ApplicationController
       headers = "annotation_id, annotation_type, context, on, canvas, motivation,layers"
       csv << [headers]
       @annotation.each do |anno|
-=begin
-
-        onJSON = JSON.parse(anno.on.gsub(/=>/,":"))
         feedOn = ''
+        @canvas_id = ''
+=begin
+        onJSON = JSON.parse(anno.on.gsub(/=>/,":"))
+
         if !anno.on.start_with?('[')
           if !onJSON['full'].include?("/canvas/")
             feedOn = onJSON['full']
