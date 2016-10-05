@@ -565,7 +565,7 @@ class AnnotationsController < ApplicationController
       solr = []
       i=0
       @annotation.each do |annotation|
-        break if i > 3
+        #break if i > 3
         i+=1
         solr << annotation.to_solr
       end
@@ -644,17 +644,26 @@ class AnnotationsController < ApplicationController
       @annotation = Annotation.where(['updated_at > ?', DateTime.now-allOrDelta.to_i.days])
     end
     annos = CSV.generate do |csv|
-      headers = "annotation_id, annotation_type, context, on, motivation,label"
+      headers = "annotation_id, annotation_type, context, on, canvas, motivation,layers"
       csv << [headers]
       @annotation.each do |anno|
+=begin
+
         onJSON = JSON.parse(anno.on.gsub(/=>/,":"))
         feedOn = ''
-       if !anno.on.start_with?('[')
+        if !anno.on.start_with?('[')
           if !onJSON['full'].include?("/canvas/")
             feedOn = onJSON['full']
           end
-       end
-        csv << [anno.annotation_id, anno.annotation_type, "http://iiif.io/api/presentation/2/context.json", feedOn, anno.motivation, anno.label]
+          @canvas_id = onJSON['full']
+          if (!onJSON['full'].include?('/canvas/'))
+            @annotation = Annotation.where(annotation_id:onJSON['full']).first
+            @canvas_id = getTargetingAnnosCanvas(@annotation)
+          end
+        end
+=end
+        layers = anno.getLayersForAnnotation  anno.annotation_id
+        csv << [anno.annotation_id, anno.annotation_type, "http://iiif.io/api/presentation/2/context.json", feedOn, @canvas_id, anno.motivation, layers]
       end
     end
     respond_with do |format|

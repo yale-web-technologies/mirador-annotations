@@ -29,8 +29,8 @@ MiradorAnnotationsServer::Application.routes.draw do
   get '/getSolrFeed', to: 'annotations#getAnnotationsForSolrFeed',  defaults: {format: :json}
   get '/feedAllAnnoIds', to: 'annotations#feedAllAnnoIds', defaults: {format: :text}
   get '/feedAllLayers', to: 'annotations#feedAllLayers', defaults: {format: :text}
-  get '/feedAllAnnosNoResource', to: 'annotations#feedAnnosNoResource', defaults: {format: :text}
-  get '/feedAllAnnosResourceOnly', to: 'annotations#feedAnnosResourceOnly', defaults: {format: :text}
+  get '/feedAnnosNoResource', to: 'annotations#feedAnnosNoResource', defaults: {format: :text}
+  get '/feedAnnosResourceOnly', to: 'annotations#feedAnnosResourceOnly', defaults: {format: :text}
 
   get 'getAccessToken', to: "application#get_access_token", defaults: {format: :json}
   get 'loginToServer', to: "application#login"
