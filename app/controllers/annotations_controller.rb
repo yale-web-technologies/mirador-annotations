@@ -649,7 +649,7 @@ class AnnotationsController < ApplicationController
       @annotation.each do |anno|
         feedOn = ''
         @canvas_id = ''
-=begin
+
         onJSON = JSON.parse(anno.on.gsub(/=>/,":"))
 
         if !anno.on.start_with?('[')
@@ -662,7 +662,8 @@ class AnnotationsController < ApplicationController
             @canvas_id = getTargetingAnnosCanvas(@annotation)
           end
         end
-=end
+        onJSON = nil
+
         layers = anno.getLayersForAnnotation  anno.annotation_id
         csv << [anno.annotation_id, anno.annotation_type, "http://iiif.io/api/presentation/2/context.json", feedOn, @canvas_id, anno.motivation, layers]
       end
