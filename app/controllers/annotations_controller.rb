@@ -650,23 +650,37 @@ class AnnotationsController < ApplicationController
         feedOn = ''
         @canvas_id = ''
 
-        onJSON = JSON.parse(anno.on.gsub(/=>/,":"))
+        # check anno.onis valid
+        if !anno.on.start_with?('{') && !anno.on.start_with?('[')
+          next
+        end
+
+        #onJSON = JSON.parse(anno.on.gsub(/=>/,":"))
 
         if !anno.on.start_with?('[')
-          if !onJSON['full'].include?("/canvas/")
-            feedOn = onJSON['full']
+
+          #if !onJSON['full'].include?("/canvas/")
+          if !anno.canvas.include?("/canvas/")
+            # if not on a canvas it will be on another annotation, so include 'full'
+            #feedOn = onJSON['full']
+            feedOn = anno.canvas
           end
-          @canvas_id = onJSON['full']
-          if (!onJSON['full'].include?('/canvas/'))
-            @annotation = Annotation.where(annotation_id:onJSON['full']).first
+
+          #@canvas_id = onJSON['full']
+          @canvas_id = anno.canvas
+          # get original canvas
+          #if (!onJSON['full'].include?('/canvas/'))
+          if (!anno.canvas.include?('/canvas/'))
+            #@annotation = Annotation.where(annotation_id:onJSON['full']).first
+            @annotation = Annotation.where(annotation_id:anno.canvas).first
             @canvas_id = getTargetingAnnosCanvas(@annotation)
           end
-        end
-        onJSON = nil
 
+        end
         layers = anno.getLayersForAnnotation  anno.annotation_id
         csv << [anno.annotation_id, anno.annotation_type, "http://iiif.io/api/presentation/2/context.json", feedOn, @canvas_id, anno.motivation, layers]
       end
+
     end
     respond_with do |format|
       format.json {render :text => annos}
