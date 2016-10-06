@@ -519,7 +519,7 @@ class AnnotationsController < ApplicationController
 
 #  move backwards from an annotations' target until the last (or first) targeted anno, then return this one's canvas
   def getTargetingAnnosCanvas inputAnno
-    if inputAnno.nil! return
+    return if inputAnno.nil!
     return(inputAnno.canvas) if (inputAnno.canvas.to_s.include?('/canvas/'))
     #p "getTargetingAnnosCanvas:                        anno_id = #{inputAnno.annotation_id}  and canvas = #{inputAnno.canvas}"
     targetAnnotation = Annotation.where(annotation_id:inputAnno.canvas).first
