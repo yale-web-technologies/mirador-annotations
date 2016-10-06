@@ -676,7 +676,7 @@ class AnnotationsController < ApplicationController
           if (!anno.canvas.include?('/canvas/'))
             #@annotation = Annotation.where(annotation_id:onJSON['full']).first
             @annotation = Annotation.where(annotation_id:anno.canvas).first
-            @canvas_id = getTargetingAnnosCanvas(@annotation)
+            @canvas_id = getTargetingAnnosCanvas(@annotation) if !@annotation.nil?
           end
 
         end
