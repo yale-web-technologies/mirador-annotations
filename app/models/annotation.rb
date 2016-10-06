@@ -106,7 +106,7 @@ class Annotation < ActiveRecord::Base
     solr['canvas_id'] = @canvas_id
 
     #todo: add layers
-    #layers = Array.new
+    layers = Array.new
     solr['layers'] = getLayersForAnnotation annotation_id
 
     solr#.to_json
