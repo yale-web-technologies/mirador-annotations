@@ -654,6 +654,9 @@ class AnnotationsController < ApplicationController
         if !anno.on.start_with?('{') && !anno.on.start_with?('[')
           next
         end
+        if anno.canvas.nil?
+          next
+        end
 
         #onJSON = JSON.parse(anno.on.gsub(/=>/,":"))
 
