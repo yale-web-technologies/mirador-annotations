@@ -1,3 +1,5 @@
+[![Dependency Status](https://gemnasium.com/badges/github.com/yale-web-technologies/mirador-annotations.svg)](https://gemnasium.com/github.com/yale-web-technologies/mirador-annotations)
+
 == README
 
 Mirador-Annotations
