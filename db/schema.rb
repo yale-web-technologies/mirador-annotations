@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160418160537) do
+ActiveRecord::Schema.define(version: 20161115171525) do
 
   create_table "anno_list_layer_versions", force: :cascade do |t|
     t.string   "all_id"
@@ -35,6 +35,14 @@ ActiveRecord::Schema.define(version: 20160418160537) do
   end
 
   add_index "annotation_layers", ["layer_id"], name: "index_annotation_layers_on_layer_id"
+
+  create_table "annotation_layers_groups", id: false, force: :cascade do |t|
+    t.integer "group_id"
+    t.integer "annotation_layer_id"
+  end
+
+  add_index "annotation_layers_groups", ["annotation_layer_id"], name: "index_annotation_layers_groups_on_annotation_layer_id"
+  add_index "annotation_layers_groups", ["group_id"], name: "index_annotation_layers_groups_on_group_id"
 
   create_table "annotation_lists", force: :cascade do |t|
     t.string   "list_id"
