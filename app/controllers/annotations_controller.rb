@@ -517,9 +517,6 @@ class AnnotationsController < ApplicationController
     end
   end
 
-
-
-
 #  move backwards from an annotations' target until the last (or first) targeted anno, then return this one's canvas
   def getTargetingAnnosCanvas inputAnno
     return if inputAnno.nil?

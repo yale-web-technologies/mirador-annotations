@@ -25,6 +25,8 @@ MiradorAnnotationsServer::Application.routes.draw do
   put '/updateSvg', to: 'annotations#updateSvg', defaults: {format: :json}
   get '/getCanvasForAnno', to: 'annotations#getTargetingAnnosCanvasFromID', defaults: {format: :json}
   get '/getLayersForAnnotation', to: 'annotations#getLayersForAnnotation', defaults: {format: :json}
+  post '/createLayerWithGroup', to: 'annotation_layers#createWithGroup', defaults: {format: :json}
+  delete 'removeLayerFromGroup', to: 'annotation_layers#remove_layer_from_group', defaults: {format: :json}
 
   get '/getSolrFeed', to: 'annotations#getAnnotationsForSolrFeed',  defaults: {format: :json}
   get '/feedAllAnnoIds', to: 'annotations#feedAllAnnoIds', defaults: {format: :text}
