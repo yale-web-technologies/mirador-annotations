@@ -25,12 +25,14 @@ MiradorAnnotationsServer::Application.routes.draw do
   put '/updateSvg', to: 'annotations#updateSvg', defaults: {format: :json}
   get '/getCanvasForAnno', to: 'annotations#getTargetingAnnosCanvasFromID', defaults: {format: :json}
   get '/getLayersForAnnotation', to: 'annotations#getLayersForAnnotation', defaults: {format: :json}
+
   post '/createLayerWithGroup', to: 'annotation_layers#createWithGroup', defaults: {format: :json}
   delete 'removeLayerFromGroup', to: 'annotation_layers#remove_layer_from_group', defaults: {format: :json}
 
   get '/getSolrFeed', to: 'annotations#getAnnotationsForSolrFeed',  defaults: {format: :json}
   get '/feedAllAnnoIds', to: 'annotations#feedAllAnnoIds', defaults: {format: :text}
   get '/feedAllLayers', to: 'annotations#feedAllLayers', defaults: {format: :text}
+
   get '/feedAnnosNoResource', to: 'annotations#feedAnnosNoResource', defaults: {format: :text}
   get '/feedAnnosResourceOnly', to: 'annotations#feedAnnosResourceOnly', defaults: {format: :text}
 
@@ -38,6 +40,11 @@ MiradorAnnotationsServer::Application.routes.draw do
   #get 'loginToServer', to: "application#login"
   get 'loginToServer', to: "authn#userLogin"
   #put 'loginToServer', to: "authn#userLogin"
+  get '/feedAllAnnosNoResource', to: 'annotations#feedAnnosNoResource', defaults: {format: :text}
+  get '/feedAllAnnosResourceOnly', to: 'annotations#feedAnnosResourceOnly', defaults: {format: :text}
+
+  get 'getAccessToken', to: "application#get_access_token", defaults: {format: :json}
+  get 'loginToServer', to: "application#login"
 
   match '/' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
   match 'getAccessToken' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}

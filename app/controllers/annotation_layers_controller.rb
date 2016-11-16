@@ -66,7 +66,6 @@ class AnnotationLayersController < ApplicationController
     end
   end
 
-
   def createWithGroup
     @layerIn = JSON.parse(params['layer'].to_json)
     @group_id = params['group_id']
@@ -88,6 +87,27 @@ class AnnotationLayersController < ApplicationController
 
     #authorize! :create, @annotation_layer
     request.format = "json"
+
+
+    # now check group exists; create if needed
+    groups = Group.where(:group_id => params['group_id'])
+    p "checked for group: result count = #{groups.count}"
+    if groups.count == 0
+      p "creating group for #{params['group_id']}"
+      group = Group.create(
+          group_id: params['group_id'],
+          group_description: "test",
+          roles: "",
+          permissions: @permissions
+      )
+      p "group #{params['group_id']} created"
+      else group = groups.first
+    end
+
+    # now push user to groups via has-and-belongs-to-many relationship which uses the groups_users table
+    @annotation_layer.groups << group
+    p "group #{group.group_id} pushed to layer.groups"
+
     respond_to do |format|
       if @annotation_layer.save
         format.html { redirect_to @annotation_layer, notice: 'Annotation layer was successfully created.' }
@@ -97,24 +117,6 @@ class AnnotationLayersController < ApplicationController
         format.json { render json: @annotation_layer.errors, status: :unprocessable_entity, content_type: "application/json" }
       end
     end
-
-    # now check group exists; create if needed
-    group = Group.where(:group_id => params['group_id'])
-    p "checked for group: result count = #{group.count}"
-    if group.count == 0
-      p "creating group for #{params['group_id']}"
-      group = Group.create(
-          group_id: params['group_id'],
-          group_description: "test",
-          roles: "",
-          permissions: @permissions
-      )
-      p "group #{params['group_id']} created"
-    end
-
-    # now push user to groups via has-and-belongs-to-many relationship which uses the groups_users table
-    @annotation_layer.groups << group
-    p "group #{group.group_id} pushed to layer.groups"
   end
 
   # PUT /layer/1
@@ -190,11 +192,16 @@ class AnnotationLayersController < ApplicationController
   def remove_layer_from_group
     layer = AnnotationLayer.where(layer_id: params[:layer_id]).first
 
-    p "found layer has layer_id: #{layer.layer_id}"
+    p "found layer has layer_id: #{layer.layer_id} and id: #{layer.id.to_s} and parameter group_id = #{params['group_id']}"
     group = layer.groups.where(group_id: params[:group_id]).first
 
     if group
+      p "found matching group #{group.group_id}"
       layer.groups.delete(group)
+    end
+    respond_to do |format|
+      format.html { head :no_content  }
+      format.json { head :no_content }
     end
   end
 
