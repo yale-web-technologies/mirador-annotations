@@ -66,6 +66,7 @@ class AnnotationLayersController < ApplicationController
     end
   end
 
+  # not currently used
   def createWithGroup
     @layerIn = JSON.parse(params['layer'].to_json)
     @group_id = params['group_id']
@@ -107,6 +108,8 @@ class AnnotationLayersController < ApplicationController
     # now push user to groups via has-and-belongs-to-many relationship which uses the groups_users table
     @annotation_layer.groups << group
     p "group #{group.group_id} pushed to layer.groups"
+    group.annotation_layers << @annotation_layer
+    p "annotation #{@annotation_layer.layer_id} pushed to group.layers"
 
     respond_to do |format|
       if @annotation_layer.save
@@ -189,6 +192,7 @@ class AnnotationLayersController < ApplicationController
     end
   end
 
+  # not currently used
   def remove_layer_from_group
     layer = AnnotationLayer.where(layer_id: params[:layer_id]).first
 
@@ -202,6 +206,80 @@ class AnnotationLayersController < ApplicationController
     respond_to do |format|
       format.html { head :no_content  }
       format.json { head :no_content }
+    end
+  end
+
+
+
+  def setCurrentLayers
+    layersIn = JSON.parse(params['layers'].to_json)
+    group_id = params['group_id']
+    group_description = params['group_description']
+    #@permissions = params['permissions'] || ''
+
+    # check that group exists; if not create it
+    groups = Group.where(:group_id => group_id)
+    p "checked for group: result count = #{groups.count}"
+    if groups.count == 0
+      p "creating group for #{group_id}"
+      group = Group.create(
+          group_id: group_id,
+          group_description: group_description,
+          roles: "",
+      #permissions: @permissions
+      )
+      p "group #{group_id} created"
+    else
+      group = groups.first
+    end
+
+    @layerIds = Array.new
+    layersIn.each do |layerIn|
+      p "layerIn = #{layerIn}"
+
+      @layerIds.push(layerIn['layer_id'])
+      layers =  AnnotationLayer.where(:layer_id => layerIn['layer_id'])
+      p "checked for layer #{layerIn['layer_id']}: result count = #{layers.count}"
+      if layers.count == 0
+        p "creating layer for #{layerIn['layer_id']}"
+        @layer = Hash.new
+        @layer['layer_id'] = layerIn['layer_id']
+        @layer['label'] = layerIn['label']
+        @layer['layer_type'] = layerIn['@type'] || "sc:layer"
+        @layer['motivation'] = layerIn['motivation'] || "oa:commenting"
+        @layer['license'] = layerIn['license'] || "http://creativecommons.org/licenses/by/4.0/"
+        @layer['description'] = layerIn['description']
+        @layer['version'] = 1
+        @annotation_layer = AnnotationLayer.new(@layer)
+        @annotation_layer.save
+        p "layer #{layerIn['layer_id']} created"
+      else @annotation_layer = layers.first
+      end
+
+      # push layer to groups via has-and-belongs-to-many relationship which uses the annotation_layers_groups table
+      @annotation_layer.groups << group
+      p "group #{group.group_id} pushed to layer.groups"
+      #group.annotation_layers << @annotation_layer
+      #p "annotation #{@annotation_layer.layer_id} pushed to group.layers"
+    end
+
+    # check all groups ; delete any that are not in the current params.
+    layersForGroup = group.annotation_layers
+    layersForGroup.each do |layerForGroup|
+      if !@layerIds.include? layerForGroup.layer_id
+        group.annotation_layers.delete(layerForGroup.layer_id)
+      end
+    end
+
+    respond_to do |format|
+      #authorize! :create, @annotation_layer
+      if @annotation_layer.save
+        format.html { redirect_to @annotation_layer, notice: 'Annotation layer was successfully created.' }
+        format.json { render json: @annotation_layer.to_iiif, status: :created, location: @annotation_layer, content_type: "application/json" }
+      else
+        format.html { render action: "new" }
+        format.json { render json: @annotation_layer.errors, status: :unprocessable_entity, content_type: "application/json" }
+      end
     end
   end
 
@@ -234,5 +312,13 @@ class AnnotationLayersController < ApplicationController
     end
     versioned
   end
+
+  # receive a group id and array of layers.
+  # create the group if it does not exist
+  # iterate through array of layers:
+  #   - if layer does not exist, create it
+  #   - if the layer-group mapping does not exist, create it
+  # delete any layer group mappings on the server which were not in the layer array params
+
 
 end
