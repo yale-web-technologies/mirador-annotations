@@ -2,6 +2,9 @@
 source 'https://rubygems.org'
 ruby '2.2.4'
 
+# Use unicorn as the app server
+gem 'unicorn'
+
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 #gem 'rails'
 gem 'rails', github: 'rails/rails', branch: '4-2-stable'  # avoid arel problem
@@ -64,9 +67,6 @@ gem 'spring',        group: :development
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
-
-# Use unicorn as the app server
-gem 'unicorn'
 
 # Use dropzone gem instead of having the javascript and css in /assets [jrl]
 gem 'dropzonejs-rails'

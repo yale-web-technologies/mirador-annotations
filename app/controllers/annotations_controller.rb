@@ -687,6 +687,20 @@ class AnnotationsController < ApplicationController
         csv << [anno.annotation_id, anno.annotation_type, "http://iiif.io/api/presentation/2/context.json", feedOn, @canvas_id, anno.motivation, layers]
       end
 
+=begin
+      headers = "annotation_id, annotation_type, context, on, motivation,label"
+      csv << [headers]
+      @annotation.each do |anno|
+        onJSON = JSON.parse(anno.on.gsub(/=>/,":"))
+        feedOn = ''
+       if !anno.on.start_with?('[')
+          if !onJSON['full'].include?("/canvas/")
+            feedOn = onJSON['full']
+          end
+       end
+        csv << [anno.annotation_id, anno.annotation_type, "http://iiif.io/api/presentation/2/context.json", feedOn, anno.motivation, anno.label]
+      end
+=end
     end
     respond_with do |format|
       format.json {render :text => annos}
