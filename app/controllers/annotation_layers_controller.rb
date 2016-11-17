@@ -8,7 +8,8 @@ class AnnotationLayersController < ApplicationController
     # check for param['group_id']; if present filter query by that
     if params['group_id']
       group = Group.where(group_id: params['group_id']).first
-      @annotation_layers = group.annotation_layers
+      @annotation_layers = Array.new
+      @annotation_layers = group.annotation_layers if !group.nil?
     else
       @annotation_layers = AnnotationLayer.all#.order("layer_id")
     end
