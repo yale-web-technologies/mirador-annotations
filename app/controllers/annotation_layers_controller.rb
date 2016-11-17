@@ -5,7 +5,13 @@ class AnnotationLayersController < ApplicationController
   # GET /layer
   # GET /layer.json
   def index
-    @annotation_layers = AnnotationLayer.all#.order("layer_id")
+    # check for param['group_id']; if present filter query by that
+    if params['group_id']
+      group = Group.where(group_id: params['group_id']).first
+      @annotation_layers = group.annotation_layers
+    else
+      @annotation_layers = AnnotationLayer.all#.order("layer_id")
+    end
     p "index: params.inspect " +      params.inspect
     p "index: params[id] = #{params['id']}"
     respond_to do |format|
