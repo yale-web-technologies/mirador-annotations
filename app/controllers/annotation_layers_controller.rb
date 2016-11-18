@@ -157,15 +157,15 @@ class AnnotationLayersController < ApplicationController
       newVersion = @annotationLayer.version + 1
       request.format = "json"
       respond_to do |format|
-        if @annotationLayer.update_attributes(
-            :layer_id => @annotationLayerIn['@id'],
-            :layer_type => @annotationLayerIn['@type'],
-            :label => @annotationLayerIn['label'],
-            :motivation => @annotationLayerIn['motivation'],
-            :license => @annotationLayerIn['license'],
-            :description => @annotationLayerIn['description'],
-            :version => newVersion
-        )
+          if @annotationLayer.update_attributes(
+              :layer_id => @annotationLayerIn['@id'],
+              :layer_type => @annotationLayerIn['@type'],
+              :label => @annotationLayerIn['label'],
+              :motivation => @annotationLayerIn['motivation'],
+              :license => @annotationLayerIn['license'],
+              :description => @annotationLayerIn['description'],
+              :version => newVersion
+          )
           format.html { redirect_to @annotationLayer, notice: 'AnnotationLayer was successfully updated.' }
           format.json { render json: @annotationLayer.to_iiif, status: 200, content_type: "application/json" }
         else
@@ -261,14 +261,20 @@ class AnnotationLayersController < ApplicationController
         @annotation_layer = AnnotationLayer.new(@layer)
         @annotation_layer.save
         p "layer #{layerIn['layer_id']} created"
-      else @annotation_layer = layers.first
+        # push layer to groups via has-and-belongs-to-many relationship which uses the annotation_layers_groups table
+        @annotation_layer.groups << group
+        p "group #{group.group_id} pushed to layer.groups"
+      else
+        @annotation_layer = layers.first
+        # update the existing record in case they just resent this layer with a different label
+        p "existing label:  #{@annotation_layer.label} and new layerIn['label']: #{layerIn['label']}"
+        if @annotation_layer.label != layerIn['label']
+          @annotation_layer.update_attributes(
+            :label =>layerIn['label'])
+        end
       end
 
-      # push layer to groups via has-and-belongs-to-many relationship which uses the annotation_layers_groups table
-      @annotation_layer.groups << group
-      p "group #{group.group_id} pushed to layer.groups"
-      #group.annotation_layers << @annotation_layer
-      #p "annotation #{@annotation_layer.layer_id} pushed to group.layers"
+
     end
 
     # check all current group-layers ; delete any that are not in the current params.
