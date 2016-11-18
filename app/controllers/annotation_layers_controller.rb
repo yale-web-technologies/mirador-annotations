@@ -5,7 +5,7 @@ class AnnotationLayersController < ApplicationController
   # GET /layer
   # GET /layer.json
   def index
-    # check for param['group_id']; if present filter query by that
+    # filter query by param['group_id'] if it exists
     if params['group_id']
       group = Group.where(group_id: params['group_id']).first
       @annotation_layers = Array.new
@@ -224,7 +224,7 @@ class AnnotationLayersController < ApplicationController
     group_description = params['group_description']
     #@permissions = params['permissions'] || ''
 
-    # check that group exists; if not create it
+    # check that group exists; if not create it so we can push these layers to it
     groups = Group.where(:group_id => group_id)
     p "checked for group: result count = #{groups.count}"
     if groups.count == 0
@@ -240,6 +240,7 @@ class AnnotationLayersController < ApplicationController
       group = groups.first
     end
 
+    # get the layers for this group
     @layerIds = Array.new
     layersIn.each do |layerIn|
       p "layerIn = #{layerIn}"
@@ -270,7 +271,7 @@ class AnnotationLayersController < ApplicationController
       #p "annotation #{@annotation_layer.layer_id} pushed to group.layers"
     end
 
-    # check all groups ; delete any that are not in the current params.
+    # check all current group-layers ; delete any that are not in the current params.
     layersForGroup = group.annotation_layers
     layersForGroup.each do |layerForGroup|
       if !@layerIds.include? layerForGroup.layer_id
