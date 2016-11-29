@@ -2,6 +2,7 @@ class Group < ActiveRecord::Base
 
   belongs_to :sites
   has_and_belongs_to_many :users
+  has_and_belongs_to_many :annotation_layers
   has_many :webacls, foreign_key: :group_id, primary_key: :group_id
 
   attr_accessible :group_id,
