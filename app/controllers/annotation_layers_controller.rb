@@ -244,8 +244,8 @@ class AnnotationLayersController < ApplicationController
     @layerIds = Array.new
     layersIn.each do |layerIn|
       p "layerIn = #{layerIn}"
-
       @layerIds.push(layerIn['layer_id'])
+
       layers =  AnnotationLayer.where(:layer_id => layerIn['layer_id'])
       p "checked for layer #{layerIn['layer_id']}: result count = #{layers.count}"
       if layers.count == 0
@@ -262,8 +262,8 @@ class AnnotationLayersController < ApplicationController
         @annotation_layer.save
         p "layer #{layerIn['layer_id']} created"
         # push layer to groups via has-and-belongs-to-many relationship which uses the annotation_layers_groups table
-        @annotation_layer.groups << group
-        p "group #{group.group_id} pushed to layer.groups"
+        #@annotation_layer.groups << group
+        #p "group #{group.group_id} pushed to layer.groups"
       else
         @annotation_layer = layers.first
         # update the existing record in case they just resent this layer with a different label
@@ -274,14 +274,35 @@ class AnnotationLayersController < ApplicationController
         end
       end
 
-
+      # push layer to groups via has-and-belongs-to-many relationship which uses the annotation_layers_groups table
+      if !(@annotation_layer.groups.map(&:group_id).include?(group_id))
+        @annotation_layer.groups << group
+        p "group #{group.group_id} pushed to layer.groups for layer #{@annotation_layer.layer_id}"
+      end
     end
 
     # check all current group-layers ; delete any that are not in the current params.
     layersForGroup = group.annotation_layers
+
+    p "layersForGroup.count = #{layersForGroup.count} for group: #{group.group_id}"
+
     layersForGroup.each do |layerForGroup|
+      p "first spin: in cleanup: group_id = #{group.group_id} and layer_id = #{layerForGroup.layer_id} and id = #{layerForGroup.id}"
+    end
+
+    p "layerIds passed in: "
+    @layerIds.each do |layerId|
+        p layerId.to_s
+    end
+    layersForGroup.each do |layerForGroup|
+      p "in cleanup: group_id = #{group.group_id} and layer_id = #{layerForGroup.layer_id} and id = #{layerForGroup.id.to_s}"
+      #if !@layerIds.include? layerForGroup.layer_id
       if !@layerIds.include? layerForGroup.layer_id
-        group.annotation_layers.delete(layerForGroup.layer_id)
+        p 'no match!'
+        #start here monday
+        group.annotation_layers.delete(layerForGroup)
+      else
+        p 'match!'
       end
     end
 
