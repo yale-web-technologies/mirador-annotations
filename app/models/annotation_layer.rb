@@ -1,6 +1,8 @@
 class AnnotationLayer < ActiveRecord::Base
   validates :layer_id, uniqueness: true
 
+  has_and_belongs_to_many :groups
+
   has_many :webacls, foreign_key: "resource_id"
 
   attr_accessible :layer_id,
