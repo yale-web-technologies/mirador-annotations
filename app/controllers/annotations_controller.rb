@@ -147,12 +147,12 @@ class AnnotationsController < ApplicationController
       layer_id = listName[index1+1, index2-1]
       p "non-iiif layer_id: #{layer_id}"
     else
-
-    #return if match.nil?
-    layer_id = match[0]
-    layer_id =layer_id[1...-2]
-    layer_id = "No layer" if (layer_id.nil?)
-    layer_id
+      #return if match.nil?
+      layer_id = match[0]
+      layer_id =layer_id[1...-2]
+      layer_id = "No layer" if (layer_id.nil?)
+      layer_id
+    end
   end
 
   # for future use
