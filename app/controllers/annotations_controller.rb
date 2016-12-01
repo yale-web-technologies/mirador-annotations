@@ -115,6 +115,8 @@ class AnnotationsController < ApplicationController
     end
     lists = AnnotationList.where("list_id like ? and list_id like ?", "%#{params['canvas_id']}%", "%/lists/%")
     annoWLayerArray = Array.new
+
+    p  "in getAnnotationsForCanvasViaLists: lists.count = #{lists.count}"
     lists.each do |list|
       layer_id = getLayerFromListName list.list_id
       if !layer_id.nil?
@@ -138,7 +140,14 @@ class AnnotationsController < ApplicationController
 
   def getLayerFromListName listName
     match = /\/http(\S+\/layers\/\S+_h)/.match(listName)
-    return if match.nil?
+
+    if match.nil?
+      index1 = listName.index('lists/')
+      index2 = listName.index('_')
+      layer_id = listName[index1+1, index2-1)
+    else
+
+    #return if match.nil?
     layer_id = match[0]
     layer_id =layer_id[1...-2]
     layer_id = "No layer" if (layer_id.nil?)
