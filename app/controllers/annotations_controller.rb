@@ -144,7 +144,8 @@ class AnnotationsController < ApplicationController
     if match.nil?
       index1 = listName.index('lists/')
       index2 = listName.index('_')
-      layer_id = listName[index1+1, index2-1)
+      layer_id = listName[index1+1, index2-1]
+      p "non-iiif layer_id: #{layer_id}"
     else
 
     #return if match.nil?
