@@ -142,10 +142,11 @@ class AnnotationsController < ApplicationController
     match = /\/http(\S+\/layers\/\S+_h)/.match(listName)
 
     if match.nil?
-      index1 = listName.index('lists/')
+      index1 = listName.index('lists/') + 6
       index2 = listName.index('_')
-      layer_id = listName[index1+1, index2-1]
+      layer_id = listName[index1, index2-index1]
       p "non-iiif layer_id: #{layer_id}"
+      layer_id
     else
       #return if match.nil?
       layer_id = match[0]
