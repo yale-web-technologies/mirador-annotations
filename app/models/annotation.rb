@@ -143,13 +143,13 @@ class Annotation < ActiveRecord::Base
     width = [width, height].max
     height = width
 
-    #puts "x="+x.to_s
-    #puts "y="+y.to_s
-    #puts "width="+width.to_s
-    #puts "height="+height.to_s
-    #puts ""
-    #puts "svg_path = #{svg_path}"
-    #puts ""
+    puts "x="+x.to_s
+    puts "y="+y.to_s
+    puts "width="+width.to_s
+    puts "height="+height.to_s
+    puts ""
+    puts "svg_path = #{svg_path}"
+    puts ""
 
     xywh = [x.to_s, y.to_s, width.to_s, height.to_s].to_csv
   end
@@ -172,7 +172,6 @@ class Annotation < ActiveRecord::Base
 
     #bounding box information
     { :x=> canvas.page.x, :y=>canvas.page.y, :width=> canvas.columns, :height=> canvas.rows}
-
   end
 
 end
