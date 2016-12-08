@@ -663,8 +663,8 @@ class AnnotationsController < ApplicationController
     end
 
     #for testing svg
-    #@annotation = Annotation.where(annotation_id:"http://localhost:5000/annotations/Panel_A_Chapter_2_Scene_1")
-    #@annotation = Annotation.where(annotation_id:"http://mirador-annotations-lotb-stg.herokuapp.com/annotations/Panel_A_Chapter_2_Scene_1")
+    #@annotation = Annotation.where(annotation_id:"http://localhost:5000/annotations/Panel_A_Chapter_1")
+    @annotation = Annotation.where(annotation_id:"http://mirador-annotations-lotb-stg.herokuapp.com/annotations/Panel_A_Chapter_1")
     #
 
     annos = CSV.generate do |csv|
