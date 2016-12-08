@@ -1,3 +1,5 @@
+include Magick
+
 class Annotation < ActiveRecord::Base
   attr_accessible :annotation_id,
                   :annotation_type,
@@ -129,6 +131,48 @@ class Annotation < ActiveRecord::Base
     return(inputAnno.canvas) if (inputAnno.canvas.to_s.include?('/canvas/'))
     targetAnnotation = Annotation.where(annotation_id:inputAnno.canvas).first
     getTargetingAnnosCanvas targetAnnotation
+  end
+
+  def self.get_xywh_from_svg svg_path
+    bbox = get_bounding_box(svg_path)
+    x = bbox[:x]
+    y = bbox[:y]
+    width = bbox[:width]
+    height = bbox[:height]
+    # force square using the larger of width and height
+    width = [width, height].max
+    height = width
+
+    #puts "x="+x.to_s
+    #puts "y="+y.to_s
+    #puts "width="+width.to_s
+    #puts "height="+height.to_s
+    #puts ""
+    #puts "svg_path = #{svg_path}"
+    #puts ""
+
+    xywh = [x.to_s, y.to_s, width.to_s, height.to_s].to_csv
+  end
+
+  def self.get_bounding_box(path)
+    include Magick
+
+    #create a drawing object
+    drawing = Magick::Draw.new
+
+    #create a new image for finding out the offset
+    canvas = Image.new(6000,9000) {self.background_color = 'white' }
+
+    #draw the path into the canvas image
+    drawing.path path
+    drawing.draw canvas
+
+    #trim the whitespace of the image
+    canvas.trim!
+
+    #bounding box information
+    { :x=> canvas.page.x, :y=>canvas.page.y, :width=> canvas.columns, :height=> canvas.rows}
+
   end
 
 end
