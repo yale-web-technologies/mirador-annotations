@@ -628,6 +628,13 @@ class AnnotationsController < ApplicationController
     render json: on
   end
 
+  def get_svg_path anno
+    on = JSON.parse(anno.on)
+    svg = on["selector"]["value"]
+    svgHash = Hash.from_xml(svg)
+    #puts "svgHash.svg.path.d: #{svgHash["svg"]["path"]["d"]}"
+    svg_path = svgHash["svg"]["path"]["d"]
+  end
 
   # six feeds designed for use by Drupal portal/project mgmg site
   # initial loads for annotations
@@ -655,15 +662,20 @@ class AnnotationsController < ApplicationController
     else
       @annotation = Annotation.where(['updated_at > ?', DateTime.now-allOrDelta.to_i.days])
     end
+
+    #for testing svg
+    @annotation = Annotation.where(annotation_id:"http://localhost:5000/annotations/Panel_A_Chapter_2_Scene_1")
+    #
+
     annos = CSV.generate do |csv|
-      headers = "annotation_id, annotation_type, context, on, canvas, motivation,layers"
+      headers = "annotation_id, annotation_type, context, on, canvas, motivation,layers,bb_xywh"
 
       csv << [headers]
       @annotation.each do |anno|
         feedOn = ''
         @canvas_id = ''
 
-        # check anno.onis valid
+        # check anno.on is valid
         if !anno.on.start_with?('{') && !anno.on.start_with?('[')
           next
         end
@@ -695,56 +707,13 @@ class AnnotationsController < ApplicationController
           end
 
         end
+
+        #first get svgpath from "d" attribute in the svg selector value
+        svg_path = get_svg_path anno
+        xywh = Annotation.get_xywh_from_svg svg_path
         layers = anno.getLayersForAnnotation  anno.annotation_id
-        csv << [anno.annotation_id, anno.annotation_type, "http://iiif.io/api/presentation/2/context.json", feedOn, @canvas_id, anno.motivation, layers]
+        csv << [anno.annotation_id, anno.annotation_type, "http://iiif.io/api/presentation/2/context.json", feedOn, @canvas_id, anno.motivation, layers, xywh]
       end
-
-=begin
-      headers = "annotation_id, annotation_type, context, on, motivation,label"
-
->>>>>>> 12b6a466dd759ef834d9cd25a78be6d659a60cf3
-      csv << [headers]
-      @annotation.each do |anno|
-        feedOn = ''
-        @canvas_id = ''
-
-        # check anno.onis valid
-        if !anno.on.start_with?('{') && !anno.on.start_with?('[')
-          next
-        end
-        if anno.canvas.nil?
-          next
-        end
-
-        #onJSON = JSON.parse(anno.on.gsub(/=>/,":"))
-
-        if !anno.on.start_with?('[')
-
-          #if !onJSON['full'].include?("/canvas/")
-          if !anno.canvas.include?("/canvas/")
-            # if not on a canvas it will be on another annotation, so include 'full'
-            #feedOn = onJSON['full']
-            feedOn = anno.canvas
-          end
-
-          #@canvas_id = onJSON['full']
-          @canvas_id = anno.canvas
-          # get original canvas
-          #if (!onJSON['full'].include?('/canvas/'))
-          if (!anno.canvas.include?('/canvas/'))
-            #@annotation = Annotation.where(annotation_id:onJSON['full']).first
-            @annotation = Annotation.where(annotation_id:anno.canvas).first
-            if !@annotation.nil?
-              @canvas_id = getTargetingAnnosCanvas(@annotation)
-            end
-          end
-
-        end
-        layers = anno.getLayersForAnnotation  anno.annotation_id
-        csv << [anno.annotation_id, anno.annotation_type, "http://iiif.io/api/presentation/2/context.json", feedOn, @canvas_id, anno.motivation, layers]
-      end
-
-=end
 
     end
     respond_with do |format|

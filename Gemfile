@@ -79,6 +79,7 @@ gem 'dropzonejs-rails'
 gem 'protected_attributes'
 
 gem 'rsolr'
+gem 'rmagick'
 
 #gem 'mirador-annotation-solr-loader', :path => "~/rails_projects/mirador-annotation-solr-loader/"
 #gem 'annotation_solr_loader', github: 'ydc2/annotation-solr-loader', tag: 'v1.5'

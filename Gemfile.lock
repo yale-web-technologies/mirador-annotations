@@ -161,6 +161,7 @@ GEM
     ref (2.0.0)
     responders (2.3.0)
       railties (>= 4.2.0, < 5.1)
+    rmagick (2.16.0)
     rsolr (1.1.2)
       builder (>= 2.1.2)
     rspec (3.5.0)
@@ -261,6 +262,7 @@ DEPENDENCIES
   rack-cors
   rails!
   rails_12factor (= 0.0.2)
+  rmagick
   rsolr
   rspec
   rspec-rails
