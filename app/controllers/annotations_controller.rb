@@ -650,7 +650,6 @@ class AnnotationsController < ApplicationController
   # 3) all layers with same label text as gets sent from the getAnnotationsForCanvas api's
   # 4) all annotation_id's to use as a cross reference for consumer to synchronize deletions
 
-
   def feedAnnosNoResource
     #resourceMode = params['resourceMode']
     #resourceMode = 'none' if resourceMode.nil?
@@ -664,7 +663,8 @@ class AnnotationsController < ApplicationController
     end
 
     #for testing svg
-    @annotation = Annotation.where(annotation_id:"http://localhost:5000/annotations/Panel_A_Chapter_2_Scene_1")
+    #@annotation = Annotation.where(annotation_id:"http://localhost:5000/annotations/Panel_A_Chapter_2_Scene_1")
+    @annotation = Annotation.where(annotation_id:"http://mirador-annotations-lotb-stg.herokuapp.com/annotations/Panel_A_Chapter_2_Scene_1")
     #
 
     annos = CSV.generate do |csv|
