@@ -133,35 +133,46 @@ class Annotation < ActiveRecord::Base
     getTargetingAnnosCanvas targetAnnotation
   end
 
-  def self.get_xywh_from_svg svg_path
-    bbox = get_bounding_box(svg_path)
-    x = bbox[:x]
-    y = bbox[:y]
-    width = bbox[:width]
-    height = bbox[:height]
-    # force square using the larger of width and height
-    width = [width, height].max
-    height = width
+  def self.get_xywh_from_svg svg_path, height, width
+    return if svg_path==''
+    begin
+      bbox = get_bounding_box(svg_path, height, width)
+    rescue
+        xywh = "-99,-99,-99,-99"
+    else
+      x = bbox[:x]
+      y = bbox[:y]
+      width = bbox[:width]
+      height = bbox[:height]
+      # force square using the larger of width and height
+      width = [width, height].max
+      height = width
 
-    puts "x="+x.to_s
-    puts "y="+y.to_s
-    puts "width="+width.to_s
-    puts "height="+height.to_s
-    puts ""
-    puts "svg_path = #{svg_path}"
-    puts ""
+      #puts "x="+x.to_s
+      #puts "y="+y.to_s
+      #puts "width="+width.to_s
+      #puts "height="+height.to_s
+      #puts ""
+      #puts "svg_path = #{svg_path}"
+      #puts ""
 
-    xywh = [x.to_s, y.to_s, width.to_s, height.to_s].to_csv
+      xywh = [x.to_s, y.to_s, width.to_s, height.to_s].to_csv
+    end
   end
 
-  def self.get_bounding_box(path)
+  def self.get_bounding_box(path,height,width)
     include Magick
 
     #create a drawing object
     drawing = Magick::Draw.new
 
     #create a new image for finding out the offset
-    canvas = Image.new(6000,9000) {self.background_color = 'white' }
+    #canvas = Image.new(15000,25000) {self.background_color = 'white' }  # very slow
+    #canvas = Image.new(1500,2500) {self.background_color = 'white' }  # quick, way too small
+    #canvas = Image.new(6000,9000) {self.background_color = 'white' }
+    #canvas = Image.new(15000,15000) {self.background_color = 'white' } # this is pretty good
+    #canvas = Image.new(16000,16000) {self.background_color = 'white' }
+    canvas = Image.new(height,width) {self.background_color = 'white' }
 
     #draw the path into the canvas image
     drawing.path path

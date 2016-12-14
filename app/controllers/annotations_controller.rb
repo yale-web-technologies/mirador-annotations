@@ -528,12 +528,28 @@ class AnnotationsController < ApplicationController
     end
   end
 
+  #  for lotb
+  def getTargetedAnno inputAnno
+    return if inputAnno.nil?
+    onN = inputAnno.on
+    onN = onN.gsub!(/=>/,':')
+    #p "on = #{onN}"
+    onJSON = JSON.parse(onN)
+    #p "full = #{onJSON['full']}"
+    #return(inputAnno) if (inputAnno.canvas.to_s.include?("oa:SvgSelector"))
+    targetAnnotation = Annotation.where(annotation_id:onJSON['full']).first
+    #p "returned anno canvas = #{targetAnnotation.canvas}"
+    return(targetAnnotation) if (targetAnnotation.on.to_s.include?("oa:SvgSelector"))
+    getTargetedAnno targetAnnotation
+  end
+
+
 #  move backwards from an annotations' target until the last (or first) targeted anno, then return this one's canvas
   def getTargetingAnnosCanvas inputAnno
     return if inputAnno.nil?
     return(inputAnno.canvas) if (inputAnno.canvas.to_s.include?('/canvas/'))
     #p "getTargetingAnnosCanvas:                        anno_id = #{inputAnno.annotation_id}  and canvas = #{inputAnno.canvas}"
-    targetAnnotation = Annotation.where(annotation_id:inputAnno.canvas).first
+    targetAnnotation = Annotation.where(canvas:inputAnno.canvas).first
     #p "just got targetAnnotation based on that canvas: anno_id = #{targetAnnotation.annotation_id}  and canvas = #{targetAnnotation.canvas} "
     getTargetingAnnosCanvas targetAnnotation
   end
@@ -617,7 +633,7 @@ class AnnotationsController < ApplicationController
 
   def getSvg
     annotation_id = params['id']
-    p "id = #{annotation_id}"
+    #p "id = #{annotation_id}"
     annotation = Annotation.where(annotation_id: annotation_id).first
     on = JSON.parse(annotation.on)
     p "on = #{on.to_json}"
@@ -663,59 +679,55 @@ class AnnotationsController < ApplicationController
     end
 
     #for testing svg
-    #@annotation = Annotation.where(annotation_id:"http://localhost:5000/annotations/Panel_A_Chapter_1")
-    @annotation = Annotation.where(annotation_id:"http://mirador-annotations-lotb-stg.herokuapp.com/annotations/Panel_A_Chapter_1")
+    #@annotation = Annotation.where(annotation_id:"http://localhost:5000/annotations/Panel_A_Chapter_2_Scene_1_25_Canonical Source")
+    #@annotation = Annotation.where(annotation_id:"http://mirador-annotations-lotb-stg.herokuapp.com/annotations/Panel_A_Chapter_1")
     #
 
     annos = CSV.generate do |csv|
       headers = "annotation_id, annotation_type, context, on, canvas, motivation,layers,bb_xywh"
-
       csv << [headers]
+
+      count = 0
       @annotation.each do |anno|
+        count = count + 1
+      #  break if count > 20
+        p "processing: #{count.to_s}) #{anno.annotation_id}"
+        svgAnno = anno
+        svgOn = ''
         feedOn = ''
         @canvas_id = ''
 
-        # check anno.on is valid
-        if !anno.on.start_with?('{') && !anno.on.start_with?('[')
-          next
-        end
-        if anno.canvas.nil?
-          next
-        end
+        # check anno.on and canvas
+        next if !anno.on.start_with?('{') && !anno.on.start_with?('[')
+        next if anno.canvas.nil?
 
-        #onJSON = JSON.parse(anno.on.gsub(/=>/,":"))
+        # if this anno has no svg, then get the original targeted anno to send to get_svg_path
+        if !anno.on.include?("oa:SvgSelector")
+          svgAnno = getTargetedAnno(anno)
+          p "svgAnno: #{svgAnno.annotation_id}"
+        end
 
         if !anno.on.start_with?('[')
-
-          #if !onJSON['full'].include?("/canvas/")
           if !anno.canvas.include?("/canvas/")
-            # if not on a canvas it will be on another annotation, so include 'full'
-            #feedOn = onJSON['full']
             feedOn = anno.canvas
-          end
-
-          #@canvas_id = onJSON['full']
-          @canvas_id = anno.canvas
-          # get original canvas
-          #if (!onJSON['full'].include?('/canvas/'))
-          if (!anno.canvas.include?('/canvas/'))
-            #@annotation = Annotation.where(annotation_id:onJSON['full']).first
+            # get original canvas
             @annotation = Annotation.where(annotation_id:anno.canvas).first
             if !@annotation.nil?
               @canvas_id = getTargetingAnnosCanvas(@annotation)
             end
           end
-
+          @canvas_id = anno.canvas
         end
 
         #first get svgpath from "d" attribute in the svg selector value
-        svg_path = get_svg_path anno
+        svg_path = get_svg_path svgAnno
         xywh = Annotation.get_xywh_from_svg svg_path
         layers = anno.getLayersForAnnotation  anno.annotation_id
         csv << [anno.annotation_id, anno.annotation_type, "http://iiif.io/api/presentation/2/context.json", feedOn, @canvas_id, anno.motivation, layers, xywh]
       end
 
     end
+    format = 'text'
     respond_with do |format|
       format.json {render :text => annos}
       format.text {render :text => annos}
