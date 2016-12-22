@@ -12,7 +12,14 @@ default: &default
 development:
   <<: *default
   #database: db/development.sqlite3
-  database: ~/rails_project_forks/ten-thousand-rooms-annotation-server-lotb/db/development.sqlite3
+  #database: ~/rails_project_forks/ten-thousand-rooms-annotation-server-lotb/db/development.sqlite3
+  adapter: postgresql
+  #host: localhost
+  #username: rlechich
+  #database: tenkr_rebuild_local
+  #host:
+  #username:
+  #database:
 
 #development:
 #    adapter: postgresql
@@ -27,6 +34,13 @@ test:
   database: db/test.sqlite3
 
 production:
+  #adapter: postgresql
+  #pool: 5
+  #encoding: unicode
   adapter: postgresql
-  pool: 5
-  encoding: unicode
+  host: localhost
+  username: rlechich
+  database: tenkr_rebuild_local
+
+
+

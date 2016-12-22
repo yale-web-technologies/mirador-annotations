@@ -105,6 +105,10 @@ class AnnotationsController < ApplicationController
   end
 
   def getAnnotationsForCanvasViaLists
+
+    # replace @ru with hostUrl environment variable
+    p "host url = #{Rails.application.config.hostUrl}"
+
     bearerToken = ''
     p 'in getAnnotationsForCanvasViaLists: params = ' + params.inspect
     #p 'in getAnnotationsForCanvasViaLists: headers: ' + request.headers.inspect
@@ -211,6 +215,10 @@ class AnnotationsController < ApplicationController
       @ru += '/'   if !@ru.end_with? '/'
       @annotation_id = @ru + SecureRandom.uuid
       @annotation_id = @ru + SecureRandom.uuid
+
+      # replace @ru with hostUrl environment variable
+      p "host url = #{Rails.application.config.hostUrl}"
+
       @annotationOut = Hash.new
       @annotationOut['annotation_id'] = @annotation_id
       @annotationOut['annotation_type'] = @annotationIn['@type']
@@ -549,7 +557,8 @@ class AnnotationsController < ApplicationController
     return if inputAnno.nil?
     return(inputAnno.canvas) if (inputAnno.canvas.to_s.include?('/canvas/'))
     #p "getTargetingAnnosCanvas:                        anno_id = #{inputAnno.annotation_id}  and canvas = #{inputAnno.canvas}"
-    targetAnnotation = Annotation.where(canvas:inputAnno.canvas).first
+    #targetAnnotation = Annotation.where(canvas:inputAnno.canvas).first
+    targetAnnotation = Annotation.where(annotation_id:inputAnno.canvas).first
     #p "just got targetAnnotation based on that canvas: anno_id = #{targetAnnotation.annotation_id}  and canvas = #{targetAnnotation.canvas} "
     getTargetingAnnosCanvas targetAnnotation
   end
@@ -588,6 +597,9 @@ class AnnotationsController < ApplicationController
 
   # GET /solrFeed.json
   def getAnnotationsForSolrFeed
+
+    # replace @ru with hostUrl environment variable
+    p "host url = #{Rails.application.config.hostUrl}"
     @annotation = Annotation.all
     respond_to do |format|
       solr = []
@@ -667,6 +679,8 @@ class AnnotationsController < ApplicationController
   # 4) all annotation_id's to use as a cross reference for consumer to synchronize deletions
 
   def feedAnnosNoResource
+    p "hostUrl = #{Rails.application.config.hostUrl}"
+    #p "hostUrl bare = #{hostUrl}"
     #resourceMode = params['resourceMode']
     #resourceMode = 'none' if resourceMode.nil?
     allOrDelta = params['delta']
@@ -721,7 +735,8 @@ class AnnotationsController < ApplicationController
 
         #first get svgpath from "d" attribute in the svg selector value
         svg_path = get_svg_path svgAnno
-        xywh = Annotation.get_xywh_from_svg svg_path
+        #xywh = Annotation.get_xywh_from_svg svg_path
+        xywh = anno.service_block
         layers = anno.getLayersForAnnotation  anno.annotation_id
         csv << [anno.annotation_id, anno.annotation_type, "http://iiif.io/api/presentation/2/context.json", feedOn, @canvas_id, anno.motivation, layers, xywh]
       end
