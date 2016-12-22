@@ -11,7 +11,7 @@ namespace :loadAnnotationsToSolr do
       @annotation.each do |anno|
         count += 1
         #break if count > 20
-        #p "processing: #{count.to_s}) #{anno.annotation_id}"
+        p "processing: #{count.to_s}) #{anno.annotation_id}"
         svgAnno = anno
         feedOn = ''
         @canvas_id = ''
@@ -56,35 +56,48 @@ namespace :loadAnnotationsToSolr do
   end
 
   desc "add BoundingBox x,y height and width to annotations"
-  task :addBB_XYWH => :environment do
-    @annotations = Annotation.all
+  task :addBB_XYWH => ["db:prod:set_prod_env", :environment] do
+    @annotations = Annotation.all.order("id")
       count = 0
       xywh = ''
       @annotations.each do |anno|
         count += 1
         #break if count > 20
-        #next if anno.annotation_id.start_with?("http://localhost:5000/annotations/Panel_A_Chapter_1_") ||
-        #    anno.annotation_id.start_with?("http://localhost:5000/annotations/Panel_A_Chapter_2_")  ||
-        #    anno.annotation_id.start_with?("http://localhost:5000/annotations/Panel_A_Chapter_3_") ||
-        #    anno.annotation_id.start_with?("http://localhost:5000/annotations/Panel_A_Chapter_4") ||
-        #    anno.annotation_id.start_with?("http://localhost:5000/annotations/Panel_A_Chapter_5")  ||
-        #    anno.annotation_id.start_with?("http://localhost:5000/annotations/Panel_A_Chapter_6")  ||
-        #    anno.annotation_id.start_with?("http://localhost:5000/annotations/Panel_A_Chapter_7")
+        p anno.annotation_id
+        #p "on: #{anno.on}"
 
-        #next unless
-        #        anno.annotation_id.start_with?("http://localhost:5000/annotations/Panel_A_Chapter_8") ||
-        #        anno.annotation_id.start_with?("http://localhost:5000/annotations/Panel_A_Chapter_10")  ||
-        #        anno.annotation_id.start_with?("http://localhost:5000/annotations/Panel_A_Chapter_11")  ||
-        #        anno.annotation_id.start_with?("http://localhost:5000/annotations/Panel_A_Chapter_12") ||
-        #        anno.annotation_id.start_with?("http://localhost:5000/annotations/Panel_A_Chapter13") ||
-        #        anno.annotation_id.start_with?("http://localhost:5000/annotations/Panel_A_Chapter14")  ||
-        #        anno.annotation_id.start_with?("http://localhost:5000/annotations/Panel_A_Chapter15")  ||
-        #        anno.annotation_id.start_with?("http://localhost:5000/annotations/Panel_A_Chapter16")  ||
-        #        anno.annotation_id.start_with?("http://localhost:5000/annotations/Panel_A_Chapter17")  ||
-        #        anno.annotation_id.start_with?("http://localhost:5000/annotations/Panel_A_Chapter18")  ||
-        #        anno.annotation_id.start_with?("http://localhost:5000/annotations/Panel_A_Chapter_19")
-
-        #next if !anno.annotation_id.start_with?("http://localhost:5000/annotations/Panel_A_Chapter_6_Scene_15") && !anno.annotation_id.start_with?("http://localhost:5000/annotations/Panel_A_Chapter_6_Scene_16")
+        #next if anno.annotation_id.include?("/annotations/Panel_A_Chapter_1")
+        next unless
+            anno.annotation_id.include?("/annotations/Panel_A_Chapter_1") ||
+            anno.annotation_id.include?("/annotations/Panel_A_Chapter_2") ||
+            anno.annotation_id.include?("/annotations/Panel_A_Chapter_3") ||
+            anno.annotation_id.include?("/annotations/Panel_A_Chapter_4") ||
+            anno.annotation_id.include?("/annotations/Panel_A_Chapter_5") ||
+            anno.annotation_id.include?("/annotations/Panel_A_Chapter_6") ||
+            anno.annotation_id.include?("/annotations/Panel_A_Chapter_7") ||
+            anno.annotation_id.include?("/annotations/Panel_A_Chapter_8") ||
+            anno.annotation_id.include?("/annotations/Panel_A_Chapter_9") ||
+            anno.annotation_id.include?("/annotations/Panel_A_Chapter_10") ||
+            anno.annotation_id.include?("/annotations/Panel_A_Chapter_11") ||
+            anno.annotation_id.include?("/annotations/Panel_A_Chapter_12") ||
+            anno.annotation_id.include?("/annotations/Panel_A_Chapter_13") ||
+            anno.annotation_id.include?("/annotations/Panel_A_Chapter_14") ||
+            anno.annotation_id.include?("/annotations/Panel_A_Chapter_15") ||
+            anno.annotation_id.include?("annotations/Panel_A_Chapter_16")  ||
+            anno.annotation_id.include?("annotations/Panel_A_Chapter_17")  ||
+            anno.annotation_id.include?("annotations/Panel_A_Chapter_18")  ||
+            anno.annotation_id.include?("annotations/Panel_A_Chapter_19")  ||
+            anno.annotation_id.include?("annotations/Panel_B_Chapter_19")  ||
+            anno.annotation_id.include?("annotations/Panel_B_Chapter_20")  ||
+            anno.annotation_id.include?("annotations/Panel_B_Chapter_21")  ||
+            anno.annotation_id.include?("annotations/Panel_B_Chapter_22")  ||
+            anno.annotation_id.include?("annotations/Panel_B_Chapter_23")  ||
+            anno.annotation_id.include?("annotations/Panel_B_Chapter_24")  ||
+            anno.annotation_id.include?("annotations/Panel_B_Chapter_25")  ||
+            anno.annotation_id.include?("annotations/Panel_B_Chapter_26")  ||
+            anno.annotation_id.include?("annotations/Panel_B_Chapter_27")  ||
+            anno.annotation_id.include?("annotations/Panel_B_Chapter_28")  ||
+            anno.annotation_id.include?("annotations/Panel_B_Chapter_29")
 
         svgAnno = anno
 
@@ -92,13 +105,16 @@ namespace :loadAnnotationsToSolr do
           # get svgpath from "d" attribute in the svg selector value
           svg_path = ''
           svg_path = get_svg_path svgAnno
-          if svg_path
+          if svg_path!=''
+            p "svg_path: #{svg_path}"
             svg_path.gsub!(/<g>/,'')
-            xywh = Annotation.get_xywh_from_svg svg_path,17000,17000 if svg_path!=''
+            p "svg_path(1,30): #{svg_path[0..30]}"
+            firstComma = svg_path.index(',')
+            p "firstComma = #{firstComma.to_s}"
+            svg_x = svg_path[1..firstComma-1].to_i + 5000
+            #xywh = Annotation.get_xywh_from_svg svg_path,31000,10000 if svg_path!=''  # 16000 seems a good medium
+            xywh = Annotation.get_xywh_from_svg svg_path,svg_x,10000 if svg_path!=''  # 16000 seems a good medium
             p "svg: #{xywh}"
-            #if xywh == "-1,-1,1,1"
-            #  xywh = Annotation.get_xywh_from_svg svg_path,18000,18000 if svg_path!=''
-            #end
           end
         #else
         #  p "no svg: #{xywh}"
@@ -112,19 +128,26 @@ namespace :loadAnnotationsToSolr do
   end
 
   def get_svg_path anno
-    on = JSON.parse(anno.on)
-    svg = on["selector"]["value"]
-    #svg.gsub!(/svg' d/,"svg'> d") if svg.include?("path xmlns='http://www.w3.org/2000/svg' d")
     begin
-      svgHash = Hash.from_xml(svg)
+      on = anno.on.gsub!(/=>/,":")
+      onJSON = JSON.parse(on)
+      svg = onJSON["selector"]["value"]
     rescue
-      svg_path = ''
+        p 'error json-parsing annotation on'
+        svg_path = ''
     else
       begin
-        svg_path = svgHash["svg"]["path"]["d"]
+        svgHash = Hash.from_xml(svg)
       rescue
-        p "svgHash failed for #{anno.annotation_id}: svg_path: #{svg_path}"
+        p 'error creating svg hash from json-parsed anno'
         svg_path = ''
+      else
+        begin
+          svg_path = svgHash["svg"]["path"]["d"]
+        rescue
+          p "svgHash parsing d for #{anno.annotation_id}: svg_path: #{svg_path} failed"
+          svg_path = ''
+        end
       end
     end
   end
@@ -142,6 +165,15 @@ namespace :loadAnnotationsToSolr do
     targetAnnotation = Annotation.where(annotation_id:onJSON['full']).first
     return(targetAnnotation) if (targetAnnotation.on.to_s.include?("oa:SvgSelector"))
     getTargetedAnno targetAnnotation
+  end
+
+  namespace :db do
+    namespace :prod do
+      desc "Custom dependency to set prod environment"
+      task :set_prod_env do # Note that we don't load the :environment task dependency
+        Rails.env = "production"
+      end
+    end
   end
 
 end

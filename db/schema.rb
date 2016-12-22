@@ -11,11 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-<<<<<<< HEAD
-ActiveRecord::Schema.define(version: 20161115171525) do
-=======
-ActiveRecord::Schema.define(version: 20160418160537) do
->>>>>>> e851916afe5bfd7852b451331cc6eefdbc2d7701
+ActiveRecord::Schema.define(version: 20161219215506) do
+
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
 
   create_table "anno_list_layer_versions", force: :cascade do |t|
     t.string   "all_id"
@@ -38,19 +37,16 @@ ActiveRecord::Schema.define(version: 20160418160537) do
     t.integer  "version"
   end
 
-  add_index "annotation_layers", ["layer_id"], name: "index_annotation_layers_on_layer_id"
+  add_index "annotation_layers", ["layer_id"], name: "index_annotation_layers_on_layer_id", using: :btree
 
-<<<<<<< HEAD
   create_table "annotation_layers_groups", id: false, force: :cascade do |t|
     t.integer "group_id"
     t.integer "annotation_layer_id"
   end
 
-  add_index "annotation_layers_groups", ["annotation_layer_id"], name: "index_annotation_layers_groups_on_annotation_layer_id"
-  add_index "annotation_layers_groups", ["group_id"], name: "index_annotation_layers_groups_on_group_id"
+  add_index "annotation_layers_groups", ["annotation_layer_id"], name: "index_annotation_layers_groups_on_annotation_layer_id", using: :btree
+  add_index "annotation_layers_groups", ["group_id"], name: "index_annotation_layers_groups_on_group_id", using: :btree
 
-=======
->>>>>>> e851916afe5bfd7852b451331cc6eefdbc2d7701
   create_table "annotation_lists", force: :cascade do |t|
     t.string   "list_id"
     t.string   "list_type"
@@ -61,7 +57,7 @@ ActiveRecord::Schema.define(version: 20160418160537) do
     t.integer  "version"
   end
 
-  add_index "annotation_lists", ["list_id"], name: "index_annotation_lists_on_list_id"
+  add_index "annotation_lists", ["list_id"], name: "index_annotation_lists_on_list_id", using: :btree
 
   create_table "annotations", force: :cascade do |t|
     t.string   "annotation_id"
@@ -82,7 +78,14 @@ ActiveRecord::Schema.define(version: 20160418160537) do
     t.integer  "order_weight"
   end
 
-  add_index "annotations", ["annotation_id"], name: "index_annotations_on_annotation_id"
+  add_index "annotations", ["annotation_id"], name: "index_annotations_on_annotation_id", using: :btree
+
+  create_table "canvas_mapping_old_news", force: :cascade do |t|
+    t.string   "old_canvas_id"
+    t.string   "new_canvas_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
 
   create_table "groups", force: :cascade do |t|
     t.string   "group_id"
@@ -99,16 +102,16 @@ ActiveRecord::Schema.define(version: 20160418160537) do
     t.integer "user_id"
   end
 
-  add_index "groups_users", ["group_id"], name: "index_groups_users_on_group_id"
-  add_index "groups_users", ["user_id"], name: "index_groups_users_on_user_id"
+  add_index "groups_users", ["group_id"], name: "index_groups_users_on_group_id", using: :btree
+  add_index "groups_users", ["user_id"], name: "index_groups_users_on_user_id", using: :btree
 
   create_table "groups_webacls", id: false, force: :cascade do |t|
     t.integer "group_id"
-    t.integer "webacls_id"
+    t.integer "webacl_id"
   end
 
-  add_index "groups_webacls", ["group_id"], name: "index_groups_webacls_on_group_id"
-  add_index "groups_webacls", ["webacls_id"], name: "index_groups_webacls_on_webacls_id"
+  add_index "groups_webacls", ["group_id"], name: "index_groups_webacls_on_group_id", using: :btree
+  add_index "groups_webacls", ["webacl_id"], name: "index_groups_webacls_on_webacl_id", using: :btree
 
   create_table "layer_lists_maps", force: :cascade do |t|
     t.string   "layer_id"
@@ -118,8 +121,16 @@ ActiveRecord::Schema.define(version: 20160418160537) do
     t.datetime "updated_at", null: false
   end
 
-  add_index "layer_lists_maps", ["layer_id"], name: "index_layer_lists_maps_on_layer_id"
-  add_index "layer_lists_maps", ["list_id"], name: "index_layer_lists_maps_on_list_id"
+  add_index "layer_lists_maps", ["layer_id"], name: "index_layer_lists_maps_on_layer_id", using: :btree
+  add_index "layer_lists_maps", ["list_id"], name: "index_layer_lists_maps_on_list_id", using: :btree
+
+  create_table "layer_mappings", force: :cascade do |t|
+    t.string   "layer_id"
+    t.string   "new_layer_id"
+    t.string   "label"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
 
   create_table "list_annotations_maps", force: :cascade do |t|
     t.string   "list_id"
@@ -129,8 +140,8 @@ ActiveRecord::Schema.define(version: 20160418160537) do
     t.datetime "updated_at",    null: false
   end
 
-  add_index "list_annotations_maps", ["annotation_id"], name: "index_list_annotations_maps_on_annotation_id"
-  add_index "list_annotations_maps", ["list_id"], name: "index_list_annotations_maps_on_list_id"
+  add_index "list_annotations_maps", ["annotation_id"], name: "index_list_annotations_maps_on_annotation_id", using: :btree
+  add_index "list_annotations_maps", ["list_id"], name: "index_list_annotations_maps_on_list_id", using: :btree
 
   create_table "sites", force: :cascade do |t|
     t.string   "site_id"
@@ -157,18 +168,18 @@ ActiveRecord::Schema.define(version: 20160418160537) do
     t.string   "uid"
   end
 
-  add_index "users", ["email"], name: "index_users_on_email", unique: true
-  add_index "users", ["tgToken"], name: "index_users_on_tgToken", unique: true
+  add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
+  add_index "users", ["tgToken"], name: "index_users_on_tgToken", unique: true, using: :btree
 
   create_table "users_webacls", force: :cascade do |t|
     t.integer "user_id"
     t.integer "group_id"
-    t.integer "webacls_id"
+    t.integer "webacl_id"
   end
 
-  add_index "users_webacls", ["group_id"], name: "index_users_webacls_on_group_id"
-  add_index "users_webacls", ["user_id"], name: "index_users_webacls_on_user_id"
-  add_index "users_webacls", ["webacls_id"], name: "index_users_webacls_on_webacls_id"
+  add_index "users_webacls", ["group_id"], name: "index_users_webacls_on_group_id", using: :btree
+  add_index "users_webacls", ["user_id"], name: "index_users_webacls_on_user_id", using: :btree
+  add_index "users_webacls", ["webacl_id"], name: "index_users_webacls_on_webacl_id", using: :btree
 
   create_table "webacls", force: :cascade do |t|
     t.string   "resource_id"

@@ -900,4 +900,31 @@ namespace :import do
     User.destroy_all
   end
 
+  desc "imports old_canvas to new_canvas mapping data from a csv file"
+  task :canvas_map => :environment do
+    require 'csv'
+    CSV.foreach('importData/new_canvas_ids.csv') do |row|
+      old_canvas = row[0]
+      new_canvas = row[1]
+      puts "Old Canvas: ", old_canvas,"New Canvas: ",new_canvas
+      @canvasMap = CanvasMappingOldNew.create(old_canvas_id: old_canvas, new_canvas_id: new_canvas)
+      @canvasMap.save!(options={validate: false})
+      puts "canvasMap.new_canvas_id = ", @canvasMap.new_canvas_id
+    end
+  end
+
+  desc "imports old_layer to new_layer mapping data from a csv file"
+  task :layer_map => :environment do
+    require 'csv'
+    CSV.foreach('importData/layer_mappings.csv') do |row|
+      old_layer_id = row[0]
+      new_layer_id = row[1]
+      label = row[2]
+      puts "Old Layer_Id: ", old_layer_id,"   New Layer_Id: ",new_layer_id,"   label: ", label
+      @layerMap = LayerMapping.create(layer_id: old_layer_id, new_layer_id: new_layer_id, label: label)
+      @layerMap.save!(options={validate: false})
+      puts "layerMap.new_layer_id = ", @layerMap.new_layer_id
+    end
+  end
+
 end
