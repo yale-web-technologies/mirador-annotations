@@ -540,8 +540,10 @@ class AnnotationsController < ApplicationController
   def getTargetedAnno inputAnno
     return if inputAnno.nil?
     onN = inputAnno.on
-    onN = onN.gsub!(/=>/,':')
-    #p "on = #{onN}"
+    p "inputAnno_id = #{inputAnno.annotation_id}"
+    p "on string = #{inputAnno.on}"
+    onN.gsub!(/=>/,':')
+    p "onN = #{onN}"
     onJSON = JSON.parse(onN)
     #p "full = #{onJSON['full']}"
     #return(inputAnno) if (inputAnno.canvas.to_s.include?("oa:SvgSelector"))
@@ -679,7 +681,7 @@ class AnnotationsController < ApplicationController
   # 4) all annotation_id's to use as a cross reference for consumer to synchronize deletions
 
   def feedAnnosNoResource
-    p "hostUrl = #{Rails.application.config.hostUrl}"
+    p "feedAnnosResource: hostUrl = #{Rails.application.config.hostUrl}"
     #p "hostUrl bare = #{hostUrl}"
     #resourceMode = params['resourceMode']
     #resourceMode = 'none' if resourceMode.nil?
@@ -692,19 +694,15 @@ class AnnotationsController < ApplicationController
       @annotation = Annotation.where(['updated_at > ?', DateTime.now-allOrDelta.to_i.days])
     end
 
-    #for testing svg
-    #@annotation = Annotation.where(annotation_id:"http://localhost:5000/annotations/Panel_A_Chapter_2_Scene_1_25_Canonical Source")
-    #@annotation = Annotation.where(annotation_id:"http://mirador-annotations-lotb-stg.herokuapp.com/annotations/Panel_A_Chapter_1")
-    #
-
     annos = CSV.generate do |csv|
-      headers = "annotation_id, annotation_type, context, on, canvas, motivation,layers,bb_xywh"
+      headers = "annotation_id, annotation_type, context, on, canvas, motivation,layers, bb_x, bb_y, bb_w ,bb_h, panel, chapter, scene"
       csv << [headers]
 
       count = 0
       @annotation.each do |anno|
         count = count + 1
       #  break if count > 20
+        puts "\n"
         p "processing: #{count.to_s}) #{anno.annotation_id}"
         svgAnno = anno
         svgOn = ''
@@ -733,19 +731,46 @@ class AnnotationsController < ApplicationController
           @canvas_id = anno.canvas
         end
 
-        #first get svgpath from "d" attribute in the svg selector value
-        svg_path = get_svg_path svgAnno
-        #xywh = Annotation.get_xywh_from_svg svg_path
-        xywh = anno.service_block
+        #xywh = anno.service_block
+        xywh = anno.service_block.gsub(/\r\n?/, "") unless anno.service_block.nil?
+
         layers = anno.getLayersForAnnotation  anno.annotation_id
-        csv << [anno.annotation_id, anno.annotation_type, "http://iiif.io/api/presentation/2/context.json", feedOn, @canvas_id, anno.motivation, layers, xywh]
+        # adding panel, chapter and scene Jan 5, 2016
+        # parse out from: example annotation id:
+        # http://localhost:5000/annotations/Panel_B_Chapter_27_Scene_1_10_English_Sun_Of_Faith
+        # http://localhost:5000/annotations/Panel_B_Chapter_27_Scene_11_10_English_Sun_Of_Faith
+
+        annoLength = anno.annotation_id.length
+        panelIndex = anno.annotation_id.index("Panel")
+        chapterIndex = anno.annotation_id.index("Chapter")
+        sceneIndex = anno.annotation_id.index("Scene")
+        if !sceneIndex.nil?
+          startSceneNumberIndex = sceneIndex+6
+          fromSceneNumberOn = anno.annotation_id[startSceneNumberIndex..annoLength]
+
+          if fromSceneNumberOn.index("_")
+            sceneNumberLength = fromSceneNumberOn.index("_") -1
+            #sceneNumberLength = fromSceneNumberOn
+            sceneNumber = anno.annotation_id[startSceneNumberIndex..startSceneNumberIndex + sceneNumberLength]
+          else
+            sceneNumber = fromSceneNumberOn
+          end
+        else
+          sceneIndex = anno.annotation_id.length
+        end
+
+        panel = anno.annotation_id[panelIndex..chapterIndex-2].gsub!(/_/," ")
+        chapter = anno.annotation_id[chapterIndex..sceneIndex-2].gsub!(/_/," ")
+        scene = "Scene " + sceneNumber if !sceneNumber.nil?
+
+        csv << [anno.annotation_id, anno.annotation_type, "http://iiif.io/api/presentation/2/context.json", feedOn, @canvas_id, anno.motivation, layers, xywh.to_s, panel, chapter, scene]
       end
 
     end
     format = 'text'
     respond_with do |format|
-      format.json {render :text => annos}
-      format.text {render :text => annos}
+      format.json {render :text => annos, content_type: "application/json"}
+      format.text {render :text => annos, content_type: "application/text"}
     end
   end
 

@@ -11,15 +11,12 @@ default: &default
 
 development:
   <<: *default
-  #database: db/development.sqlite3
-  #database: ~/rails_project_forks/ten-thousand-rooms-annotation-server-lotb/db/development.sqlite3
-  adapter: postgresql
+  database: ~/rails_project_forks/ten-thousand-rooms-annotation-server-lotb/db/development.sqlite3
+  #adapter: postgresql
   #host: localhost
   #username: rlechich
   #database: tenkr_rebuild_local
-  #host:
-  #username:
-  #database:
+
 
 #development:
 #    adapter: postgresql
@@ -34,13 +31,12 @@ test:
   database: db/test.sqlite3
 
 production:
-  #adapter: postgresql
-  #pool: 5
-  #encoding: unicode
   adapter: postgresql
-  host: localhost
-  username: rlechich
-  database: tenkr_rebuild_local
+  encoding: unicode
+  host: ec2-23-23-184-226.compute-1.amazonaws.com
+  username: dqddbpyitsrlyy
+  password: Bvx0OnMvNJCZ0KUVomwe64khFf
+  database: db1tgvr8a40mc3
 
 
 
