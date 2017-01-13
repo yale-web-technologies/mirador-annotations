@@ -4,7 +4,8 @@ namespace :updateSVG do
   task :SVG_update, [:env] => :environment do |t, args|
     env = args.env
     p 'env: ' + env
-    svgFilename = "importData/SVG_adjustments_#{env}.csv"
+    #svgFilename = "importData/SVG_adjustments_#{env}.csv"
+    svgFilename = "importData/SVG_Adjustments/SVGs_panel_02_#{env}_12_2016.csv"
     p "svgFilename = #{svgFilename}"
 
     CSV.foreach(svgFilename) do |row|
@@ -17,8 +18,13 @@ namespace :updateSVG do
       p "on = #{on}"
 
       annotation = Annotation.where(annotation_id: anno_id).first
-      p "annotation_id = #{annotation.annotation_id}"
-
+      if annotation
+        p "annotation_id = #{annotation.annotation_id}"
+      else
+        p "annotation_id: #{anno_id} not found!"
+        #continue
+        next
+      end
       #if annotation.update_attributes(:on => annotation['on'])
       if annotation.update_attributes(:on => on)
         p "success"
