@@ -36,6 +36,12 @@ class AnnotationLayersController < ApplicationController
     #@ru = params['id']
     p "@ru for get = #{@ru}"
     @annotation_layer = AnnotationLayer.where(layer_id: @ru).first
+
+    # replace @ru with hostUrl environment variable
+    host_url_prefix = Rails.application.config.hostUrl
+    p "host url = #{Rails.application.config.hostUrl}"
+
+
     #authorize! :show, @annotation_layer
     respond_to do |format|
       format.html # show.html.erb
