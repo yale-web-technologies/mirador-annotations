@@ -107,6 +107,7 @@ class AnnotationsController < ApplicationController
   def getAnnotationsForCanvasViaLists
 
     # replace @ru with hostUrl environment variable
+    host_url_prefix = Rails.application.config.hostUrl
     p "host url = #{Rails.application.config.hostUrl}"
 
     bearerToken = ''
@@ -117,7 +118,8 @@ class AnnotationsController < ApplicationController
     if (bearerToken)
       @user = signInUserByBearerToken bearerToken
     end
-    lists = AnnotationList.where("list_id like ? and list_id like ?", "%#{params['canvas_id']}%", "%/lists/%")
+    #lists = AnnotationList.where("list_id like ? and list_id like ?", "%#{params['canvas_id']}%", "%/lists/%")
+    lists = AnnotationList.where("list_id like ? and list_id like ? and list_id like ?", "#{host_url_prefix}%", "%#{params['canvas_id']}%", "%/lists/%")
     annoWLayerArray = Array.new
 
     p  "in getAnnotationsForCanvasViaLists: lists.count = #{lists.count}"
