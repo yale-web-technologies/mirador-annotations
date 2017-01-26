@@ -5,7 +5,8 @@ namespace :updateSVG do
     env = args.env
     p 'env: ' + env
     #svgFilename = "importData/SVG_adjustments_#{env}.csv"
-    svgFilename = "importData/SVG_Adjustments/SVGs_panel_02_#{env}_12_2016.csv"
+    #svgFilename = "importData/SVG_Adjustments/SVGs_panel_02_#{env}_12_2016.csv"
+    svgFilename = "importData/SVG_Adjustments/SVGs_panel_02_Chapter_27_Scene_3_dev_12_2016.csv"
     p "svgFilename = #{svgFilename}"
 
     CSV.foreach(svgFilename) do |row|
