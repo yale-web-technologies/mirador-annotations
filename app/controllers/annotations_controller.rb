@@ -120,6 +120,7 @@ class AnnotationsController < ApplicationController
     end
     #lists = AnnotationList.where("list_id like ? and list_id like ?", "%#{params['canvas_id']}%", "%/lists/%")
     lists = AnnotationList.where("list_id like ? and list_id like ? and list_id like ?", "#{host_url_prefix}%", "%#{params['canvas_id']}%", "%/lists/%")
+
     annoWLayerArray = Array.new
 
     p  "in getAnnotationsForCanvasViaLists: lists.count = #{lists.count}"
@@ -188,7 +189,9 @@ class AnnotationsController < ApplicationController
         "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884262"
     }]'.split(",")
 
-    @ru = request.protocol + request.host_with_port + "/annotations/#{params['id']}"
+    #@ru = request.protocol + request.host_with_port + "/annotations/#{params['id']}"
+    @ru = Rails.application.config.hostUrl + "/annotations/#{params['id']}"
+
     @annotation = Annotation.where(annotation_id: @ru).first
     #authorize! :show, @annotation_list
     request.format = "json"
@@ -213,13 +216,16 @@ class AnnotationsController < ApplicationController
       render :json => { :error => errMsg },
              :status => :unprocessable_entity
     else
-      @ru = request.original_url.split('?').first
-      @ru += '/'   if !@ru.end_with? '/'
-      @annotation_id = @ru + SecureRandom.uuid
-      @annotation_id = @ru + SecureRandom.uuid
-
+      #@ru = request.original_url.split('?').first
       # replace @ru with hostUrl environment variable
       p "host url = #{Rails.application.config.hostUrl}"
+      @ru = Rails.application.config.hostUrl + "annotations"
+      @ru += '/'   if !@ru.end_with? '/'
+
+      @annotation_id = @ru + SecureRandom.uuid
+      p "annotation_id = #{annotation_id}"
+
+      @annotation_id = @annotation_id + SecureRandom.uuid
 
       @annotationOut = Hash.new
       @annotationOut['annotation_id'] = @annotation_id
@@ -275,7 +281,9 @@ class AnnotationsController < ApplicationController
   # PUT /annotation/1.json
   def update
     p "in update"
-    @ru = request.original_url
+    #@ru = request.original_url
+    @ru = Rails.application.config.hostUrl
+
     # Determine from the passed-in layer_id if the layer was changed
     editObject = JSON.parse(params.to_json)
     @layerIdIn = editObject['layer_id'][0]
@@ -359,7 +367,8 @@ class AnnotationsController < ApplicationController
   def destroy
     p 'in annotation_controller:destroy'
 
-    @ru = request.original_url   # will not work with rspec
+    #@ru = request.original_url   # will not work with rspec
+    @ru = Rails.application.config.hostUrl
     #@ru = params['id'] # for rspec
     #@ru = request.protocol + request.host_with_port + "/annotations/#{params['id']}"
     request.format = "json"
@@ -481,7 +490,8 @@ class AnnotationsController < ApplicationController
   end
 
   def constructRequiredListId layer_id, canvas_id
-    @ru = request.original_url.split('?').first
+    #@ru = request.original_url.split('?').first
+    @ru = Rails.application.config.hostUrl
     @ru += '/'   if !@ru.end_with? '/'
     #list_id = request.protocol + request.host_with_port + "/lists/" + layer_id + "_" + canvas_id # host_with_port seems to be returning varying values
     list_id = @ru + "lists/" + layer_id + "_" + canvas_id
