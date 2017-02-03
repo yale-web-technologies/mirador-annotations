@@ -1,7 +1,8 @@
 class ListAnnotationsMap < ActiveRecord::Base
   attr_accessible  :list_id,
                    :sequence,
-                   :annotation_id
+                   :annotation_id,
+                   :updated_at
 
   def self.setMap within, anno_id
     if !within.nil?

@@ -33,10 +33,16 @@ test:
 production:
   adapter: postgresql
   encoding: unicode
-  host: ec2-23-23-184-226.compute-1.amazonaws.com
-  username: dqddbpyitsrlyy
-  password: Bvx0OnMvNJCZ0KUVomwe64khFf
-  database: db1tgvr8a40mc3
+  # mirador tenkr db:
+  #host: ec2-23-23-184-226.compute-1.amazonaws.com
+  #username: dqddbpyitsrlyy
+  #password: Bvx0OnMvNJCZ0KUVomwe64khFf
+  #database: db1tgvr8a40mc3
+  # new tenkr db:
+  host: ec2-54-163-233-89.compute-1.amazonaws.com
+  username: ijqzhauppixrxe
+  password: 98686185806c335b2d0f3adf7da656b406414f6ae861a154ddceb3acf9bf8688
+  database: dd9fa5bf6149ct
 
 
 

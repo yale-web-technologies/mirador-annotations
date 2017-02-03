@@ -15,7 +15,7 @@ namespace :rebuild_anno_structure do
       p count.to_s + ") created_at: #{anno.created_at.to_s}"
       next if @anno.created_at.to_s.start_with?("2015")
       #p "date ok"
-      next if count < 24
+      #next if count < 24
      # break if count > 1000
       # set up new annotation
       next if !anno.annotation_id.include?("/annotations/")
@@ -33,6 +33,7 @@ namespace :rebuild_anno_structure do
         # if it is the original canvas, then map to the new canvas and use that
         # if it not on the original canvas, then take the targeted annotation_id and re-write it for the new host variable (construct_new_anno_id)
       @currentCanvas = @anno.canvas
+
       next if @currentCanvas.nil?
       # if on canvas:
       if @currentCanvas.include?('/canvas/')
@@ -66,7 +67,7 @@ namespace :rebuild_anno_structure do
 
       # determine this annotations layer and save it
       #@currentLayerId = getLayerRbld anno.annotation_id
-      @currentLayerId = getLayerRbld @origCanvasAnno.annotation_id
+      @currentLayerId = getLayerRbld @origCanvasAnno.annotation_id  # no, the first one was right
       p "@currentLayerId = #{@currentLayerId}"
       next if @currentLayerId=="No Layer"
       # map to new layer
