@@ -368,7 +368,7 @@ class AnnotationsController < ApplicationController
     p 'in annotation_controller:destroy'
 
     #@ru = request.original_url   # will not work with rspec
-    @ru = Rails.application.config.hostUrl
+    @ru = Rails.application.config.hostUrl + "/annotations/#{params['id']}"
     #@ru = params['id'] # for rspec
     #@ru = request.protocol + request.host_with_port + "/annotations/#{params['id']}"
     request.format = "json"
