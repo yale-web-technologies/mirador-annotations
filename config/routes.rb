@@ -6,7 +6,7 @@ MiradorAnnotationsServer::Application.routes.draw do
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
-  root 'annotation_layers#index'
+  root 'annotation_layers#index', path: 'layers',defaults: {format: :json}
   resources :annotation_layers, path: 'layers',defaults: {format: :json}
   resources :annotation_lists, path: 'lists',defaults: {format: :json}
   get '/lists/*url' => 'annotation_lists#show', :format => false
