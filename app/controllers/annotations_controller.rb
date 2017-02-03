@@ -223,7 +223,7 @@ class AnnotationsController < ApplicationController
       @ru += '/'   if !@ru.end_with? '/'
 
       @annotation_id = @ru + SecureRandom.uuid
-      p "annotation_id = #{annotation_id}"
+      p "annotation_id = #{@annotation_id}"
 
       @annotation_id = @annotation_id + SecureRandom.uuid
 
