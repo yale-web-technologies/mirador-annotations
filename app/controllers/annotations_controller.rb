@@ -190,9 +190,14 @@ class AnnotationsController < ApplicationController
     }]'.split(",")
 
     #@ru = request.protocol + request.host_with_port + "/annotations/#{params['id']}"
-    @ru = Rails.application.config.hostUrl + "/annotations/#{params['id']}"
 
-    @annotation = Annotation.where(annotation_id: @ru).first
+    if Rails.application.config.hostUrl.end_with?("/")
+      @ru = Rails.application.config.hostUrl + "annotations/#{params['id']}"
+    else
+      @ru = Rails.application.config.hostUrl + "/annotations/#{params['id']}"
+    end
+
+      @annotation = Annotation.where(annotation_id: @ru).first
     #authorize! :show, @annotation_list
     request.format = "json"
     respond_to do |format|
