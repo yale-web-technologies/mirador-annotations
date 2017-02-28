@@ -95,6 +95,7 @@ GEM
       activesupport (>= 4.1.0)
     hashie (3.4.6)
     hike (1.2.3)
+    htmlentities (4.3.4)
     i18n (0.7.0)
     jbuilder (2.6.1)
       activesupport (>= 3.0.0, < 5.1)
@@ -251,6 +252,7 @@ DEPENDENCIES
   devise (~> 3.4.0)
   dropzonejs-rails
   factory_girl_rails (~> 4.2.0)
+  htmlentities
   jbuilder (~> 2.0)
   jquery-rails
   jquery-ui-rails
