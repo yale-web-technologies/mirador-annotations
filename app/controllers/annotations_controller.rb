@@ -2,6 +2,10 @@ include AclCreator
 require "json"
 require "csv"
 require 'date'
+require 'htmlentities'
+coder = HTMLEntities.new
+string = "&eacute;lan"
+coder.decode(string) # => "élan"
 
 class AnnotationsController < ApplicationController
   include CanCan::ControllerAdditions
@@ -794,6 +798,8 @@ class AnnotationsController < ApplicationController
   end
 
   def feedAnnosResourceOnly
+    coder = HTMLEntities.new
+
     allOrDelta = params['delta']
     allOrDelta = "all" if allOrDelta.nil? or allOrDelta == '0'
 
@@ -810,7 +816,8 @@ class AnnotationsController < ApplicationController
         resourceJSON = JSON.parse(anno.resource)
         resourceJSON.each do |resource|
           resource_id = anno.annotation_id + "_" + SecureRandom.uuid
-          csv << [anno.annotation_id, resource_id, resource['@type'], resource['format'], resource['chars']]
+          #csv << [anno.annotation_id, resource_id, resource['@type'], resource['format'], resource['chars']]
+          csv << [anno.annotation_id, resource_id, resource['@type'], resource['format'], coder.decode(resource['chars'])]
         end
       end
     end

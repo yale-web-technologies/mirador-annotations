@@ -2,6 +2,7 @@ namespace :loadAnnotationsToSolr do
 
   desc "load Solr documents from all annotations"
   task :solrLoadAnnos => :environment do
+    #CSV.open("errors.csv", "w") do |csv|
     @annotation = Annotation.all
     annos = CSV.generate do |csv|
       headers = "annotation_id, annotation_type, context, on, canvas, motivation,layers,bb_xywh"

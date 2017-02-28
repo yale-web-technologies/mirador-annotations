@@ -160,20 +160,24 @@ class AnnotationListsController < ApplicationController
     list_id = @list.list_id
     within = Array.new
     within.push(list_id)
+
     # Clear the maps of all entries for this list
     ListAnnotationsMap.deleteAnnotationsFromList list_id
+
     # Now rewrite the maps for this list based on annotation_ids array passed in
     annotation_ids.each do |anno_id|
       p "in resequence_id: anno_id = #{anno_id}"
       #anno_id.gsub!(/"/,'').strip!
       ListAnnotationsMap.setMap within, anno_id
     end
+
     request.format = "json"
     respond_to do |format|
       response_msg = '{"list_id":"' + list_id + '"}'
       format.json { render json:response_msg, content_type: "application/json"} #, status: :resequenced}
     end
   end
+
 
   protected
 

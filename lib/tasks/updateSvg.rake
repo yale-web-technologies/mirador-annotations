@@ -4,16 +4,20 @@ namespace :updateSVG do
   task :SVG_update, [:env] => :environment do |t, args|
     env = args.env
     p 'env: ' + env
+    # rake updateSVG:SVG_update[local/dev/prod] > updatSvgsPanel_01_02_2017_local/dev/prod.log
     #svgFilename = "importData/SVG_adjustments_#{env}.csv"
-    #svgFilename = "importData/SVG_Adjustments/SVGs_panel_02_#{env}_12_2016.csv"
-    svgFilename = "importData/SVG_Adjustments/SVGs_panel_02_Chapter_27_Scene_3_dev_12_2016.csv"
+    svgFilename = "importData/SVG_Adjustments/SVGs_panel_01_#{env}_02_2017.csv"
+    #svgFilename = "importData/SVG_Adjustments/SVGs_panel_01_local_02_2017.csv"
     p "svgFilename = #{svgFilename}"
 
     CSV.foreach(svgFilename) do |row|
       anno_id = row[0]
+      p "anno_id = #{anno_id}"
       canvas = row[1]
+      p "canvas = #{canvas}"
       onBase = '{"@type": "oa:SpecificResource","full": "http://manifests.ydc2.yale.edu/LOTB/canvas/' + canvas + '","selector": {"@type": "oa:SvgSelector","value":"'
       onSVG = row[2]
+      p "onSVG = #{onSVG}"
 
       on = onBase + onSVG +  '"}}'
       p "on = #{on}"
