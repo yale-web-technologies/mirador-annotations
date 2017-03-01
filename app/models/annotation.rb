@@ -38,7 +38,7 @@ class Annotation < ActiveRecord::Base
     iiif['motivation'] = motivation.split(",")
     #iiif['annnotatedBy'] = JSON.parse(annotated_by) if !annnotated_by.nil?
     iiif['on'] = on
-    p "anno_id = #{anno_id} and on = #{on}"
+    p "anno_id = #{annotation_id} and on = #{on}"
     if (on.start_with?("{"))
       iiif['on'] = JSON.parse(on.gsub(/=>/,":"))
     end
