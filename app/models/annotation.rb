@@ -40,7 +40,7 @@ class Annotation < ActiveRecord::Base
     iiif['on'] = on
     p "anno_id = #{annotation_id} and on = #{on}"
     if (on.start_with?("{"))
-      #iiif['on'] = JSON.parse(on.gsub(/=>/,":"))
+      iiif['on'] = JSON.parse(on.gsub(/=>/,":"))
     end
     iiif#.to_json
   end
