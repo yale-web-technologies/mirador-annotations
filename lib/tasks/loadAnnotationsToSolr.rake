@@ -63,11 +63,12 @@ namespace :loadAnnotationsToSolr do
       xywh = ''
       @annotations.each do |anno|
         count += 1
-        #break if count > 20
-        p anno.annotation_id
+        break if count > 20
+        p "#{count}) #{anno.annotation_id}"
         #p "on: #{anno.on}"
 
         #next if anno.annotation_id.include?("/annotations/Panel_A_Chapter_1")
+=begin
         next unless
             anno.annotation_id.include?("/annotations/Panel_A_Chapter_1") ||
             anno.annotation_id.include?("/annotations/Panel_A_Chapter_2") ||
@@ -100,6 +101,7 @@ namespace :loadAnnotationsToSolr do
             anno.annotation_id.include?("annotations/Panel_B_Chapter_28")  ||
             anno.annotation_id.include?("annotations/Panel_B_Chapter_29")
 
+=end
         svgAnno = anno
 
         if anno.on.include?("oa:SvgSelector")
