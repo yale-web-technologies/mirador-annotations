@@ -181,17 +181,17 @@ class AnnotationsController < ApplicationController
   # GET /annotation/1
   # GET /annotation/1.json
   def show
-    testParam =  '"on": {
-        "@type": "oa:Annotation",
-        "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884261"
-    }'.split(",")
-    testParamArr =  '["on": {
-        "@type": "oa:Annotation",
-        "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884261"
-    }, {
-        "@type": "oa:Annotation",
-        "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884262"
-    }]'.split(",")
+    #testParam =  '"on": {
+    #    "@type": "oa:Annotation",
+    #    "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884261"
+    #}'.split(",")
+    #testParamArr =  '["on": {
+    #    "@type": "oa:Annotation",
+    #    "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884261"
+    #}, {
+    #    "@type": "oa:Annotation",
+    #    "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884262"
+    #}]'.split(",")
 
     #@ru = request.protocol + request.host_with_port + "/annotations/#{params['id']}"
 
