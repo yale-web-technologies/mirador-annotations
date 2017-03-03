@@ -68,40 +68,11 @@ namespace :loadAnnotationsToSolr do
         #p "on: #{anno.on}"
 
         #next if anno.annotation_id.include?("/annotations/Panel_A_Chapter_1")
-=begin
-        next unless
-            anno.annotation_id.include?("/annotations/Panel_A_Chapter_1") ||
-            anno.annotation_id.include?("/annotations/Panel_A_Chapter_2") ||
-            anno.annotation_id.include?("/annotations/Panel_A_Chapter_3") ||
-            anno.annotation_id.include?("/annotations/Panel_A_Chapter_4") ||
-            anno.annotation_id.include?("/annotations/Panel_A_Chapter_5") ||
-            anno.annotation_id.include?("/annotations/Panel_A_Chapter_6") ||
-            anno.annotation_id.include?("/annotations/Panel_A_Chapter_7") ||
-            anno.annotation_id.include?("/annotations/Panel_A_Chapter_8") ||
-            anno.annotation_id.include?("/annotations/Panel_A_Chapter_9") ||
-            anno.annotation_id.include?("/annotations/Panel_A_Chapter_10") ||
-            anno.annotation_id.include?("/annotations/Panel_A_Chapter_11") ||
-            anno.annotation_id.include?("/annotations/Panel_A_Chapter_12") ||
-            anno.annotation_id.include?("/annotations/Panel_A_Chapter_13") ||
-            anno.annotation_id.include?("/annotations/Panel_A_Chapter_14") ||
-            anno.annotation_id.include?("/annotations/Panel_A_Chapter_15") ||
-            anno.annotation_id.include?("annotations/Panel_A_Chapter_16")  ||
-            anno.annotation_id.include?("annotations/Panel_A_Chapter_17")  ||
-            anno.annotation_id.include?("annotations/Panel_A_Chapter_18")  ||
-            anno.annotation_id.include?("annotations/Panel_A_Chapter_19")  ||
-            anno.annotation_id.include?("annotations/Panel_B_Chapter_19")  ||
-            anno.annotation_id.include?("annotations/Panel_B_Chapter_20")  ||
-            anno.annotation_id.include?("annotations/Panel_B_Chapter_21")  ||
-            anno.annotation_id.include?("annotations/Panel_B_Chapter_22")  ||
-            anno.annotation_id.include?("annotations/Panel_B_Chapter_23")  ||
-            anno.annotation_id.include?("annotations/Panel_B_Chapter_24")  ||
-            anno.annotation_id.include?("annotations/Panel_B_Chapter_25")  ||
-            anno.annotation_id.include?("annotations/Panel_B_Chapter_26")  ||
-            anno.annotation_id.include?("annotations/Panel_B_Chapter_27")  ||
-            anno.annotation_id.include?("annotations/Panel_B_Chapter_28")  ||
-            anno.annotation_id.include?("annotations/Panel_B_Chapter_29")
 
-=end
+        next unless anno.on.include?("svg") && anno.annotation_id.include("http://annotations.ten-thousand-rooms.yale.edu/annotations/")
+
+
+
         svgAnno = anno
 
         if anno.on.include?("oa:SvgSelector")

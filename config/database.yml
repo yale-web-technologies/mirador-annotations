@@ -31,8 +31,8 @@ test:
   database: db/test.sqlite3
 
 production:
-  #adapter: postgresql
-  #encoding: unicode
+  adapter: postgresql
+  encoding: unicode
   # mirador tenkr db:
   #host: ec2-23-23-184-226.compute-1.amazonaws.com
   #username: dqddbpyitsrlyy
