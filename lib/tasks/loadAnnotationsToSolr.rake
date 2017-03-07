@@ -10,8 +10,7 @@ namespace :loadAnnotationsToSolr do
 
       count = 0
       @annotation.each do |anno|
-        count += 1
-        #break if count > 20
+
         p "processing: #{count.to_s}) #{anno.annotation_id}"
         svgAnno = anno
         feedOn = ''
@@ -58,22 +57,29 @@ namespace :loadAnnotationsToSolr do
 
   desc "add BoundingBox x,y height and width to annotations"
   task :addBB_XYWH => ["db:prod:set_prod_env", :environment] do
-    @annotations = Annotation.all.order("id")
+    #@annotations = Annotation.all.order("id")
+    @annotations = Annotation.where("annotation_id like ?","http://annotations.ten-thousand-rooms.yale.edu/annotations/%").order("id")
       count = 0
+    realcount = 0
       xywh = ''
       @annotations.each do |anno|
         count += 1
-        break if count > 20
+        #break if count > 20
+
         p "#{count}) #{anno.annotation_id}"
         #p "on: #{anno.on}"
 
         #next if anno.annotation_id.include?("/annotations/Panel_A_Chapter_1")
+        #to-do: don't filter by orig_canvas, for any targeting annos get the orig_canvas by using getTargetedAnno below
+        #next unless anno.on.include?("svg") && anno.annotation_id.include("http://annotations.ten-thousand-rooms.yale.edu/annotations/")
 
-        next unless anno.on.include?("svg") && anno.annotation_id.include("http://annotations.ten-thousand-rooms.yale.edu/annotations/")
+        next unless anno.annotation_id.include?("http://annotations.ten-thousand-rooms.yale.edu/annotations/")
 
-
-
+        getTargetedAnno (anno) if !anno.on.include?("svg")
         svgAnno = anno
+        realcount += 1
+        p "realcount = #{realcount}) #{anno.annotation_id}"
+        break if realcount > 20
 
         if anno.on.include?("oa:SvgSelector")
           # get svgpath from "d" attribute in the svg selector value
@@ -128,13 +134,14 @@ namespace :loadAnnotationsToSolr do
 
   # for lotb
   def getTargetedAnno inputAnno
+    p "in getTargetedAnno: annoId = #{inputAnno.annotation_id_}"
     return if inputAnno.nil?
     onN = inputAnno.on
-    #p "annotationId = " + inputAnno.annotation_id
-    #p "onN = " + onN
-    #p ""
+    p "annotationId = " + inputAnno.annotation_id
+    p "onN = " + onN
+    p ""
     onN = onN.gsub!(/=>/,':') if onN.include?("=>")
-    #p "onN now = " + onN.to_s
+    p "onN now = " + onN.to_s
     onJSON = JSON.parse(onN)
     targetAnnotation = Annotation.where(annotation_id:onJSON['full']).first
     return(targetAnnotation) if (targetAnnotation.on.to_s.include?("oa:SvgSelector"))
