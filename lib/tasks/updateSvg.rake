@@ -6,8 +6,9 @@ namespace :updateSVG do
     p 'env: ' + env
     # rake updateSVG:SVG_update[local/dev/prod] > updatSvgsPanel_01_02_2017_local/dev/prod.log
     #svgFilename = "importData/SVG_adjustments_#{env}.csv"
-    svgFilename = "importData/SVG_Adjustments/SVGs_panel_01_#{env}_02_2017.csv"
-    svgFilename = "importData/SVG_Adjustments/SVGs_panel_01_#{env}_02_2017_Chap4_Scene2.csv"
+    #svgFilename = "importData/SVG_Adjustments/SVGs_panel_01_#{env}_02_2017.csv"
+    #svgFilename = "importData/SVG_Adjustments/SVGs_panel_01_#{env}_02_2017_Chap4_Scene2.csv"
+    svgFilename = "importData/SVG_Adjustments/SVGs_panel_01_prod_02_2017_Chap11_Scene2&3.csv"
     #svgFilename = "importData/SVG_Adjustments/SVGs_panel_01_local_02_2017.csv"
     p "svgFilename = #{svgFilename}"
 
