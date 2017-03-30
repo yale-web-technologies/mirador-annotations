@@ -66,6 +66,7 @@ class Annotation < ActiveRecord::Base
     preAuth.to_json
   end
 
+  # not used
   def to_solr
     # separate out resource into separate feed, for multiple resource stanzas add a within-resource id (a-z, 1-9 or random)
     solr = Hash.new
@@ -116,23 +117,37 @@ class Annotation < ActiveRecord::Base
   end
 
   def getLayersForAnnotation anno_id
+    #p "in Annotation.getLayersForAnnotation: annotation_id = #{anno_id}"
     lists = ListAnnotationsMap.getListsForAnnotation anno_id
+    #p "getLayers: list count = #{lists.count}"
     layerArray = Array.new
     lists.each do |list_id|
+      #p "getLayers: processing list: #{list_id}"
       layerLabels = LayerListsMap.getLayerLabelsForList list_id
+      #p "getLayers: number of layers: #{layerLabels.size} for this list"
       layerLabels.each do |layerLabel|
+        #p "getLayers: layer for this list: #{layerLabel}" if !layerArray.include?(layerLabel)
         layerArray.push(layerLabel) if !layerArray.include?(layerLabel)
       end
+      #p ""
     end
     layerArray
   end
 
   #  move backwards from an annotations' target until the last (or first) targeted anno, then return this one's canvas
-  def getTargetingAnnosCanvas inputAnno
+  def self.getTargetingAnnosCanvas inputAnno
+    if inputAnno.nil?
+      p "there is no target anno!"
+      return nil
+    end
+    #p "in getTargetingAnnosCanvas: #{inputAnno.annotation_id}"
     return(inputAnno.canvas) if (inputAnno.canvas.to_s.include?('/canvas/'))
     targetAnnotation = Annotation.where(annotation_id:inputAnno.canvas).first
     getTargetingAnnosCanvas targetAnnotation
   end
+
+
+  #==========================================================================
 
   def self.get_xywh_from_svg svg_path, height, width
     return if svg_path==''
@@ -168,10 +183,6 @@ class Annotation < ActiveRecord::Base
     drawing = Magick::Draw.new
 
     #create a new image for finding out the offset
-    #canvas = Image.new(15000,25000) {self.background_color = 'white' }  # very slow
-    #canvas = Image.new(1500,2500) {self.background_color = 'white' }  # quick, way too small
-    #canvas = Image.new(6000,9000) {self.background_color = 'white' }
-    #canvas = Image.new(15000,15000) {self.background_color = 'white' } # this is pretty good
     #canvas = Image.new(16000,16000) {self.background_color = 'white' }
     canvas = Image.new(height,width) {self.background_color = 'white' }
 
@@ -186,4 +197,156 @@ class Annotation < ActiveRecord::Base
     { :x=> canvas.page.x, :y=>canvas.page.y, :width=> canvas.columns, :height=> canvas.rows}
   end
 
+
+  # this expects to be called from the controller or a rake task, and receives a csv object as a parameter
+  # todo: should also receive an allorDelta param from either rake task or controller REST call
+  def self.feedAnnosNoResource (csv) #,allorDelta)
+    p "in Annotation.feedAnnosNoResource!"
+    host_url_prefix = Rails.application.config.hostUrl
+    #host_url_prefix = 'http://localhost:5000/annotations'
+    #allOrDelta = "all" if allOrDelta.nil? or allOrDelta == '0'
+    p "host_url_prefix = #{host_url_prefix}"
+    context = "http://iiif.io/api/presentation/2/context.json"
+
+    #if allOrDelta == 'all'
+      @annotations = Annotation.all
+      #@annotations = Annotation.where("annotation_id like ?", "%#{host_url_prefix}%")
+      p "annotations found: #{@annotations.count}"
+    #else
+    #  @annotations = Annotation.where(['updated_at > ?', DateTime.now-allOrDelta.to_i.days])
+    #end
+
+    # Headers
+    csv << ["annotation_id", "annotation_type", "context", "on", "canvas", "motivation","layers", "bounding_box", "panel", "chapter", "scene"]
+
+    count = 0
+    @annotations.each do |anno|
+      count += 1
+      #next if count > 20
+      # check anno.on and canvas
+      p "#{count}) #{anno.annotation_id}"
+      next if !anno.on.start_with?('{') && !anno.on.start_with?('[')
+      next if anno.canvas.nil?
+      @feedOn = nil
+      @canvas_id = nil
+      @targetAnno = anno
+
+      # if anno is not directly on a canvas: set feedOn = anno.canvas and set @canvas_id to original canvas
+      if !anno.on.start_with?('[')            # on is not an array
+        if !anno.canvas.include?("/canvas/")  # on is not a canvas
+          #@feedOn = anno.canvas
+          # get original canvas
+          @targetAnno = Annotation.getTargetedAnno(anno)
+          if !@targetAnno.nil?
+            #@canvas_id = @targetAnno.canvas
+            @feedOn = @targetAnno.canvas
+          end
+        else
+          @canvas_id = anno.canvas
+        end
+      else
+        # todo: I will have to deal with 'on' arrays; that is how Mirador is sending them now
+        p "on is on an array for anno: #{anno.annotation_id}"
+      end
+      #p "@canvas_id: #{@canvas_id}  feedOn: #{@feedOn}" #if !@feedOn.nil?
+
+      xywh = anno.service_block.gsub(/\r\n?/, "") unless anno.service_block.nil?
+
+      layers = Array.new
+      layers = @targetAnno.getLayersForAnnotation @targetAnno.annotation_id unless @targetAnno.nil?
+
+      if !layers.nil?
+        #p "layers = #{layers} for #{anno.annotation_id}" if layers.size > 0
+        layers = layers.to_s.gsub(/"/,'')
+        layers = layers.gsub(/\[/,'')
+        layers = layers.gsub(/]/,'')
+      else
+        p "no layers for anno: #{anno.annotation_id}"
+      end
+
+      anno.motivation.gsub!(/"/,'')
+
+      panel = ''
+      chapter = ''
+      scene = ''
+#=begin
+      #for LOTB panels, chapters and scenes
+      annoLength = anno.annotation_id.length
+      panelIndex = anno.annotation_id.index("Panel")
+      chapterIndex = anno.annotation_id.index("Chapter")
+      sceneIndex = anno.annotation_id.index("Scene")
+      if !sceneIndex.nil?
+        startSceneNumberIndex = sceneIndex+6
+        fromSceneNumberOn = anno.annotation_id[startSceneNumberIndex..annoLength]
+
+        if fromSceneNumberOn.index("_")
+          sceneNumberLength = fromSceneNumberOn.index("_") -1
+          #sceneNumberLength = fromSceneNumberOn
+          sceneNumber = anno.annotation_id[startSceneNumberIndex..startSceneNumberIndex + sceneNumberLength]
+        else
+          sceneNumber = fromSceneNumberOn
+        end
+      else
+        sceneIndex = anno.annotation_id.length
+      end
+
+      panel = anno.annotation_id[panelIndex..chapterIndex-2].gsub!(/_/," ")
+      chapter = anno.annotation_id[chapterIndex..sceneIndex-2].gsub!(/_/," ")
+      scene = "Scene " + sceneNumber if !sceneNumber.nil?
+      # end LOTB panels, chapters and scenes
+#=end
+      csv << [anno.annotation_id, anno.annotation_type, context, @feedOn, @canvas_id,anno.motivation,layers, xywh.to_s, panel, chapter, scene]
+    end
+  end
+
+  def self.getTargetedAnno inputAnno
+    #p "in Annotation.getTargetedAnno: annoId = #{inputAnno.annotation_id}"
+    onN = inputAnno.on
+    onN = onN.gsub(/=>/,':')# if onN.include?("=>")
+    onJSON = JSON.parse(onN)
+    targetAnnotation = Annotation.where(annotation_id:onJSON['full']).first
+    return if targetAnnotation.nil?
+    return(targetAnnotation) if (targetAnnotation.on.to_s.include?("oa:SvgSelector"))
+    getTargetedAnno targetAnnotation
+  end
+
+  def self.feedAnnosResourceOnly (csv) #,allorDelta)
+    p "in Annotation.feedAnnosNoResource!"
+    host_url_prefix = Rails.application.config.hostUrl
+    #host_url_prefix = 'http://localhost:5000/annotations'
+    #p "host_url_prefix = #{host_url_prefix}"
+    allOrDelta = "all" if allOrDelta.nil? or allOrDelta == '0'
+
+    #if allOrDelta == 'all'
+      @annotations = Annotation.all
+      #@annotations = Annotation.where("annotation_id like ?", "%#{host_url_prefix}%")
+      #@annotations = Annotation.where("annotation_id like ? and resource not like ? and resource not like ?" , "%#{host_url_prefix}%","%WordDocument%","OfficeDocumentSettings")
+      p "annotations found: #{@annotations.count}"
+    #else
+    #  @annotation = Annotation.where(['updated_at > ?', DateTime.now-allOrDelta.to_i.days])
+    #end
+    count = 0
+    #headers
+    csv << ["annotation_id","resource_id", "type", "format", "chars"]
+    @annotations.each do |anno|
+      count += 1
+      p "#{count}) #{anno.annotation_id}"
+      resource_id = anno.annotation_id + "_" + SecureRandom.uuid
+      resource = anno.resource.gsub(/=>/,":")
+      resourceJSON = JSON.parse(resource)
+
+      if !resource.start_with?('[')
+        chars = ActionView::Base.full_sanitizer.sanitize(resourceJSON{"chars"})
+        csv << [anno.annotation_id, resource_id, resourceJSON["@type"], resourceJSON["format"], chars]
+      else
+        chars = ActionView::Base.full_sanitizer.sanitize(resourceJSON[0]["chars"])
+        csv << [anno.annotation_id, resource_id, resourceJSON[0]["@type"], resourceJSON[0]["format"], chars]
+      end
+      end
+  end
+
 end
+
+
+
+
