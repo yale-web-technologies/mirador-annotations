@@ -293,10 +293,14 @@ class Annotation < ActiveRecord::Base
         sceneIndex = anno.annotation_id.length
       end
 
-      panel = anno.annotation_id[panelIndex..chapterIndex-2].gsub!(/_/," ")
-      chapter = anno.annotation_id[chapterIndex..sceneIndex-2].gsub!(/_/," ")
-      scene = "Scene " + sceneNumber if !sceneNumber.nil?
-      # end LOTB panels, chapters and scenes
+      begin
+        panel = anno.annotation_id[panelIndex..chapterIndex-2].gsub!(/_/," ")
+        chapter = anno.annotation_id[chapterIndex..sceneIndex-2].gsub!(/_/," ")
+        scene = "Scene " + sceneNumber if !sceneNumber.nil?
+        # end LOTB panels, chapters and scenes
+      rescue
+        p "panel, chapter or scene error"
+      end
 #=end
       csv << [anno.annotation_id, anno.annotation_type, context, @feedOn, @canvas_id,anno.motivation,layers, xywh.to_s, panel, chapter, scene]
     end
