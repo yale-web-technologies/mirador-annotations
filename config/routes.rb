@@ -35,15 +35,13 @@ MiradorAnnotationsServer::Application.routes.draw do
   get '/feedAllAnnoIds', to: 'annotations#feedAllAnnoIds', defaults: {format: :text}
   get '/feedAllLayers', to: 'annotations#feedAllLayers', defaults: {format: :text}
 
-  get '/feedAnnosNoResource', to: 'annotations#feedAnnosNoResource', defaults: {format: :text}
-  get '/feedAnnosResourceOnly', to: 'annotations#feedAnnosResourceOnly', defaults: {format: :text}
+  get '/feedAnnosResourceOnly', to: 'annotations#feedAnnosResourceOnlyWrapper', defaults: {format: :text}
+  get '/feedAnnosNoResource', to: 'annotations#feedAnnosNoResourceWrapper', defaults: {format: :text}
 
   get 'getAccessToken', to: "application#get_access_token", defaults: {format: :json}
   #get 'loginToServer', to: "application#login"
   get 'loginToServer', to: "authn#userLogin"
   #put 'loginToServer', to: "authn#userLogin"
-  get '/feedAllAnnosNoResource', to: 'annotations#feedAnnosNoResource', defaults: {format: :text}
-  get '/feedAllAnnosResourceOnly', to: 'annotations#feedAnnosResourceOnly', defaults: {format: :text}
 
   get 'getAccessToken', to: "application#get_access_token", defaults: {format: :json}
   get 'loginToServer', to: "application#login"
