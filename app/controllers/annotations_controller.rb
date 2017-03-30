@@ -5,7 +5,7 @@ require 'date'
 require 'htmlentities'
 coder = HTMLEntities.new
 string = "&eacute;lan"
-coder.decode(string) # => "élan"
+
 
 class AnnotationsController < ApplicationController
   include CanCan::ControllerAdditions
@@ -181,17 +181,17 @@ class AnnotationsController < ApplicationController
   # GET /annotation/1
   # GET /annotation/1.json
   def show
-    testParam =  '"on": {
-        "@type": "oa:Annotation",
-        "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884261"
-    }'.split(",")
-    testParamArr =  '["on": {
-        "@type": "oa:Annotation",
-        "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884261"
-    }, {
-        "@type": "oa:Annotation",
-        "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884262"
-    }]'.split(",")
+    #testParam =  '"on": {
+    #    "@type": "oa:Annotation",
+    #    "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884261"
+    #}'.split(",")
+    #testParamArr =  '["on": {
+    #    "@type": "oa:Annotation",
+    #    "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884261"
+    #}, {
+    #    "@type": "oa:Annotation",
+    #    "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884262"
+    #}]'.split(",")
 
     #@ru = request.protocol + request.host_with_port + "/annotations/#{params['id']}"
 
@@ -211,6 +211,8 @@ class AnnotationsController < ApplicationController
   end
 
   # POST /annotation
+
+
   #
   def create
     #@annotationIn = params
@@ -703,130 +705,6 @@ class AnnotationsController < ApplicationController
   # 3) all layers with same label text as gets sent from the getAnnotationsForCanvas api's
   # 4) all annotation_id's to use as a cross reference for consumer to synchronize deletions
 
-  def feedAnnosNoResource
-    p "feedAnnosResource: hostUrl = #{Rails.application.config.hostUrl}"
-    #p "hostUrl bare = #{hostUrl}"
-    #resourceMode = params['resourceMode']
-    #resourceMode = 'none' if resourceMode.nil?
-    allOrDelta = params['delta']
-    allOrDelta = "all" if allOrDelta.nil? or allOrDelta == '0'
-
-    if allOrDelta == 'all'
-      @annotation = Annotation.all
-    else
-      @annotation = Annotation.where(['updated_at > ?', DateTime.now-allOrDelta.to_i.days])
-    end
-
-    annos = CSV.generate do |csv|
-      headers = "annotation_id, annotation_type, context, on, canvas, motivation,layers, bb_x, bb_y, bb_w ,bb_h, panel, chapter, scene"
-      csv << [headers]
-
-      count = 0
-      @annotation.each do |anno|
-        count = count + 1
-      #  break if count > 20
-        puts "\n"
-        p "processing: #{count.to_s}) #{anno.annotation_id}"
-        svgAnno = anno
-        svgOn = ''
-        feedOn = ''
-        @canvas_id = ''
-
-        # check anno.on and canvas
-        next if !anno.on.start_with?('{') && !anno.on.start_with?('[')
-        next if anno.canvas.nil?
-
-        # if this anno has no svg, then get the original targeted anno to send to get_svg_path
-        if !anno.on.include?("oa:SvgSelector")
-          svgAnno = getTargetedAnno(anno)
-          p "svgAnno: #{svgAnno.annotation_id}"
-        end
-
-        if !anno.on.start_with?('[')
-          if !anno.canvas.include?("/canvas/")
-            feedOn = anno.canvas
-            # get original canvas
-            @annotation = Annotation.where(annotation_id:anno.canvas).first
-            if !@annotation.nil?
-              @canvas_id = getTargetingAnnosCanvas(@annotation)
-            end
-          end
-          @canvas_id = anno.canvas
-        end
-
-        #xywh = anno.service_block
-        xywh = anno.service_block.gsub(/\r\n?/, "") unless anno.service_block.nil?
-
-        layers = anno.getLayersForAnnotation  anno.annotation_id
-        # adding panel, chapter and scene Jan 5, 2016
-        # parse out from: example annotation id:
-        # http://localhost:5000/annotations/Panel_B_Chapter_27_Scene_1_10_English_Sun_Of_Faith
-        # http://localhost:5000/annotations/Panel_B_Chapter_27_Scene_11_10_English_Sun_Of_Faith
-
-        annoLength = anno.annotation_id.length
-        panelIndex = anno.annotation_id.index("Panel")
-        chapterIndex = anno.annotation_id.index("Chapter")
-        sceneIndex = anno.annotation_id.index("Scene")
-        if !sceneIndex.nil?
-          startSceneNumberIndex = sceneIndex+6
-          fromSceneNumberOn = anno.annotation_id[startSceneNumberIndex..annoLength]
-
-          if fromSceneNumberOn.index("_")
-            sceneNumberLength = fromSceneNumberOn.index("_") -1
-            #sceneNumberLength = fromSceneNumberOn
-            sceneNumber = anno.annotation_id[startSceneNumberIndex..startSceneNumberIndex + sceneNumberLength]
-          else
-            sceneNumber = fromSceneNumberOn
-          end
-        else
-          sceneIndex = anno.annotation_id.length
-        end
-
-        panel = anno.annotation_id[panelIndex..chapterIndex-2].gsub!(/_/," ")
-        chapter = anno.annotation_id[chapterIndex..sceneIndex-2].gsub!(/_/," ")
-        scene = "Scene " + sceneNumber if !sceneNumber.nil?
-
-        csv << [anno.annotation_id, anno.annotation_type, "http://iiif.io/api/presentation/2/context.json", feedOn, @canvas_id, anno.motivation, layers, xywh.to_s, panel, chapter, scene]
-      end
-
-    end
-    format = 'text'
-    respond_with do |format|
-      format.json {render :text => annos, content_type: "application/json"}
-      format.text {render :text => annos, content_type: "application/text"}
-    end
-  end
-
-  def feedAnnosResourceOnly
-    coder = HTMLEntities.new
-
-    allOrDelta = params['delta']
-    allOrDelta = "all" if allOrDelta.nil? or allOrDelta == '0'
-
-    if allOrDelta == 'all'
-      @annotation = Annotation.all
-    else
-      @annotation = Annotation.where(['updated_at > ?', DateTime.now-allOrDelta.to_i.days])
-    end
-
-    annos = CSV.generate do |csv|
-      headers = "annotation_id, resource_id, type, format, chars"
-      csv << [headers]
-      @annotation.each do |anno|
-        resourceJSON = JSON.parse(anno.resource)
-        resourceJSON.each do |resource|
-          resource_id = anno.annotation_id + "_" + SecureRandom.uuid
-          #csv << [anno.annotation_id, resource_id, resource['@type'], resource['format'], resource['chars']]
-          csv << [anno.annotation_id, resource_id, resource['@type'], resource['format'], coder.decode(resource['chars'])]
-        end
-      end
-    end
-    respond_with do |format|
-      format.json {render :text => annos}
-      format.text {render :text => annos}
-    end
-  end
-
   def feedAllAnnoIds
     @annotation = Annotation.all
     allAnnoIds = CSV.generate do |csv|
@@ -857,6 +735,38 @@ class AnnotationsController < ApplicationController
       #format.json {render :text => allLayers}
       #format.text {render xml: allLayers, content_type: "xml"}
       format.text {render :text => allLayers, :content_type => Mime::TEXT.to_s}
+    end
+  end
+
+
+
+
+  def feedAnnosNoResourceWrapper
+    allOrDelta = params['delta']
+    allOrDelta = "all" if allOrDelta.nil? or allOrDelta == '0'
+
+    p "in controller: feedAnnosNoResourceWrapper"
+    annos = CSV.generate do |csv|
+      Annotation.feedAnnosNoResource csv
+    end
+
+    respond_with do |format|
+      format.text {render :text => annos, content_type: "application/csv"}
+    end
+  end
+
+  def feedAnnosResourceOnlyWrapper
+    allOrDelta = params['delta']
+    allOrDelta = "all" if allOrDelta.nil? or allOrDelta == '0'
+
+    p "in controller: feedAnnosResourceOnlyWrapper"
+    annos = CSV.generate do |csv|
+      Annotation.feedAnnosResourceOnly csv
+    end
+
+    p "about to respond: annos = #{annos}"
+    respond_with do |format|
+      format.text {render :text => annos, content_type: "application/csv"}
     end
   end
 

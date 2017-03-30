@@ -27,27 +27,39 @@ development:
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
-  <<: *default
-  database: db/test.sqlite3
+ # <<: *default
+ # database: db/test.sqlite3
+    adapter: postgresql
+    encoding: unicode
+    host: localhost #:5432
+    database: tenkr_rebuild_local
 
 production:
-  #adapter: postgresql
-  #encoding: unicode
+  adapter: postgresql
+  encoding: unicode
   # mirador tenkr db:
   #host: ec2-23-23-184-226.compute-1.amazonaws.com
   #username: dqddbpyitsrlyy
   #password: Bvx0OnMvNJCZ0KUVomwe64khFf
   #database: db1tgvr8a40mc3
+
   # new rebuilt tenkr db:
-  host: ec2-54-163-233-89.compute-1.amazonaws.com
-  username: ijqzhauppixrxe
-  password: 98686185806c335b2d0f3adf7da656b406414f6ae861a154ddceb3acf9bf8688
-  database: dd9fa5bf6149ct
-    # lotb stg db:
-    #host: ec2-54-163-233-89.compute-1.amazonaws.com
-    #username: ijqzhauppixrxe
-    #password: 98686185806c335b2d0f3adf7da656b406414f6ae861a154ddceb3acf9bf8688
-    #database: dd9fa5bf6149ct
+  #host: ec2-54-163-233-89.compute-1.amazonaws.com
+  #username: ijqzhauppixrxe
+  #password: 98686185806c335b2d0f3adf7da656b406414f6ae861a154ddceb3acf9bf8688
+  #database: dd9fa5bf6149ct
+
+  # lotb prod db:
+  #host: ec2-23-23-184-226.compute-1.amazonaws.com
+  #username: dqddbpyitsrlyy
+  #password: Bvx0OnMvNJCZ0KUVomwe64khFf
+  #database: db1tgvr8a40mc3
+
+  # lotb stg db:
+  host: ec2-174-129-197-209.compute-1.amazonaws.com
+  username: kluglcxgjrtzzz
+  password: lj0WmzOlj5V_ZQz-FRBruQVlkO
+  database: d50j9tmg2iq5n7
 
 
 
