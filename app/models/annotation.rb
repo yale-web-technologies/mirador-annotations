@@ -209,23 +209,22 @@ class Annotation < ActiveRecord::Base
     context = "http://iiif.io/api/presentation/2/context.json"
 
     #if allOrDelta == 'all'
-      #@annotations = Annotation.all
+      @annotations = Annotation.all
       #@annotations = Annotation.where("annotation_id like ?", "%#{host_url_prefix}%")
-      @annotations = Annotation.where("annotation_id like ? and resource not like ? and resource not like ?" , "%#{host_url_prefix}%","%WordDocument%","OfficeDocumentSettings")
+      #@annotations = Annotation.where("annotation_id like ? and resource not like ? and resource not like ?" , "%#{host_url_prefix}%","%WordDocument%","OfficeDocumentSettings")
 
     p "annotations found: #{@annotations.count}"
     #else
     #  @annotations = Annotation.where(['updated_at > ?', DateTime.now-allOrDelta.to_i.days])
     #end
 
-    
     # Headers
-    csv << ["annotation_id", "annotation_type", "context", "on", "canvas", "motivation","layers", "bounding_box", "panel", "chapter", "scene"]
+    csv << ["annotation_id", "annotation_type", "context", "on", "canvas", "motivation","layers", "bounding_box", "panel", "chapter", "scene", "display name"]
 
     count = 0
     @annotations.each do |anno|
       count += 1
-      #next if count > 20
+      next if count > 30
       # check anno.on and canvas
       p "#{count}) #{anno.annotation_id}"
       next if !anno.on.start_with?('{') && !anno.on.start_with?('[')
@@ -256,6 +255,8 @@ class Annotation < ActiveRecord::Base
       xywh = anno.service_block.gsub(/\r\n?/, "") unless anno.service_block.nil?
 
       layers = Array.new
+
+      ## shouldn't it be anno.getLayersForAnnotation??
       layers = @targetAnno.getLayersForAnnotation @targetAnno.annotation_id unless @targetAnno.nil?
 
       if !layers.nil?
@@ -272,6 +273,10 @@ class Annotation < ActiveRecord::Base
       panel = ''
       chapter = ''
       scene = ''
+      startSceneNumberIndex = 0
+      sceneNumberLength = 0
+      fromSequenceOn = ''
+
 #=begin
       #for LOTB panels, chapters and scenes
       annoLength = anno.annotation_id.length
@@ -286,6 +291,8 @@ class Annotation < ActiveRecord::Base
           sceneNumberLength = fromSceneNumberOn.index("_") -1
           #sceneNumberLength = fromSceneNumberOn
           sceneNumber = anno.annotation_id[startSceneNumberIndex..startSceneNumberIndex + sceneNumberLength]
+          fromSequenceOn = "Sequence " + fromSceneNumberOn[fromSceneNumberOn.index("_")+1..fromSceneNumberOn.length]
+          p "fromSequenceOn = #{fromSequenceOn}"
         else
           sceneNumber = fromSceneNumberOn
         end
@@ -301,8 +308,18 @@ class Annotation < ActiveRecord::Base
       rescue
         p "panel, chapter or scene error"
       end
+
+      #Set Display Name
+      dispName = anno.annotation_id
+      if fromSequenceOn != ''
+        dispName = anno.annotation_id[0..startSceneNumberIndex+sceneNumberLength] + ' ' + fromSequenceOn
+        dispName.gsub!(/_/," ")
+      end
+      p ''
+      #end
+
 #=end
-      csv << [anno.annotation_id, anno.annotation_type, context, @feedOn, @canvas_id,anno.motivation,layers, xywh.to_s, panel, chapter, scene]
+      csv << [anno.annotation_id, anno.annotation_type, context, @feedOn, @canvas_id,anno.motivation,layers, xywh.to_s, panel, chapter, scene, dispName]
     end
   end
 
@@ -349,7 +366,7 @@ class Annotation < ActiveRecord::Base
         chars = ActionView::Base.full_sanitizer.sanitize(resourceJSON[0]["chars"])
         csv << [anno.annotation_id, resource_id, resourceJSON[0]["@type"], resourceJSON[0]["format"], chars]
       end
-      end
+    end
   end
 
 end

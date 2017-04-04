@@ -2,16 +2,12 @@ include AclCreator
 require "json"
 require "csv"
 require 'date'
-require 'htmlentities'
-coder = HTMLEntities.new
-string = "&eacute;lan"
-
 
 class AnnotationsController < ApplicationController
   include CanCan::ControllerAdditions
   #skip_before_action :verify_authenticity_token
   #before_action :authenticate_user!
-  respond_to :json, :text
+  respond_to :json, :text, :csv
 
   # GET /list
   # GET /list.json
@@ -751,6 +747,7 @@ class AnnotationsController < ApplicationController
     end
 
     respond_with do |format|
+      #format.csv {render :csv => annos, content_type: "application/csv"}
       format.text {render :text => annos, content_type: "application/csv"}
     end
   end
@@ -767,6 +764,7 @@ class AnnotationsController < ApplicationController
     p "about to respond: annos = #{annos}"
     respond_with do |format|
       format.text {render :text => annos, content_type: "application/csv"}
+      format.csv {render :text => annos, content_type: "application/csv"}
     end
   end
 
