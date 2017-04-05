@@ -219,7 +219,7 @@ class Annotation < ActiveRecord::Base
     #end
 
     # Headers
-    csv << ["annotation_id", "annotation_type", "context", "on", "canvas", "motivation","layers", "bounding_box", "panel", "chapter", "scene", "display name"]
+    csv << ["annotation_id", "annotation_type", "context", "on", "canvas", "motivation","layers", "bounding_box", "panel", "chapter", "scene", "display_name"]
 
     count = 0
     @annotations.each do |anno|
