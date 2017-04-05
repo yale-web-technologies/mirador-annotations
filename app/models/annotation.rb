@@ -315,7 +315,7 @@ class Annotation < ActiveRecord::Base
 
       #Set Display Name
       #dispName = anno.annotation_id
-      dispName " "
+      dispName = " "
       if fromSequenceOn != ''
         #dispName = anno.annotation_id[0..startSceneNumberIndex+sceneNumberLength] + ' ' + fromSequenceOn
         dispName = panel + " " +  chapter + " " + scene + " " + fromSequenceOn
