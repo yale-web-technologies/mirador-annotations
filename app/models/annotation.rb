@@ -302,6 +302,8 @@ class Annotation < ActiveRecord::Base
 
       begin
         panel = anno.annotation_id[panelIndex..chapterIndex-2].gsub!(/_/," ")
+        if (panel=="Panel A" panel = "Panel 1")
+        if (panel=="Panel B" panel = "Panel 2")
         chapter = anno.annotation_id[chapterIndex..sceneIndex-2].gsub!(/_/," ")
         scene = "Scene " + sceneNumber if !sceneNumber.nil?
         # end LOTB panels, chapters and scenes
