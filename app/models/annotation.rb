@@ -224,7 +224,7 @@ class Annotation < ActiveRecord::Base
     count = 0
     @annotations.each do |anno|
       count += 1
-      #next if count > 30
+      # next if count > 30
       # check anno.on and canvas
       p "#{count}) #{anno.annotation_id}"
       next if !anno.on.start_with?('{') && !anno.on.start_with?('[')
@@ -234,6 +234,7 @@ class Annotation < ActiveRecord::Base
       @targetAnno = anno
 
       # if anno is not directly on a canvas: set feedOn = anno.canvas and set @canvas_id to original canvas
+
       if !anno.on.start_with?('[')            # on is not an array
         if !anno.canvas.include?("/canvas/")  # on is not a canvas
           #@feedOn = anno.canvas
@@ -313,7 +314,8 @@ class Annotation < ActiveRecord::Base
       end
 
       #Set Display Name
-      dispName = anno.annotation_id
+      #dispName = anno.annotation_id
+      dispName " "
       if fromSequenceOn != ''
         #dispName = anno.annotation_id[0..startSceneNumberIndex+sceneNumberLength] + ' ' + fromSequenceOn
         dispName = panel + " " +  chapter + " " + scene + " " + fromSequenceOn
