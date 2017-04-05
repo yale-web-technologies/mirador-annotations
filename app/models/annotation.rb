@@ -302,6 +302,7 @@ class Annotation < ActiveRecord::Base
 
       begin
         panel = anno.annotation_id[panelIndex..chapterIndex-2].gsub!(/_/," ")
+        p "panel = #{panel}"
         panel = "Panel 1" if panel=="Panel A"
         panel = "Panel 2" if panel=="Panel B"
         chapter = anno.annotation_id[chapterIndex..sceneIndex-2].gsub!(/_/," ")
@@ -314,7 +315,8 @@ class Annotation < ActiveRecord::Base
       #Set Display Name
       dispName = anno.annotation_id
       if fromSequenceOn != ''
-        dispName = anno.annotation_id[0..startSceneNumberIndex+sceneNumberLength] + ' ' + fromSequenceOn
+        #dispName = anno.annotation_id[0..startSceneNumberIndex+sceneNumberLength] + ' ' + fromSequenceOn
+        dispName = panel + " " +  chapter + " " + scene + " " + fromSequenceOn
         dispName.gsub!(/_/," ")
       end
       p ''
