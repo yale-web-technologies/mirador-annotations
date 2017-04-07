@@ -3,8 +3,7 @@ require "json"
 require "csv"
 require 'date'
 require "redis"
-
-
+require 'open-uri'
 
 class AnnotationsController < ApplicationController
   before_action :set_redis , only: [:create, :edit, :update, :destroy, :doRedis, :getAnnotationsForCanvasViaLists]
@@ -172,9 +171,10 @@ class AnnotationsController < ApplicationController
     annosForCanvas = ''
     @canvas = params['canvas_id']
     p "redis.get(@canvas: #{@canvas}"
+    #annoWLayerArrayUniq = @redis.get(@canvas)
     annosForCanvas = @redis.get(@canvas)
     if !annosForCanvas.nil?
-      annoWLayerArrayUniq = annosForCanvas
+      #annoWLayerArrayUniq = annosForCanvas
       p "YES: found response in redis for #{params['canvas_id']} :  #{annosForCanvas[1..100]}"
     else
       #annoWLayerArrayUniq = buildMemAnnosForCanvas @canvas
@@ -182,15 +182,15 @@ class AnnotationsController < ApplicationController
       #annosForCanvas = @redis.get(@canvas)
       p "NO: Just added redis record for annos on #{@canvas}"
     end
-    p 'doing gsub'
+    #p 'doing gsub'
     #annosForCanvas.gsub!(/=>/,":")
-    p 'done with gsub'
-    #annoWLayerArrayUniq = annosForCanvas
+    #p 'done with gsub'
+    annoWLayerArrayUniq = annosForCanvas
     respond_to do |format|
-      #format.html {render json: annoWLayerArrayUniq}
-      #format.json {render json: annoWLayerArrayUniq, content_type: "application/json"}
-      format.html {render json: annosForCanvas}
-      format.json {render json: annosForCanvas, content_type: "application/json"}
+      format.html {render json: annoWLayerArrayUniq}
+      format.json {render json: annoWLayerArrayUniq, content_type: "application/json"}
+      #format.html {render json: annosForCanvas}
+      #format.json {render json: annosForCanvas, content_type: "application/json"}
     end
   end
 
@@ -834,9 +834,25 @@ class AnnotationsController < ApplicationController
         end
       end
     end
-    annoWLayerArrayUniq = annoWLayerArray.uniq
+    annoWLayerArrayUniq = annoWLayerArray.uniq.to_json
     @redis.set(canvas_id, annoWLayerArrayUniq)
-    return @redis.get(canvas_id)
+    #return @redis.get(canvas_id)
+  end
+
+  def setRedisKeys
+    @redis = Redis.new(url: ENV["REDIS_URL"])
+
+    p "about to set redisKey for panel_01"
+    redisKey_Panel_01 = open("http://mirador-annotations-lotb-stg.herokuapp.com/getAnnotationsViaList?canvas_id=http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01").read
+    redisKey_Panel_01.gsub!(/=>/,":")
+    redisKey_Panel_01 = JSON.parse(redisKey_Panel_01)
+    @redis.set("http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01",redisKey_Panel_01)
+
+    p "about to set redisKey for bv11"
+    redisKey_bv11 =open("http://mirador-annotations-lotb-stg.herokuapp.com/getAnnotationsViaList?canvas_id=http://manifests.ydc2.yale.edu/LOTB/canvas/bv11").read
+    redisKey_bv11.gsub!(/=>/,":")
+    @redis.set("http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01",redisKey_bv11)
+    p "both keys set"
   end
 
 end
