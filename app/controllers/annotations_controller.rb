@@ -2,8 +2,13 @@ include AclCreator
 require "json"
 require "csv"
 require 'date'
+require "redis"
+
+
 
 class AnnotationsController < ApplicationController
+  before_action :set_redis , only: [:create, :edit, :update, :destroy, :doRedis, :getAnnotationsForCanvasViaLists]
+
   include CanCan::ControllerAdditions
   #skip_before_action :verify_authenticity_token
   #before_action :authenticate_user!
@@ -27,6 +32,7 @@ class AnnotationsController < ApplicationController
       end
     end
 
+=begin
   def getAnnotationsForCanvas
     bearerToken = ''
     bearerToken = request.headers["bearer-token"] #user is logged in and has a bearer token
@@ -53,7 +59,7 @@ class AnnotationsController < ApplicationController
         #authorized = false
         authorized = true
         # TODO: turn authorization back on for next pass
-=begin
+#=begin
         within.each do |list_id|
             # figure out if user has read permission on this list via cancan/webacl; if not do not include in returned annoarray
             @annotation_list = AnnotationList.where(:list_id => list_id).first
@@ -61,7 +67,7 @@ class AnnotationsController < ApplicationController
               authorized = true
             end
         end
-=end
+#=end
         if (authorized==true)
           #iiif.push(annotation.to_iiif)
           # return not just array of annotations but including an array of layers for each annotation as well
@@ -104,44 +110,87 @@ class AnnotationsController < ApplicationController
       end
   end
 
-  def getAnnotationsForCanvasViaLists
+  def getAnnotationsForCanvasViaListsPreRedis
 
-    # replace @ru with hostUrl environment variable
-    host_url_prefix = Rails.application.config.hostUrl
-    p "host url = #{Rails.application.config.hostUrl}"
+    # add redis
+    annosForCanvas = ''
+    @canvas = params['canvas_id']
+    p "redis.get(@canvas: #{@canvas}"
+    annosForCanvas = @redis.get(@canvas)
+    if !annosForCanvas.nil?
+      annoWLayerArrayUniq = annosForCanvas
+      p "YES: found response in redis for #{params['canvas_id']} :  #{annosForCanvas[1..100]}"
+      #@redis.del(@canvas)
+    ##
+    else
+        # replace @ru with hostUrl environment variable
+        host_url_prefix = Rails.application.config.hostUrl
+        host_url_prefix = 'localhost:5000/'
+        p "host url = #{host_url_prefix}"
 
-    bearerToken = ''
-    p 'in getAnnotationsForCanvasViaLists: params = ' + params.inspect
-    #p 'in getAnnotationsForCanvasViaLists: headers: ' + request.headers.inspect
-    bearerToken = request.headers["bearer-token"] #user is logged in and has a bearer token
-    #p "bearerToken = #{bearerToken}"
-    if (bearerToken)
-      @user = signInUserByBearerToken bearerToken
-    end
-    #lists = AnnotationList.where("list_id like ? and list_id like ?", "%#{params['canvas_id']}%", "%/lists/%")
-    lists = AnnotationList.where("list_id like ? and list_id like ? and list_id like ?", "#{host_url_prefix}%", "%#{params['canvas_id']}%", "%/lists/%")
+        bearerToken = ''
+        p 'in getAnnotationsForCanvasViaLists: params = ' + params.inspect
+        #p 'in getAnnotationsForCanvasViaLists: headers: ' + request.headers.inspect
+        bearerToken = request.headers["bearer-token"] #user is logged in and has a bearer token
+        #p "bearerToken = #{bearerToken}"
+        if (bearerToken)
+          @user = signInUserByBearerToken bearerToken
+        end
 
-    annoWLayerArray = Array.new
+        ###!!!! change back so second query is active
+        lists = AnnotationList.where("list_id like ? and list_id like ?", "%#{params['canvas_id']}%", "%/lists/%")
+        #lists = AnnotationList.where("list_id like ? and list_id like ? and list_id like ?", "#{host_url_prefix}%", "%#{params['canvas_id']}%", "%/lists/%")
 
-    p  "in getAnnotationsForCanvasViaLists: lists.count = #{lists.count}"
-    lists.each do |list|
-      layer_id = getLayerFromListName list.list_id
-      if !layer_id.nil?
-        annotations = ListAnnotationsMap.getAnnotationsForList list.list_id
-        annotations.each do |annotation|
-          if !annotation.nil?
-            annoWLayerHash= Hash.new
-            annoWLayerHash["layer_id"] = layer_id
-            annoWLayerHash["annotation"] = annotation.to_iiif
-            annoWLayerArray.push(annoWLayerHash)
+        annoWLayerArray = Array.new
+
+        p  "in getAnnotationsForCanvasViaLists: lists.count = #{lists.count}"
+        lists.each do |list|
+          layer_id = getLayerFromListName list.list_id
+          if !layer_id.nil?
+            annotations = ListAnnotationsMap.getAnnotationsForList list.list_id
+            annotations.each do |annotation|
+              if !annotation.nil?
+                annoWLayerHash= Hash.new
+                annoWLayerHash["layer_id"] = layer_id
+                annoWLayerHash["annotation"] = annotation.to_iiif
+                annoWLayerArray.push(annoWLayerHash)
+              end
+            end
           end
         end
-      end
-    end
-    annoWLayerArrayUniq = annoWLayerArray.uniq
+        annoWLayerArrayUniq = annoWLayerArray.uniq
+        @redis.set(@canvas, annoWLayerArrayUniq)
+     end
     respond_to do |format|
       format.html {render json: annoWLayerArrayUniq}
       format.json {render json: annoWLayerArrayUniq, content_type: "application/json"}
+    end
+  end
+=end
+
+  def getAnnotationsForCanvasViaLists
+    annosForCanvas = ''
+    @canvas = params['canvas_id']
+    p "redis.get(@canvas: #{@canvas}"
+    annosForCanvas = @redis.get(@canvas)
+    if !annosForCanvas.nil?
+      annoWLayerArrayUniq = annosForCanvas
+      p "YES: found response in redis for #{params['canvas_id']} :  #{annosForCanvas[1..100]}"
+    else
+      #annoWLayerArrayUniq = buildMemAnnosForCanvas @canvas
+      annosForCanvas = buildMemAnnosForCanvas @canvas
+      #annosForCanvas = @redis.get(@canvas)
+      p "NO: Just added redis record for annos on #{@canvas}"
+    end
+    p 'doing gsub'
+    #annosForCanvas.gsub!(/=>/,":")
+    p 'done with gsub'
+    #annoWLayerArrayUniq = annosForCanvas
+    respond_to do |format|
+      #format.html {render json: annoWLayerArrayUniq}
+      #format.json {render json: annoWLayerArrayUniq, content_type: "application/json"}
+      format.html {render json: annosForCanvas}
+      format.json {render json: annosForCanvas, content_type: "application/json"}
     end
   end
 
@@ -163,41 +212,16 @@ class AnnotationsController < ApplicationController
     end
   end
 
-  # for future use
-  def getAnnotationsForCanvasLayer
-    if(params.has_key?(:layer_id))
-      layer_id = params['layer_id']
-    else
-      layer_id = 'http://ten-thousand-rooms.herokuapp.com/layers/1ac0123c-1ec6-11e6-b6ba-3e1d05defe78'
-    end
-    #construct the list_id
-    list_id = request.protocol + request.host_with_port + "/lists/" + layer_id + "_" + canvas_id
-  end
-
   # GET /annotation/1
   # GET /annotation/1.json
   def show
-    #testParam =  '"on": {
-    #    "@type": "oa:Annotation",
-    #    "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884261"
-    #}'.split(",")
-    #testParamArr =  '["on": {
-    #    "@type": "oa:Annotation",
-    #    "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884261"
-    #}, {
-    #    "@type": "oa:Annotation",
-    #    "full": "http://annotations.tenkr.yale.edu/annotations/f96a7d52-740d-4db5-8945-bb47b3884262"
-    #}]'.split(",")
-
-    #@ru = request.protocol + request.host_with_port + "/annotations/#{params['id']}"
-
     if Rails.application.config.hostUrl.end_with?("/")
       @ru = Rails.application.config.hostUrl + "annotations/#{params['id']}"
     else
       @ru = Rails.application.config.hostUrl + "/annotations/#{params['id']}"
     end
 
-      @annotation = Annotation.where(annotation_id: @ru).first
+    @annotation = Annotation.where(annotation_id: @ru).first
     #authorize! :show, @annotation_list
     request.format = "json"
     respond_to do |format|
@@ -207,9 +231,6 @@ class AnnotationsController < ApplicationController
   end
 
   # POST /annotation
-
-
-  #
   def create
     #@annotationIn = params
     # for new params with layer_id and annotation
@@ -734,9 +755,6 @@ class AnnotationsController < ApplicationController
     end
   end
 
-
-
-
   def feedAnnosNoResourceWrapper
     allOrDelta = params['delta']
     allOrDelta = "all" if allOrDelta.nil? or allOrDelta == '0'
@@ -766,6 +784,58 @@ class AnnotationsController < ApplicationController
       format.text {render :text => annos, content_type: "application/csv"}
       format.csv {render :text => annos, content_type: "application/csv"}
     end
+  end
+
+  # simple Redis test
+  def doRedis
+    #redis = Redis.new
+    #@redis.set("royKey", "Roy's Key")
+    @redis.set("royKey", '{"royKey":"Roys Key"}')
+    royKey = @redis.get("royKey")
+    royKey = JSON.parse(@redis.get("royKey"))
+    p "royKey = #{royKey}"
+    respond_with do |format|
+      format.text {render :text => royKey, content_type: "application/json"}
+      format.json {render :text => royKey, content_type: "application/json"}
+    end
+
+  end
+
+  def set_redis
+    p 'in set_redis'
+    @redis = Redis.new
+  end
+
+  def buildMemAnnosForCanvas canvas_id
+    host_url_prefix = Rails.application.config.hostUrl
+    host_url_prefix = 'localhost:5000/'
+    p "host url = #{host_url_prefix}"
+    p "buildMemAnnosForCanvas: canvas = #{canvas_id}"
+
+    ###!!!! change back so second query is active
+    lists = AnnotationList.where("list_id like ? and list_id like ?", "%#{canvas_id}%", "%/lists/%")
+    #lists = AnnotationList.where("list_id like ? and list_id like ? and list_id like ?", "#{host_url_prefix}%", "%#canvas_id}%", "%/lists/%")
+
+    annoWLayerArray = Array.new
+
+    p  "in buildMemAnnosForCanvas: lists for this canvas: #{lists.count}"
+    lists.each do |list|
+      layer_id = getLayerFromListName list.list_id
+      if !layer_id.nil?
+        annotations = ListAnnotationsMap.getAnnotationsForList list.list_id
+        annotations.each do |annotation|
+          if !annotation.nil?
+            annoWLayerHash= Hash.new
+            annoWLayerHash["layer_id"] = layer_id
+            annoWLayerHash["annotation"] = annotation.to_iiif
+            annoWLayerArray.push(annoWLayerHash)
+          end
+        end
+      end
+    end
+    annoWLayerArrayUniq = annoWLayerArray.uniq
+    @redis.set(canvas_id, annoWLayerArrayUniq)
+    return @redis.get(canvas_id)
   end
 
 end
