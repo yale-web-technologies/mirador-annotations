@@ -803,7 +803,8 @@ class AnnotationsController < ApplicationController
 
   def set_redis
     p 'in set_redis'
-    @redis = Redis.new
+    #@redis = Redis.new
+    @redis = Redis.new(url: ENV["REDIS_URL"])
   end
 
   def buildMemAnnosForCanvas canvas_id
