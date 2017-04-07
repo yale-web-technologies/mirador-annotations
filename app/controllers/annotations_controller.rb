@@ -851,7 +851,7 @@ class AnnotationsController < ApplicationController
     p "about to set redisKey for bv11"
     redisKey_bv11 =open("http://mirador-annotations-lotb-stg.herokuapp.com/getAnnotationsViaList?canvas_id=http://manifests.ydc2.yale.edu/LOTB/canvas/bv11").read
     redisKey_bv11.gsub!(/=>/,":")
-    @redis.set("http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01",redisKey_bv11)
+    @redis.set("http://manifests.ydc2.yale.edu/LOTB/canvas/bv11",redisKey_bv11)
     p "both keys set"
   end
 
