@@ -170,27 +170,62 @@ class AnnotationsController < ApplicationController
   def getAnnotationsForCanvasViaLists
     annosForCanvas = ''
     @canvas = params['canvas_id']
-    p "redis.get(@canvas: #{@canvas}"
-    #annoWLayerArrayUniq = @redis.get(@canvas)
-    annosForCanvas = @redis.get(@canvas)
-    if !annosForCanvas.nil?
-      #annoWLayerArrayUniq = annosForCanvas
-      p "YES: found response in redis for #{params['canvas_id']} :  #{annosForCanvas[1..100]}"
+    if Rails.application.config.useRedis == 'Y'
+      p "redis.get(@canvas: #{@canvas}"
+      #annoWLayerArrayUniq = @redis.get(@canvas)
+      annosForCanvas = @redis.get(@canvas)
+      if !annosForCanvas.nil?
+        #annoWLayerArrayUniq = annosForCanvas
+        p "YES: found response in redis for #{params['canvas_id']} :  #{annosForCanvas[1..100]}"
+      else
+        #annoWLayerArrayUniq = buildMemAnnosForCanvas @canvas
+        annosForCanvas = buildMemAnnosForCanvas @canvas
+        #annosForCanvas = @redis.get(@canvas)
+        p "NO: Just added redis record for annos on #{@canvas}"
+      end
+      annoWLayerArrayUniq = annosForCanvas
     else
-      #annoWLayerArrayUniq = buildMemAnnosForCanvas @canvas
-      annosForCanvas = buildMemAnnosForCanvas @canvas
-      #annosForCanvas = @redis.get(@canvas)
-      p "NO: Just added redis record for annos on #{@canvas}"
+      host_url_prefix = Rails.application.config.hostUrl
+      p "host url = #{host_url_prefix}"
+
+      bearerToken = ''
+      p 'in getAnnotationsForCanvasViaLists: params = ' + params.inspect
+      #p 'in getAnnotationsForCanvasViaLists: headers: ' + request.headers.inspect
+      #bearerToken = request.headers["bearer-token"] #user is logged in and has a bearer token
+      #p "bearerToken = #{bearerToken}"
+      #if (bearerToken)
+      #  @user = signInUserByBearerToken bearerToken
+      #end
+
+      ###!!!! change back so second query is active
+      #lists = AnnotationList.where("list_id like ? and list_id like ?", "%#{params['canvas_id']}%", "%/lists/%")
+      lists = AnnotationList.where("list_id like ? and list_id like ? and list_id like ?", "#{host_url_prefix}%", "%#{params['canvas_id']}%", "%/lists/%")
+
+      annoWLayerArray = Array.new
+
+      p  "in getAnnotationsForCanvasViaLists: lists.count = #{lists.count}"
+      lists.each do |list|
+        layer_id = getLayerFromListName list.list_id
+        if !layer_id.nil?
+          annotations = ListAnnotationsMap.getAnnotationsForList list.list_id
+          annotations.each do |annotation|
+            if !annotation.nil?
+              annoWLayerHash= Hash.new
+              annoWLayerHash["layer_id"] = layer_id
+              annoWLayerHash["annotation"] = annotation.to_iiif
+              annoWLayerArray.push(annoWLayerHash)
+            end
+          end
+        end
+      end
+      #annoWLayerArray.gsub!(/=>/,':')
+      annoWLayerArrayUniq = annoWLayerArray.uniq
+
     end
-    #p 'doing gsub'
-    #annosForCanvas.gsub!(/=>/,":")
-    #p 'done with gsub'
-    annoWLayerArrayUniq = annosForCanvas
+
     respond_to do |format|
       format.html {render json: annoWLayerArrayUniq}
       format.json {render json: annoWLayerArrayUniq, content_type: "application/json"}
-      #format.html {render json: annosForCanvas}
-      #format.json {render json: annosForCanvas, content_type: "application/json"}
     end
   end
 
@@ -803,8 +838,11 @@ class AnnotationsController < ApplicationController
 
   def set_redis
     p 'in set_redis'
-    #@redis = Redis.new
-    @redis = Redis.new(url: ENV["REDIS_URL"])
+    if !ENV["REDIS_URL"].nil?
+      @redis = Redis.new
+    else
+      @redis = Redis.new(url: ENV["REDIS_URL"])
+    end
   end
 
   def buildMemAnnosForCanvas canvas_id
@@ -834,7 +872,7 @@ class AnnotationsController < ApplicationController
         end
       end
     end
-    annoWLayerArrayUniq = annoWLayerArray.uniq.to_json
+    annoWLayerArrayUniq = annoWLayerArray.uniq
     @redis.set(canvas_id, annoWLayerArrayUniq)
     #return @redis.get(canvas_id)
   end

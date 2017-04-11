@@ -43,7 +43,7 @@ class Annotation < ActiveRecord::Base
     if (on.start_with?("{"))
       on.gsub!(/=>/,":")
       iiif['on'] = JSON.parse(on)
-      #iiif['on'] = JSON.parse(on.gsub(/=>/,":"))
+      ##iiif['on'] = JSON.parse(on.gsub(/=>/,":"))
     end
     rescue
       p "error in to_iiif: could not json.parse [on] for anno #{annotation_id}"
