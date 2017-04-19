@@ -40,10 +40,10 @@ class ListAnnotationsMap < ActiveRecord::Base
 
   def self.getAnnotationsForList list_id
     resources = Array.new
-    p "in getAnnotationsForList"
-    p "list_id passed in: #{list_id}"
+    #p "in getAnnotationsForList"
+    #p "list_id passed in: #{list_id}"
     @annoIds = self.where(list_id: list_id).order(:sequence)
-    p "annoIds found in list:#{@annoIds.count}"
+    #p "annoIds found in list:#{@annoIds.count}"
     @annoIds.each do |annotation|
       #resources.push(annotation.annotation_id)
       #p "looking for annotation_id: #{annotation.annotation_id}"

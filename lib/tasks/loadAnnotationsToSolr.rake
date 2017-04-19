@@ -52,7 +52,7 @@ namespace :loadAnnotationsToSolr do
         end
 
         # update annotation here
-        anno.update_attributes(:service_block => xywh)
+        #anno.update_attributes(:service_block => xywh)
         p "processed: #{count.to_s}) #{anno.annotation_id}: #{xywh}"
       end
   end
