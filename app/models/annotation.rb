@@ -310,6 +310,8 @@ class Annotation < ActiveRecord::Base
       begin
         panel = anno.annotation_id[panelIndex..chapterIndex-2].gsub!(/_/," ")
         p "panel = #{panel}"
+        # To-do
+        # qualify block below: if !panel.nil?
         panel = "Panel 1" if panel=="Panel A"
         panel = "Panel 2" if panel=="Panel B"
         chapter = anno.annotation_id[chapterIndex..sceneIndex-2].gsub!(/_/," ")
