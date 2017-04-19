@@ -260,8 +260,12 @@ class AnnotationsController < ApplicationController
     #authorize! :show, @annotation_list
     request.format = "json"
     respond_to do |format|
-      format.html # show.html.erb
-      format.json { render json: @annotation.to_iiif, content_type: "application/json" }
+      if !@annotation.nil?
+        format.html # show.html.erb
+        format.json { render json: @annotation.to_iiif, content_type: "application/json" }
+      else
+        format.json { render json: nil, status: :ok }
+      end
     end
   end
 
