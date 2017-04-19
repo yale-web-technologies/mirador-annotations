@@ -46,6 +46,9 @@ MiradorAnnotationsServer::Application.routes.draw do
   get 'getAccessToken', to: "application#get_access_token", defaults: {format: :json}
   get 'loginToServer', to: "application#login"
 
+  get 'doRedis', to: "annotations#doRedis"
+  get 'setRedisKeys', to: "annotations#setRedisKeys"
+
   match '/' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
   match 'getAccessToken' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
   match 'getAnnotations' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
