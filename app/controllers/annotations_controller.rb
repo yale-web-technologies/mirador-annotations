@@ -378,54 +378,60 @@ class AnnotationsController < ApplicationController
              :status => :unprocessable_entity
     else
       @annotation = Annotation.where(annotation_id: @annotationIn['@id']).first
+      #-------
       p 'just searched for this annotation: id = ' + @annotation.annotation_id
+      if @annotation.nil?
+        format.json { render json: nil, status: :ok }
+      else
+          #authorize! :update, @annotation
 
-      #authorize! :update, @annotation
+          if @annotation.version.nil? ||  @annotation.version < 1
+            @annotation.version = 1
+          end
+          if !version_annotation @annotation
+            errMsg = "Annotation could not be updated: " + @problem
+            render :json => { :error => errMsg },
+                   :status => :unprocessable_entity
+          end
 
-      if @annotation.version.nil? ||  @annotation.version < 1
-        @annotation.version = 1
+          if (updateLists == true)
+            p "updating lists for anno: #{@annotation.annotation_id}"
+            list_id =  constructRequiredListId @layerIdIn, @annotation.canvas
+            canvas_id = getTargetingAnnosCanvas(@annotation)
+            p "updating lists: constructed list = #{list_id}"
+            checkListExists list_id, @layerIdIn, canvas_id
+
+            @annotationIn['within'] = Array.new
+            @annotationIn['within'].push(list_id)
+
+            ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
+            p "******* just deleted list_anno_maps for #{ @annotation.annotation_id} *************"
+            p "******* within =  #{ @annotationIn['within'].to_s }************"
+            ListAnnotationsMap.setMap @annotationIn['within'], @annotation.annotation_id
+          end
+
+          newVersion = @annotation.version + 1
+          request.format = "json"
+          respond_to do |format|
+            if @annotation.update_attributes(
+                :annotation_type => @annotationIn['@type'],
+                :motivation => @annotationIn['motivation'],
+                :on => @annotationIn['on'],
+                :resource => @annotationIn['resource'].to_json,
+                :annotated_by => @annotationIn['annotatedBy'].to_json,
+                :version => newVersion,
+                :order_weight => @annotationIn['orderWeight']
+            )
+              format.html { redirect_to @annotation, notice: 'Annotation was successfully updated.' }
+              format.json { render json: @annotation.to_iiif, status: 200, content_type: "application/json"}
+            else
+              format.html { render action: "edit" }
+              format.json { render json: @annotation.errors, status: :unprocessable_entity, content_type: "application/json" }
+            end
+          end
       end
-      if !version_annotation @annotation
-        errMsg = "Annotation could not be updated: " + @problem
-        render :json => { :error => errMsg },
-               :status => :unprocessable_entity
-      end
 
-      if (updateLists == true)
-        p "updating lists for anno: #{@annotation.annotation_id}"
-        list_id =  constructRequiredListId @layerIdIn, @annotation.canvas
-        canvas_id = getTargetingAnnosCanvas(@annotation)
-        p "updating lists: constructed list = #{list_id}"
-        checkListExists list_id, @layerIdIn, canvas_id
 
-        @annotationIn['within'] = Array.new
-        @annotationIn['within'].push(list_id)
-
-        ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
-        p "******* just deleted list_anno_maps for #{ @annotation.annotation_id} *************"
-        p "******* within =  #{ @annotationIn['within'].to_s }************"
-        ListAnnotationsMap.setMap @annotationIn['within'], @annotation.annotation_id
-      end
-
-      newVersion = @annotation.version + 1
-      request.format = "json"
-      respond_to do |format|
-        if @annotation.update_attributes(
-            :annotation_type => @annotationIn['@type'],
-            :motivation => @annotationIn['motivation'],
-            :on => @annotationIn['on'],
-            :resource => @annotationIn['resource'].to_json,
-            :annotated_by => @annotationIn['annotatedBy'].to_json,
-            :version => newVersion,
-            :order_weight => @annotationIn['orderWeight']
-        )
-          format.html { redirect_to @annotation, notice: 'Annotation was successfully updated.' }
-          format.json { render json: @annotation.to_iiif, status: 200, content_type: "application/json"}
-        else
-          format.html { render action: "edit" }
-          format.json { render json: @annotation.errors, status: :unprocessable_entity, content_type: "application/json" }
-        end
-      end
     end
   end
 
@@ -443,22 +449,25 @@ class AnnotationsController < ApplicationController
 
 
     @annotation = Annotation.where(annotation_id: @ru).first
-    p 'just retrieved @annotation for destroy: ' + @annotation.annotation_id
-    #authorize! :delete, @annotation
-    if @annotation.version.nil? ||  @annotation.version < 1
-      @annotation.version = 1
-    end
-
-    if !version_annotation @annotation
-      errMsg = "Annotation could not be versioned: " + @problem
-      render :json => { :error => errMsg },
-             :status => :unprocessable_entity
-    end
-    ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
-    @annotation.destroy
-    respond_to do |format|
-      format.html { redirect_to annotation_layers_url }
-      format.json { head :no_content }
+    if @annotation.nil?
+      format.json { render json: nil, status: :ok }
+    else
+      p 'just retrieved @annotation for destroy: ' + @annotation.annotation_id
+      #authorize! :delete, @annotation
+      if @annotation.version.nil? ||  @annotation.version < 1
+        @annotation.version = 1
+      end
+      if !version_annotation @annotation
+        errMsg = "Annotation could not be versioned: " + @problem
+        render :json => { :error => errMsg },
+               :status => :unprocessable_entity
+      end
+      ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
+      @annotation.destroy
+      respond_to do |format|
+        format.html { redirect_to annotation_layers_url }
+        format.json { head :no_content }
+      end
     end
   end
 
