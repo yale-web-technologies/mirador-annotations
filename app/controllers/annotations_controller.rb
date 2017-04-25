@@ -31,86 +31,8 @@ class AnnotationsController < ApplicationController
       end
     end
 
-=begin
-  def getAnnotationsForCanvas
-    bearerToken = ''
-    bearerToken = request.headers["bearer-token"] #user is logged in and has a bearer token
-    #p "bearerToken = #{bearerToken}"
-    if (bearerToken)
-      @user = signInUserByBearerToken bearerToken
-    end
-
-    p 'request.headers["Content-Type"] = ' +  request.headers["Content-Type"] unless request.headers["Content-Type"].nil?
-    request.headers["Content-Type"] = "application/json"
-    p 'request.headers["Content-Type"] = ' +  request.headers["Content-Type"] unless request.headers["Content-Type"].nil?
-
-    @annotation = Annotation.where(canvas:params['canvas_id'])
-    if params['includeTargetingAnnos']== 'true'
-      @annotationsOnAnnotations = getTargetingAnnos @annotation
-    end
-
-    respond_to do |format|
-      annoWLayerArray = Array.new
-      iiif = Array.new
-      @annotation.each do |annotation|
-        within = ListAnnotationsMap.getListsForAnnotation annotation.annotation_id
-
-        #authorized = false
-        authorized = true
-        # TODO: turn authorization back on for next pass
-#=begin
-        within.each do |list_id|
-            # figure out if user has read permission on this list via cancan/webacl; if not do not include in returned annoarray
-            @annotation_list = AnnotationList.where(:list_id => list_id).first
-            if can? :show, @annotation_list
-              authorized = true
-            end
-        end
-#=end
-        if (authorized==true)
-          #iiif.push(annotation.to_iiif)
-          # return not just array of annotations but including an array of layers for each annotation as well
-          lists = ListAnnotationsMap.getListsForAnnotation annotation.annotation_id
-          lists.each do |list_id|
-            #if (!list_id.include?('/canvas/'))
-              #p "getAnnotationsForCanvas: doing list: #{list_id}"
-              layers = LayerListsMap.getLayersForList list_id
-              # 4/7/2016
-              #p "layers count = #{layers.count().to_s}"
-              annoWLayerHash= Hash
-                                  .new
-              if (layers.nil?)
-                #p "layers = nil"
-                #annoWLayerHash= Hash.new
-                annoWLayerHash["layer_id"] = "no layer"
-                annoWLayerHash["annotation"] = annotation.to_iiif
-                annoWLayerArray.push(annoWLayerHash)
-              else
-                #p "layers = NOT nil"
-                layers.each do |layer_id|
-                  #p "getAnnotationsForCanvas: doing layer: #{layer_id}"
-                  #p " "
-
-                  annoWLayerHash= Hash.new
-                  annoWLayerHash["layer_id"] = layer_id
-                  annoWLayerHash["annotation"] = annotation.to_iiif
-                  annoWLayerArray.push(annoWLayerHash)
-                end
-              end
-            #end
-          end
-        end
-      end
-
-      p annoWLayerArray.inspect
-
-      format.html {render json: annoWLayerArray}
-      format.json {render json: annoWLayerArray, content_type: "application/json"}
-      end
-  end
 
   def getAnnotationsForCanvasViaListsPreRedis
-
     # add redis
     annosForCanvas = ''
     @canvas = params['canvas_id']
@@ -165,7 +87,6 @@ class AnnotationsController < ApplicationController
       format.json {render json: annoWLayerArrayUniq, content_type: "application/json"}
     end
   end
-=end
 
   def getAnnotationsForCanvasViaLists
     annosForCanvas = ''
@@ -306,16 +227,11 @@ class AnnotationsController < ApplicationController
       @annotationOut['active'] = true
       @annotationOut['version'] = 1
 
-      # a test for multiple on's:
-      #@annotationIn['on'] = '[{
-      #   "@type": "oa:Annotation",
-      #   "full": "http://localhost:5000/annotations/Panel_B_Chapter_26_Scene_1_1_Tibetan_Sun_Of_Faith"
-      #   },
-      #   {
-      #   "@type": "oa:Annotation",
-      #   "full": "http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01"
-      # }]'
-
+#=====================================================================
+      # hardcode a multiple on as test for multiple on's:
+      @annotationIn['on'] =
+'[{"@type": "oa:Annotation","full": "http://localhost:5000/annotations/Panel_1_Chapter_10_Scene_6_1_English_Manual"},{"@type": "oa:Annotation","full": "http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01"}]'
+#=====================================================================
       @annotationOut['on'] = @annotationIn['on']
       p "@annotationIn['on'] = #{@annotationIn['on']}"
 
@@ -561,6 +477,8 @@ class AnnotationsController < ApplicationController
           @annotation = Annotation.where(annotation_id:on['full']).first
           @canvas_id = getTargetingAnnosCanvas(@annotation)
         end
+        p "now @canvas_id = #{@canvas_id}"
+        #@canvas_id = on['full']
         @required_list_id = constructRequiredListId @layer_id, @canvas_id
         checkListExists @required_list_id, @layer_id, @canvas_id
         #====================================
