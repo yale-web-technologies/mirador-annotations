@@ -27,12 +27,16 @@ development:
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
+  database: ~/rails_projects/mirador_lotb/db/development.sqlite3
+  adapter: sqlite3
+  pool: 5
+  timeout: 5000
  # <<: *default
  # database: db/test.sqlite3
-    adapter: postgresql
-    encoding: unicode
-    host: localhost #:5432
-    database: tenkr_rebuild_local
+    #adapter: postgresql
+    #encoding: unicode
+    #host: localhost #:5432
+    #database: tenkr_rebuild_local
 
 production:
   adapter: postgresql
