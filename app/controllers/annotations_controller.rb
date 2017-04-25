@@ -198,6 +198,8 @@ class AnnotationsController < ApplicationController
     @layer_id = @paramsIn['layer_id']
     @annotationIn = @paramsIn['annotation']
 
+    p  "!!@annotationIn['@type'] = #{@annotationIn['@type']}"
+
     @problem = ''
     #if !validate_annotation @annotationIn
     #  errMsg = "Annotation record not valid and could not be saved: " + @problem
