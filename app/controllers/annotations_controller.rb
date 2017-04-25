@@ -287,12 +287,12 @@ class AnnotationsController < ApplicationController
     p "updateLists = #{updateLists}"
 
     @problem = ''
-    if !validate_annotation @annotationIn
-      errMsg = "Annotation not valid and could not be updated: " + @problem
-      p "Annotation not valid and could not be updated: #{errMsg}"
-      render :json => { :error => errMsg },
-             :status => :unprocessable_entity
-    else
+    #if !validate_annotation @annotationIn
+    #  errMsg = "Annotation not valid and could not be updated: " + @problem
+    #  p "Annotation not valid and could not be updated: #{errMsg}"
+    #  render :json => { :error => errMsg },
+    #         :status => :unprocessable_entity
+    #else
       @annotation = Annotation.where(annotation_id: @annotationIn['@id']).first
       #-------
       p 'just searched for this annotation: id = ' + @annotation.annotation_id
@@ -348,7 +348,7 @@ class AnnotationsController < ApplicationController
       end
 
 
-    end
+    #end
   end
 
   # DELETE /annotation/1
