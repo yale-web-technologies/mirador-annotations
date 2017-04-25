@@ -230,7 +230,7 @@ class AnnotationsController < ApplicationController
 #=====================================================================
       # hardcode a multiple on as test for multiple on's:
       @annotationIn['on'] =
-'[{"@type": "oa:Annotation","full": "http://localhost:5000/annotations/Panel_1_Chapter_10_Scene_6_1_English_Manual"},{"@type": "oa:Annotation","full": "http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01"}]'
+'[{"@type": "oa:Annotation","full": "http://mirador-annotations-tenkr-stg.herokuapp.com/annotations/6172538a-3433-4eb5-aaa6-de6c562ab7ab"},{"@type": "oa:Annotation","full": "http://manifest.tenthousandrooms.yale.edu/node/311/canvas/14116"}]'
 #=====================================================================
       @annotationOut['on'] = @annotationIn['on']
       p "@annotationIn['on'] = #{@annotationIn['on']}"
