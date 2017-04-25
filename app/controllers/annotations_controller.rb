@@ -199,11 +199,11 @@ class AnnotationsController < ApplicationController
     @annotationIn = @paramsIn['annotation']
 
     @problem = ''
-    if !validate_annotation @annotationIn
-      errMsg = "Annotation record not valid and could not be saved: " + @problem
-      render :json => { :error => errMsg },
-             :status => :unprocessable_entity
-    else
+    #if !validate_annotation @annotationIn
+    #  errMsg = "Annotation record not valid and could not be saved: " + @problem
+    #  render :json => { :error => errMsg },
+    #         :status => :unprocessable_entity
+    #else
       #@ru = request.original_url.split('?').first
       # replace @ru with hostUrl environment variable
       p "host url = #{Rails.application.config.hostUrl}"
@@ -257,7 +257,7 @@ class AnnotationsController < ApplicationController
           format.json { render json: @annotation.errors, status: :unprocessable_entity, content_type: "application/json" }
         end
       end
-    end
+    #end
   end
 
   # PUT /annotation/1
