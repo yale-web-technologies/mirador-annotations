@@ -198,7 +198,13 @@ class AnnotationsController < ApplicationController
     @layer_id = @paramsIn['layer_id']
     @annotationIn = @paramsIn['annotation']
 
-    p  "!!@annotationIn['@type'] = #{@annotationIn['@type']}"
+    puts "\n"
+    p  "in CreateAnno params = #{params.inspect}"
+    p  "in CreateAnno @layer_id = #{params['layer_id']}"
+    p  "in CreateAnno @layer_id = #{@layer_id}"
+    p  "in CreateAnno @annotationIn['@type'] = #{@annotationIn['@type']}"
+    p  "in CreateAnno @annotationIn = #{@annotationIn.to_s}"
+    puts "\n"
 
     @problem = ''
     #if !validate_annotation @annotationIn
@@ -492,6 +498,9 @@ class AnnotationsController < ApplicationController
     @ru = Rails.application.config.hostUrl
     @ru += '/'   if !@ru.end_with? '/'
     #list_id = request.protocol + request.host_with_port + "/lists/" + layer_id + "_" + canvas_id # host_with_port seems to be returning varying values
+    puts "\n"
+    p "in constructRequiredListId: layer_id = #{layer_id}  and canvas_id = #{canvas_id}"
+    puts "\n"
     list_id = @ru + "lists/" + layer_id + "_" + canvas_id
   end
 
