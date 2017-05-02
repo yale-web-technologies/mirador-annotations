@@ -70,7 +70,8 @@ class AnnotationsController < ApplicationController
           if !layer_id.nil?
             annotations = ListAnnotationsMap.getAnnotationsForList list.list_id
             annotations.each do |annotation|
-              if !annotation.nil?
+              #if !annotation.nil?
+              if !annotation.nil? && @canvas = annotation
                 annoWLayerHash= Hash.new
                 annoWLayerHash["layer_id"] = layer_id
                 annoWLayerHash["annotation"] = annotation.to_iiif
@@ -196,14 +197,60 @@ class AnnotationsController < ApplicationController
     # for new params with layer_id and annotation
     @paramsIn = params
     @layer_id = @paramsIn['layer_id']
+    #!!! uncomment below and lose the hardcode test
     @annotationIn = @paramsIn['annotation']
+    p  "in CreateAnno @annotationIn = #{@annotationIn.to_s}"
+    #@annotationIn = JSON.parse(@annotationIn)
 
+=begin
+    # Hardcode this test
+    @layer_id = "http://mirador-annotation-tenkr-stg.herokuapp.com/layers/18e7f773-e1af-4fb6-a303-4f2a4c5d90e9"
+    @annotationIn = '{
+    "@type": "oa:Annotation",
+    "@context": "http://iiif.io/api/presentation/2/context.json",
+    "motivation": [
+      "oa:commenting"
+    ],
+    "resource": [
+      {
+        "@type": "dctypes:Text",
+        "format": "text/html",
+        "chars": "<p>test array</p>"
+      }
+    ],
+    "on": [
+      {
+        "@type": "oa:SpecificResource",
+        "full": "http://manifest.tenthousandrooms.yale.edu/node/311/canvas/14116",
+        "selector": {
+          "@type": "oa:Choice",
+          "default": {
+            "@type": "oa:FragmentSelector",
+            "value": "xywh=204,357,168,191"
+          },
+          "item": {
+            "@type": "oa:SvgSelector"
+}
+},
+        "within": {
+          "@id": "http://manifest.tenthousandrooms.yale.edu/node/311/manifest",
+          "@type": "sc:Manifest"
+        }
+      }
+    ]
+  }'
+    # End of Hardcode test
+=end
+    @annotationIn = JSON.parse(@annotationIn)
     puts "\n"
+    p '============================================================================='
     p  "in CreateAnno params = #{params.inspect}"
     p  "in CreateAnno @layer_id = #{params['layer_id']}"
     p  "in CreateAnno @layer_id = #{@layer_id}"
     p  "in CreateAnno @annotationIn['@type'] = #{@annotationIn['@type']}"
-    p  "in CreateAnno @annotationIn = #{@annotationIn.to_s}"
+
+    p  "in CreateAnno @annotationIn['resource'] = #{@annotationIn['resource'].to_s}"
+    p '============================================================================='
     puts "\n"
 
     @problem = ''
@@ -230,7 +277,7 @@ class AnnotationsController < ApplicationController
       @annotationOut['description'] = @annotationIn['description']
       @annotationOut['annotated_by'] = @annotationIn['annotatedBy'].to_json
       #TODO: consider if canvas convenience field should be set to original canvas for targeting annotations as well.
-      @annotationOut['canvas']  = @annotationIn['on']['full']
+      #@annotationOut['canvas']  = @annotationIn['on']['full']
       @annotationOut['resource']  = @annotationIn['resource'].to_json
       @annotationOut['active'] = true
       @annotationOut['version'] = 1
@@ -247,6 +294,7 @@ class AnnotationsController < ApplicationController
       # and create as needed (if this is the first annotation for this layer/canvas)
       # Deal with possibility of 'on' being multiple canvases (or annotations); in this case 'on' will look like an array, which will mean multiple lists
       if !@annotationIn['on'].to_s.start_with?("[")
+      #if @annotationIn['on'].kind_of?(Array)
         handleRequiredList
       else
         handleRequiredListMultipleOn
@@ -473,8 +521,12 @@ class AnnotationsController < ApplicationController
    #   "@type": "oa:Annotation",
    #   "full": "http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01"
    #  }]'
-    on_array = JSON.parse(@annotationIn['on'])
-    on_array.each do |on|
+    p 'What is wrong with the on_array?'
+    p "@annotationIn['on']: #{@annotationIn['on']}"
+    puts "\n"
+    #on_array = JSON.parse(@annotationIn['on'])
+    #on_array.each do |on|
+    @annotationIn['on'].each do |on|
         on = JSON.parse(on.to_json)
         #===================================
         @canvas_id = on['full']
