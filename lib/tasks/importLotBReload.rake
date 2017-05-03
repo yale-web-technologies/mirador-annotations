@@ -16,7 +16,7 @@ namespace :importLotBReload do
     require 'csv'
 
     @ru = Rails.application.config.hostUrl
-    if @ru.endWith?('/')
+    if @ru.end_with?('/')
       @ru = @ru[0...-1]
     end
 
