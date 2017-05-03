@@ -16,6 +16,9 @@ namespace :importLotBReload do
     require 'csv'
 
     @ru = Rails.application.config.hostUrl
+    if @ru.endWith?('/')
+      @ru = @ru[0...-1]
+    end
 
     labels = Array.new
     i = 0
