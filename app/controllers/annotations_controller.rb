@@ -875,14 +875,14 @@ class AnnotationsController < ApplicationController
     @redis = Redis.new(url: ENV["REDIS_URL"])
 
     p "about to set redisKey for panel_01"
-    # redisValue_Panel_01 = open("http://annotations.lotb.yale.edu/getAnnotationsViaList?canvas_id=http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01/getAnnotationsViaList?canvas_id=http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01").read
-    redisValue_Panel_01 = open("http://annotations.lotb.yale.edu/getAnnotationsViaList?canvas_id=http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01/getAnnotationsViaList?canvas_id=http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01").read
+    # redisValue_Panel_01 = open("http://annotations.lotb.yale.edu/getAnnotationsViaList?canvas_id=http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01").read
+    redisValue_Panel_01 = open("http://annotations.lotb.yale.edu/getAnnotationsViaList?canvas_id=http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01").read
     redisValue_Panel_01.gsub!(/=>/,":")
     #redisValue_Panel_01 = JSON.parse(redisValue_Panel_01)
     @redis.set("http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01",redisValue_Panel_01)
 
     p "about to set redisKey for bv11"
-    #redisValue_bv11 =open("http://annotations.lotb.yale.edu/getAnnotationsViaList?canvas_id=http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01/getAnnotationsViaList?canvas_id=http://manifests.ydc2.yale.edu/LOTB/canvas/bv11").read
+    #redisValue_bv11 =open("http://annotations.lotb.yale.edu/getAnnotationsViaList?canvas_id=http://manifests.ydc2.yale.edu/LOTB/canvas/bv11").read
     #redisValue_bv11.gsub!(/=>/,":")
     #@redis.set("http://manifests.ydc2.yale.edu/LOTB/canvas/bv11",redisValue_bv11)
     #p "both keys set"
