@@ -899,7 +899,7 @@ class AnnotationsController < ApplicationController
 
     respond_to do |format|
       format.html { render html: 'RedisKey set', status: :ok }
-      format.json { render json: 'RedisKey set', status: :ok }
+      format.json { render json: '{"RedisKey": "set"}', status: :ok }
     end
   end
 
