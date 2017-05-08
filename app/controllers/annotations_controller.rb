@@ -886,7 +886,6 @@ class AnnotationsController < ApplicationController
     p "about to set redisKey for #{@canvasKey}"
     p "ru = #{@ru}"
 
-    urlForRedisKey = @ru + "setRedisKeys/canvas_id? #{@canvasKey}"
     redisValue = open(urlForRedisKey).read
     #redisValue.gsub!(/=>/,":")
     @redis.set(@canvasKey,redisValue)
