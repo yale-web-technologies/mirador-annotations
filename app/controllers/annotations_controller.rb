@@ -46,7 +46,7 @@ class AnnotationsController < ApplicationController
     else
         # replace @ru with hostUrl environment variable
         host_url_prefix = Rails.application.config.hostUrl
-        host_url_prefix = 'localhost:5000/'
+        #host_url_prefix = 'localhost:5000/'
         p "host url = #{host_url_prefix}"
 
         bearerToken = ''
@@ -874,7 +874,15 @@ class AnnotationsController < ApplicationController
   def setRedisKeys
     #annotations.lotb.yale.edu/setRedisKeys?canvas_id=http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01
     @redis = Redis.new(url: ENV["REDIS_URL"])
+
     @canvasKey = params['canvas_id']
+    if Rails.application.config.hostUrl.end_with?("/")
+      urlForRedisKey = Rails.application.config.hostUrl + "setRedisKeys/#{@canvasKey}"
+    else
+      urlForRedisKey  = Rails.application.config.hostUrl + "/setRedisKeys/#{@canvasKey}"
+    end
+
+
     p "about to set redisKey for #{@canvasKey}"
     p "ru = #{@ru}"
 
