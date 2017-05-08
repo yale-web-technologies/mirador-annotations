@@ -877,9 +877,9 @@ class AnnotationsController < ApplicationController
 
     @canvasKey = params['canvas_id']
     if Rails.application.config.hostUrl.end_with?("/")
-      urlForRedisKey = Rails.application.config.hostUrl + "setRedisKeys/#{@canvasKey}"
+      urlForRedisKey = Rails.application.config.hostUrl + "getAnnotationsViaList/#{@canvasKey}"
     else
-      urlForRedisKey  = Rails.application.config.hostUrl + "/setRedisKeys/#{@canvasKey}"
+      urlForRedisKey  = Rails.application.config.hostUrl + "/getAnnotationsViaList/#{@canvasKey}"
     end
 
 
