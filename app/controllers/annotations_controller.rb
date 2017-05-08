@@ -872,11 +872,13 @@ class AnnotationsController < ApplicationController
   end
 
   def setRedisKeys
+    #annotations.lotb.yale.edu/setRedisKeys?canvas_id=http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01
     @redis = Redis.new(url: ENV["REDIS_URL"])
     @canvasKey = params['canvas_id']
     p "about to set redisKey for #{@canvasKey}"
+    p "ru = #{@ru}"
 
-    urlForRedisKey = @ru + "setRedisKeys/canvas_id? #{@canvas}"
+    urlForRedisKey = @ru + "setRedisKeys/canvas_id? #{@canvasKey}"
     redisValue = open(urlForRedisKey).read
     #redisValue.gsub!(/=>/,":")
     @redis.set(@canvasKey,redisValue)
@@ -888,7 +890,9 @@ class AnnotationsController < ApplicationController
     # redisValue_Panel_01 = JSON.parse(redisValue_Panel_01)
     # @redis.set("http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01",redisValue_Panel_01)
 
-
+    respond_to do |format|
+      format.json { render json: nil, status: :ok }
+    end
   end
 
 end
