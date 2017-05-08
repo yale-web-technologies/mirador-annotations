@@ -897,9 +897,10 @@ class AnnotationsController < ApplicationController
     # redisValue_Panel_01 = JSON.parse(redisValue_Panel_01)
     # @redis.set("http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01",redisValue_Panel_01)
 
+    response = '{"redisKey":"#{@canvasKey} set"}'
     respond_to do |format|
-      format.html { render html: 'Redis Key ' + @canvasKey + ' set', status: :ok }
-      format.json { render json: 'Redis Key ' + @canvasKey + ' set', status: :ok }
+      format.html { render html: response, status: :ok }
+      format.json { render json: response, status: :ok }
     end
   end
 
