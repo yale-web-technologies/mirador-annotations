@@ -200,62 +200,20 @@ class AnnotationsController < ApplicationController
     @paramsIn = params
     @layer_id = @paramsIn['layer_id']
     #testParam = @paramsIn['testParam']
-    p  "in CreateAnno @layer_id = #{@layer_in}"
+    p  "in CreateAnno @layer_id = #{@layer_id}"
     #p  "in CreateAnno testParam = #{testParam}"
 
     #!!! uncomment below and lose the hardcode test
     @annotationIn = @paramsIn['annotation']
     p  "in CreateAnno @annotationIn = #{@annotationIn}"
-    p  "in CreateAnno @annotationIn = #{@annotationIn.to_s}"
+    #p  "in CreateAnno @annotationIn = #{@annotationIn.to_s}"
     #@annotationIn = JSON.parse(@annotationIn)
-
-=begin
-    # Hardcode this test
-    @layer_id = "http://mirador-annotation-tenkr-stg.herokuapp.com/layers/18e7f773-e1af-4fb6-a303-4f2a4c5d90e9"
-    @annotationIn = '{
-    "@type": "oa:Annotation",
-    "@context": "http://iiif.io/api/presentation/2/context.json",
-    "motivation": [
-      "oa:commenting"
-    ],
-    "resource": [
-      {
-        "@type": "dctypes:Text",
-        "format": "text/html",
-        "chars": "<p>test array</p>"
-      }
-    ],
-    "on": [
-      {
-        "@type": "oa:SpecificResource",
-        "full": "http://manifest.tenthousandrooms.yale.edu/node/311/canvas/14116",
-        "selector": {
-          "@type": "oa:Choice",
-          "default": {
-            "@type": "oa:FragmentSelector",
-            "value": "xywh=204,357,168,191"
-          },
-          "item": {
-            "@type": "oa:SvgSelector"
-}
-},
-        "within": {
-          "@id": "http://manifest.tenthousandrooms.yale.edu/node/311/manifest",
-          "@type": "sc:Manifest"
-        }
-      }
-    ]
-  }'
-    # End of Hardcode test
-=end
     @annotationIn = JSON.parse(@annotationIn.to_s)
     puts "\n"
     p '============================================================================='
     p  "in CreateAnno params = #{params.inspect}"
-    p  "in CreateAnno @layer_id = #{params['layer_id']}"
     p  "in CreateAnno @layer_id = #{@layer_id}"
     p  "in CreateAnno @annotationIn['@type'] = #{@annotationIn['@type']}"
-
     p  "in CreateAnno @annotationIn['resource'] = #{@annotationIn['resource'].to_s}"
     p '============================================================================='
     puts "\n"
