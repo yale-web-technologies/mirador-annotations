@@ -126,7 +126,9 @@ class AnnotationsController < ApplicationController
       annoWLayerArray = Array.new
 
       p  "in getAnnotationsForCanvasViaLists: lists.count = #{lists.count}"
+
       lists.each do |list|
+        p  "               list_id = #{list.list_id}"
         layer_id = getLayerFromListName list.list_id
         if !layer_id.nil?
           annotations = ListAnnotationsMap.getAnnotationsForList list.list_id
@@ -197,8 +199,13 @@ class AnnotationsController < ApplicationController
     # for new params with layer_id and annotation
     @paramsIn = params
     @layer_id = @paramsIn['layer_id']
+    #testParam = @paramsIn['testParam']
+    p  "in CreateAnno @layer_id = #{@layer_in}"
+    #p  "in CreateAnno testParam = #{testParam}"
+
     #!!! uncomment below and lose the hardcode test
     @annotationIn = @paramsIn['annotation']
+    p  "in CreateAnno @annotationIn = #{@annotationIn}"
     p  "in CreateAnno @annotationIn = #{@annotationIn.to_s}"
     #@annotationIn = JSON.parse(@annotationIn)
 
@@ -262,7 +269,7 @@ class AnnotationsController < ApplicationController
       #@ru = request.original_url.split('?').first
       # replace @ru with hostUrl environment variable
       p "host url = #{Rails.application.config.hostUrl}"
-      @ru = Rails.application.config.hostUrl + "annotations"
+      @ru = Rails.application.config.hostUrl + "/annotations"
       @ru += '/'   if !@ru.end_with? '/'
 
       @annotation_id = @ru + SecureRandom.uuid
@@ -276,8 +283,10 @@ class AnnotationsController < ApplicationController
       @annotationOut['motivation'] = @annotationIn['motivation']
       @annotationOut['description'] = @annotationIn['description']
       @annotationOut['annotated_by'] = @annotationIn['annotatedBy'].to_json
+
       #TODO: consider if canvas convenience field should be set to original canvas for targeting annotations as well.
-      #@annotationOut['canvas']  = @annotationIn['on']['full']
+      # @annotationOut['canvas']  = @annotationIn['on']['full']
+
       @annotationOut['resource']  = @annotationIn['resource'].to_json
       @annotationOut['active'] = true
       @annotationOut['version'] = 1
@@ -296,10 +305,14 @@ class AnnotationsController < ApplicationController
       if !@annotationIn['on'].to_s.start_with?("[")
       #if @annotationIn['on'].kind_of?(Array)
         handleRequiredList
+        @annotationOut['canvas'] = @annotationIn['on']['full']
       else
         handleRequiredListMultipleOn
+        @annotationOut['canvas'] = setMultipleCanvas
       end
 
+    p "in CreateAnno: @annotationOut['canvas'] = #{@annotationOut['canvas']}"
+    p "in CreateAnno: about to setMap: @annotationIn['within'] = #{@annotationIn['within']}"
       ListAnnotationsMap.setMap @annotationIn['within'], @annotation_id
       create_annotation_acls_via_parent_lists @annotation_id
       @annotation = Annotation.new(@annotationOut)
@@ -500,6 +513,7 @@ class AnnotationsController < ApplicationController
   def handleRequiredList
     p 'in HandleRequiredList'
     @canvas_id =  @annotationIn['on']['full']
+    p "on-full = #{@annotationIn['on']['full']}"
     if (!@annotationIn['on']['full'].to_s.include?('/canvas/'))
       @annotation = Annotation.where(annotation_id:@annotationIn['on']['full']).first
       @canvas_id = getTargetingAnnosCanvas(@annotation)
@@ -509,40 +523,47 @@ class AnnotationsController < ApplicationController
   end
 
   def handleRequiredListMultipleOn
-    p 'in HandleRequiredListMultipleOn:'
+    #p 'in HandleRequiredListMultipleOn:'
     #****************************************************
     # multiple "on's" will be an array
     #****************************************************
-   # @annotationIn['on'] = '[{
-   #   "@type": "oa:Annotation",
-   #   "full": "http://localhost:5000/annotations/Panel_B_Chapter_26_Scene_1_1_Tibetan_Sun_Of_Faith"
-   #    },
-   #   {
-   #   "@type": "oa:Annotation",
-   #   "full": "http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01"
-   #  }]'
-    p 'What is wrong with the on_array?'
-    p "@annotationIn['on']: #{@annotationIn['on']}"
-    puts "\n"
-    #on_array = JSON.parse(@annotationIn['on'])
-    #on_array.each do |on|
+    #p "@annotationIn[annoId]: #{@annotationIn['annotation_id']}"
+    #p "@annotationIn['on']: #{@annotationIn['on']}"
+    #puts "\n"
+    #on_array = JSON.parse(@annotationIn['on'].split(","))
     @annotationIn['on'].each do |on|
+        #p "in ['on'] loop: on = : #{on}"
         on = JSON.parse(on.to_json)
         #===================================
         @canvas_id = on['full']
-        #@canvas_id = on.full
-        p "@canvas_id = #{@canvas_id}"
+        #p "@canvas_id = #{@canvas_id}"
         if (!on['full'].to_s.include?('/canvas/'))
           #@annotation = Annotation.where(annotation_id:on['full']).first
-          @annotation = Annotation.where(annotation_id:on['full']).first
-          @canvas_id = getTargetingAnnosCanvas(@annotation)
+          @annotation = Annotation.where("annotation_id like ? ", "%#{on['full']}%").first
+          if !@annotation.nil?
+            #p "@annotationIn[annoId]just found for this on: #{@annotation.annotation_id}"
+            @canvas_id = getTargetingAnnosCanvas(@annotation)
+          end
         end
-        p "now @canvas_id = #{@canvas_id}"
+        #return nil if @canvas_id.nil?
+        #p "now @canvas_id = #{@canvas_id}"
         #@canvas_id = on['full']
-        @required_list_id = constructRequiredListId @layer_id, @canvas_id
-        checkListExists @required_list_id, @layer_id, @canvas_id
+        @required_list_id = constructRequiredListId @layer_id, @canvas_id if !@canvas_id.nil?
+        checkListExists @required_list_id, @layer_id, @canvas_id  if !@canvas_id.nil?
         #====================================
     end
+  end
+
+  def setMultipleCanvas
+    @annotationIn['canvas'] = '|'
+    @annotationIn['on'].each do |on|
+     @annotationIn['canvas'] +=  on['full'] + '|'
+     # p "in setMultipleCanvas: " + @annotationIn['canvas']
+     # p "on = #{on}"
+      #p "on['full'] = #{on['full']}"
+      #puts "\n"
+    end
+    return @annotationIn['canvas']
   end
 
   def constructRequiredListId layer_id, canvas_id
@@ -629,11 +650,20 @@ class AnnotationsController < ApplicationController
   def getTargetingAnnosCanvas inputAnno
     return if inputAnno.nil?
     return(inputAnno.canvas) if (inputAnno.canvas.to_s.include?('/canvas/'))
-    #p "getTargetingAnnosCanvas:                        anno_id = #{inputAnno.annotation_id}  and canvas = #{inputAnno.canvas}"
+    p "in getTargetingAnnosCanvas: inputAnno.canvas = #{inputAnno.canvas}"
+    p "getTargetingAnnosCanvas:                        anno_id = #{inputAnno.annotation_id}  and canvas = #{inputAnno.canvas}"
     #targetAnnotation = Annotation.where(canvas:inputAnno.canvas).first
-    targetAnnotation = Annotation.where(annotation_id:inputAnno.canvas).first
-    #p "just got targetAnnotation based on that canvas: anno_id = #{targetAnnotation.annotation_id}  and canvas = #{targetAnnotation.canvas} "
+    #targetAnnotation = Annotation.where(annotation_id:inputAnno.canvas).first
+    targetAnnotation = Annotation.where("annotation_id like ? ", "%#{inputAnno.canvas}%").first
+
+
+    if targetAnnotation.nil?
+      p "in getTargetingAnnosCanvas: got nil annotation from canvas and returning nil"
+      return
+    else
+    p "just got targetAnnotation based on that canvas: anno_id = #{targetAnnotation.annotation_id}  and canvas = #{targetAnnotation.canvas} "
     getTargetingAnnosCanvas targetAnnotation
+    end
   end
 
   # REST call to return canvas_id for an annotations. A wrapper for getTargetingAnnosCanvas
@@ -846,8 +876,8 @@ class AnnotationsController < ApplicationController
     p "buildMemAnnosForCanvas: canvas = #{canvas_id}"
 
     ###!!!! change back so second query is active
-    lists = AnnotationList.where("list_id like ? and list_id like ?", "%#{canvas_id}%", "%/lists/%")
-    #lists = AnnotationList.where("list_id like ? and list_id like ? and list_id like ?", "#{host_url_prefix}%", "%#canvas_id}%", "%/lists/%")
+    #lists = AnnotationList.where("list_id like ? and list_id like ?", "%#{canvas_id}%", "%/lists/%")
+    lists = AnnotationList.where("list_id like ? and list_id like ? and list_id like ?", "#{host_url_prefix}%", "%#canvas_id}%", "%/lists/%")
 
     annoWLayerArray = Array.new
 
