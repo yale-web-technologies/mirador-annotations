@@ -128,28 +128,31 @@ class AnnotationsController < ApplicationController
       p  "in getAnnotationsForCanvasViaLists: lists.count = #{lists.count}"
 
       lists.each do |list|
-        p  "               list_id = #{list.list_id}"
+        #p  "               list_id = #{list.list_id}"
         layer_id = getLayerFromListName list.list_id
         if !layer_id.nil?
           annotations = ListAnnotationsMap.getAnnotationsForList list.list_id
           annotations.each do |annotation|
-            if !annotation.nil?
-              annoWLayerHash= Hash.new
-              annoWLayerHash["layer_id"] = layer_id
-              annoWLayerHash["annotation"] = annotation.to_iiif
-              annoWLayerArray.push(annoWLayerHash)
+            if !annotation.nil? &&
+              if !annotation.active==false # [jrl]
+                #p "annotation.active = #{annotation.active}"
+                annoWLayerHash= Hash.new
+                annoWLayerHash["layer_id"] = layer_id
+                annoWLayerHash["annotation"] = annotation.to_iiif
+                annoWLayerArray.push(annoWLayerHash)
+              end
             end
           end
         end
+        #annoWLayerArray.gsub!(/=>/,':')
+        annoWLayerArrayUniq = annoWLayerArray.uniq
+
       end
-      #annoWLayerArray.gsub!(/=>/,':')
-      annoWLayerArrayUniq = annoWLayerArray.uniq
 
-    end
-
-    respond_to do |format|
-      format.html {render json: annoWLayerArrayUniq}
-      format.json {render json: annoWLayerArrayUniq, content_type: "application/json"}
+      respond_to do |format|
+        format.html {render json: annoWLayerArrayUniq}
+        format.json {render json: annoWLayerArrayUniq, content_type: "application/json"}
+      end
     end
   end
 
@@ -870,9 +873,9 @@ class AnnotationsController < ApplicationController
       urlForRedisKey  = Rails.application.config.hostUrl + "/getAnnotationsViaList/?canvas_id=#{@canvasKey}"
     end
 
-
-    p "about to set redisKey for #{@canvasKey}"
-    p urlForRedisKey = #{urlForRedisKey}"
+    p "setRedisKeys: env[redis_url'] = #{ENV['REDIS_URL']}"
+    p "setRedisKeys: about to set redisKey for #{@canvasKey}"
+    p "setRedisKeys: urlForRedisKey = #{urlForRedisKey}"
 
     redisValue = open(urlForRedisKey).read
     redisValue.gsub!(/=>/,":")

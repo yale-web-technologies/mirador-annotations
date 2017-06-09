@@ -21,7 +21,7 @@ class Annotation < ActiveRecord::Base
   def to_iiif
     #return if (label.startsWith?=='Tibetan')
     iiif = Hash.new
-    p "to_iiif: annotation_id = #{annotation_id}: resource: #{resource}"
+    #p "to_iiif: annotation_id = #{annotation_id}: resource: #{resource}"
     iiif['@id'] = annotation_id
     iiif['@type'] = annotation_type
     iiif['@context'] = "http://iiif.io/api/presentation/2/context.json"
