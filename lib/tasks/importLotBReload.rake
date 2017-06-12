@@ -36,6 +36,7 @@ namespace :importLotBReload do
       p "chapterFilename = #{chapterFilename}"
       firstLineInChapter = 0
       CSV.foreach(chapterFilename) do |row|
+
         firstLineInChapter += 1; # total counter
         puts "i = #{i.to_s}  chapter: #{chapterFilename}"
         puts 'row.size = ' + row.size.to_s
