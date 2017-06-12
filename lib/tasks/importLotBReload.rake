@@ -52,7 +52,11 @@ namespace :importLotBReload do
           chapter = row[1]
 
           #set the canvas based on the chapter number, since row[0] is not always filled in
-          if (panel == "B")
+          #if (panel == "B")
+
+
+
+          if panel == "B" || panel == "2"
             canvas = 'http://manifests.ydc2.yale.edu/LOTB/canvas/bv11'
           else
             canvas = 'http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01'
@@ -413,7 +417,7 @@ namespace :importLotBReload do
           end
 
           #===================================================================================================================================================================
-          # create the Secondary/Tertiary Canonical annotation for this row ([10]
+          # create the Scene Working Notes annotation for this row ([10]
 
 
           unless row[11].nil?
