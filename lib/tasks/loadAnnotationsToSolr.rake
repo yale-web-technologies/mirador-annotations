@@ -1,4 +1,5 @@
 require 'csv'
+require 'aws-sdk-rails'
 namespace :loadAnnotationsToSolr do
 
   desc "add BoundingBox x,y height and width to annotations"
@@ -118,9 +119,20 @@ namespace :loadAnnotationsToSolr do
       CSV.open("AnnosNoResourceLOTB.csv", "w") do |csv|
         Annotation.feedAnnosNoResource csv
       end
-    end
-    # todo: copy file to an S3 bucket
 
+      # upload to S3 bucket
+      s3 = Aws::S3::Resource.new(region: 'us-east-1',
+      access_key_id: 'AKIAIMA6TZV7PEDMLY7Q',
+      secret_access_key: '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'
+      )
+      file = 'AnnosNoResourceLOTB.csv'
+      name = "dev_annotation/" + File.basename(file)
+      bucket = 'images.tenthousandrooms.yale.edu'
+      obj = s3.bucket(bucket).object(name)
+      obj.upload_file(file)
+      p "file #{name} was uploaded to #{bucket}"
+      puts "\n"
+    end
 
   desc "write csv for AnnosResourceOnly to a file"
   task :csvAnnosResourceOnly => ["db:set_prod_env", :environment] do  |t, args|
@@ -129,25 +141,36 @@ namespace :loadAnnotationsToSolr do
     CSV.open("AnnosResourceOnlyLOTB.csv", "w") do |csv|
       Annotation.feedAnnosResourceOnly csv
     end
+    # upload to S3 bucket
+    s3 = Aws::S3::Resource.new(region: 'us-east-1',
+                              access_key_id: 'AKIAIMA6TZV7PEDMLY7Q',
+                              secret_access_key: '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'
+    )
+    file = 'AnnosResourceOnlyLOTB.csv'
+    name = "dev_annotation/" + File.basename(file)
+    bucket = 'images.tenthousandrooms.yale.edu'
+    obj = s3.bucket(bucket).object(name)
+    obj.upload_file(file)
+    p "file: #{name} was uploaded to #{bucket}"
+    puts "\n"
   end
-  # todo: copy file to an S3 bucket
+end
+
+namespace :db do
+  desc "Custom dependency to set prod environment"
+  task :set_prod_env do # Note that we don't load the :environment task dependency
+    Rails.env = "production"
   end
 
-  namespace :db do
-    desc "Custom dependency to set prod environment"
-    task :set_prod_env do # Note that we don't load the :environment task dependency
-      Rails.env = "production"
-    end
-
-    desc "Custom dependency to set test environment"
-    task :set_test_env do # Note that we don't load the :environment task dependency
-      Rails.env = "test"
-    end
-
-    desc "Custom dependency to set development environment"
-    task :set_dev_env do # Note that we don't load the :environment task dependency
-      Rails.env = "development"
-    end
+  desc "Custom dependency to set test environment"
+  task :set_test_env do # Note that we don't load the :environment task dependency
+    Rails.env = "test"
   end
+
+  desc "Custom dependency to set development environment"
+  task :set_dev_env do # Note that we don't load the :environment task dependency
+    Rails.env = "development"
+  end
+end
 
 
