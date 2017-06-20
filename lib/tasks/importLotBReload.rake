@@ -15,6 +15,7 @@ namespace :importLotBReload do
   task :LoTB_annotations, [:startFile, :endFile] => :environment do |t, args|
     require 'csv'
 
+
     @ru = Rails.application.config.hostUrl
     if @ru.end_with?('/')
       @ru = @ru[0...-1]
