@@ -33,8 +33,8 @@ namespace :importLotBReload do
 
     for i in args.startFile..args.endFile
     #for i in 1..28
-      #chapterFilename = "importData/LOTB_Spreadsheet_ReLoad_7-2017/lotb_ch#{i}.csv"
-      chapterFilename = "importData/LOTB_Spreadsheet_ReLoad_4-2017/lotb_ch#{i}.csv"
+      chapterFilename = "importData/LOTB_Spreadsheet_ReLoad_7-2017/lotb_ch#{i}.csv"
+      #chapterFilename = "importData/LOTB_Spreadsheet_ReLoad_4-2017/lotb_ch#{i}.csv"
       p "chapterFilename = #{chapterFilename}"
       firstLineInChapter = 0
       CSV.foreach(chapterFilename) do |row|
