@@ -120,15 +120,18 @@ namespace :loadAnnotationsToSolr do
         Annotation.feedAnnosNoResource csv
       end
 
-      # upload to S3 bucket
+      # upload to AWS S3 bucket
+      S3_Bucket = Rails.application.config.S3_Bucket
+      S3_Bucket_Folder = Rails.application.config.S3_Bucket_Folder
+      S3_Access_Key = Rails.application.config.S3_Key
+      S3_Access_Secret = S3_Secret
       s3 = Aws::S3::Resource.new(region: 'us-east-1',
-      access_key_id: 'AKIAIMA6TZV7PEDMLY7Q',
-      secret_access_key: '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'
+                                 access_key_id: S3_Access_Key,
+                                 secret_access_key: S3_Access_Secret
       )
       file = 'AnnosNoResourceLOTB.csv'
-      name = "dev_annotation/" + File.basename(file)
-      bucket = 'images.tenthousandrooms.yale.edu'
-      obj = s3.bucket(bucket).object(name)
+      name = S3_Bucket_Folder + "/" + File.basename(file)
+      obj = s3.bucket(S3_Bucket).object(name)
       obj.upload_file(file)
       p "file #{name} was uploaded to #{bucket}"
       puts "\n"
@@ -141,15 +144,26 @@ namespace :loadAnnotationsToSolr do
     CSV.open("AnnosResourceOnlyLOTB.csv", "w") do |csv|
       Annotation.feedAnnosResourceOnly csv
     end
-    # upload to S3 bucket
+    # upload to AWS S3 bucket
+    S3_Bucket = Rails.application.config.S3_Bucket
+    S3_Bucket_Folder = Rails.application.config.S3_Bucket_Folder
+    S3_Access_Key = Rails.application.config.S3_Key
+    S3_Access_Secret = S3_Secret
+
+    #s3 = Aws::S3::Resource.new(region: 'us-east-1',
+    #                          access_key_id: 'AKIAIMA6TZV7PEDMLY7Q',
+    #                          secret_access_key: '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'
+    #)
     s3 = Aws::S3::Resource.new(region: 'us-east-1',
-                              access_key_id: 'AKIAIMA6TZV7PEDMLY7Q',
-                              secret_access_key: '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'
+                               access_key_id: S3_Access_Key,
+                               secret_access_key: S3_Access_Secret
     )
     file = 'AnnosResourceOnlyLOTB.csv'
     name = "dev_annotation/" + File.basename(file)
-    bucket = 'images.tenthousandrooms.yale.edu'
-    obj = s3.bucket(bucket).object(name)
+    name = S3_Bucket_Folder + "/" + File.basename(file)
+    #bucket = 'images.tenthousandrooms.yale.edu'
+    #obj = s3.bucket(bucket).object(name)
+    obj = s3.bucket(S3_Bucket).object(name)
     obj.upload_file(file)
     p "file: #{name} was uploaded to #{bucket}"
     puts "\n"
