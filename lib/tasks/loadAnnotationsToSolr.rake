@@ -124,7 +124,7 @@ namespace :loadAnnotationsToSolr do
       S3_Bucket = Rails.application.config.S3_Bucket
       S3_Bucket_Folder = Rails.application.config.S3_Bucket_Folder
       S3_Access_Key = Rails.application.config.S3_Key
-      S3_Access_Secret = S3_Secret
+      S3_Access_Secret = Rails.application.config.S3_Secret
       s3 = Aws::S3::Resource.new(region: 'us-east-1',
                                  access_key_id: S3_Access_Key,
                                  secret_access_key: S3_Access_Secret
