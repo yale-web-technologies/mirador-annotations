@@ -165,7 +165,7 @@ namespace :loadAnnotationsToSolr do
     #obj = s3.bucket(bucket).object(name)
     obj = s3.bucket(S3_Bucket).object(name)
     obj.upload_file(file)
-    p "file: #{name} was uploaded to #{bucket}"
+    p "file: #{name} was uploaded to #{S3_Bucket}"
     puts "\n"
   end
 end
