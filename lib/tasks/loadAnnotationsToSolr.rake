@@ -133,7 +133,7 @@ namespace :loadAnnotationsToSolr do
       name = S3_Bucket_Folder + "/" + File.basename(file)
       obj = s3.bucket(S3_Bucket).object(name)
       obj.upload_file(file)
-      p "file #{name} was uploaded to #{bucket}"
+      p "file #{name} was uploaded to #{S3_Bucket}"
       puts "\n"
     end
 
@@ -148,7 +148,7 @@ namespace :loadAnnotationsToSolr do
     S3_Bucket = Rails.application.config.S3_Bucket
     S3_Bucket_Folder = Rails.application.config.S3_Bucket_Folder
     S3_Access_Key = Rails.application.config.S3_Key
-    S3_Access_Secret = S3_Secret
+    S3_Access_Secret = Rails.application.config.S3_Secret
 
     #s3 = Aws::S3::Resource.new(region: 'us-east-1',
     #                          access_key_id: 'REDACTED',
