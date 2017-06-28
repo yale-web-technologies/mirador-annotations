@@ -230,7 +230,9 @@ class Annotation < ActiveRecord::Base
     count = 0
     @annotations.each do |anno|
       count += 1
-      # next if count > 30
+
+       next if count > 30
+
       # check anno.on and canvas
       p "#{count}) #{anno.annotation_id}"
       next if !anno.on.start_with?('{') && !anno.on.start_with?('[')

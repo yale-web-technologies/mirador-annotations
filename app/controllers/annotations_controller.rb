@@ -148,12 +148,12 @@ class AnnotationsController < ApplicationController
         annoWLayerArrayUniq = annoWLayerArray.uniq
 
       end
-
+    end
       respond_to do |format|
         format.html {render json: annoWLayerArrayUniq}
         format.json {render json: annoWLayerArrayUniq, content_type: "application/json"}
       end
-    end
+
   end
 
   def getLayerFromListName listName

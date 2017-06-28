@@ -15,6 +15,7 @@ namespace :importLotBReload do
   task :LoTB_annotations, [:startFile, :endFile] => :environment do |t, args|
     require 'csv'
 
+
     @ru = Rails.application.config.hostUrl
     if @ru.end_with?('/')
       @ru = @ru[0...-1]
@@ -33,9 +34,11 @@ namespace :importLotBReload do
     for i in args.startFile..args.endFile
     #for i in 1..28
       chapterFilename = "importData/LOTB_Spreadsheet_ReLoad_7-2017/lotb_ch#{i}.csv"
+      #chapterFilename = "importData/LOTB_Spreadsheet_ReLoad_4-2017/lotb_ch#{i}.csv"
       p "chapterFilename = #{chapterFilename}"
       firstLineInChapter = 0
       CSV.foreach(chapterFilename) do |row|
+
         firstLineInChapter += 1; # total counter
         puts "i = #{i.to_s}  chapter: #{chapterFilename}"
         puts 'row.size = ' + row.size.to_s
@@ -52,7 +55,11 @@ namespace :importLotBReload do
           chapter = row[1]
 
           #set the canvas based on the chapter number, since row[0] is not always filled in
-          if (panel == "B")
+          #if (panel == "B")
+
+
+
+          if panel == "B" || panel == "2"
             canvas = 'http://manifests.ydc2.yale.edu/LOTB/canvas/bv11'
           else
             canvas = 'http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01'
@@ -413,7 +420,7 @@ namespace :importLotBReload do
           end
 
           #===================================================================================================================================================================
-          # create the Secondary/Tertiary Canonical annotation for this row ([10]
+          # create the Scene Working Notes annotation for this row ([10]
 
 
           unless row[11].nil?
