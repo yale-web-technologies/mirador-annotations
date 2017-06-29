@@ -150,10 +150,6 @@ namespace :loadAnnotationsToSolr do
     S3_Access_Key = Rails.application.config.S3_Key
     S3_Access_Secret = Rails.application.config.S3_Secret
 
-    #s3 = Aws::S3::Resource.new(region: 'us-east-1',
-    #                          access_key_id: 'AKIAIMA6TZV7PEDMLY7Q',
-    #                          secret_access_key: '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'
-    #)
     s3 = Aws::S3::Resource.new(region: 'us-east-1',
                                access_key_id: S3_Access_Key,
                                secret_access_key: S3_Access_Secret
@@ -161,8 +157,6 @@ namespace :loadAnnotationsToSolr do
     file = 'AnnosResourceOnlyLOTB.csv'
     name = "dev_annotation/" + File.basename(file)
     name = S3_Bucket_Folder + "/" + File.basename(file)
-    #bucket = 'images.tenthousandrooms.yale.edu'
-    #obj = s3.bucket(bucket).object(name)
     obj = s3.bucket(S3_Bucket).object(name)
     obj.upload_file(file)
     p "file: #{name} was uploaded to #{S3_Bucket}"
