@@ -24,6 +24,8 @@ script/user_generator.rb
 /script/export_fix.rb
 /script/user_generator.rb
 
+/config/databsase.yml
+
 *.rbc
 *.sassc
 .sass-cache

@@ -210,14 +210,14 @@ class AnnotationsController < ApplicationController
     @annotationIn = @paramsIn['annotation']
     p  "in CreateAnno @annotationIn = #{@annotationIn}"
     #p  "in CreateAnno @annotationIn = #{@annotationIn.to_s}"
-    #@annotationIn = JSON.parse(@annotationIn)
-    @annotationIn = JSON.parse(@annotationIn.to_s)
+    @annotationIn = JSON.parse(@annotationIn)
+    #@annotationIn = JSON.parse(@annotationIn.to_s)
     puts "\n"
     p '============================================================================='
     p  "in CreateAnno params = #{params.inspect}"
     p  "in CreateAnno @layer_id = #{@layer_id}"
     p  "in CreateAnno @annotationIn['@type'] = #{@annotationIn['@type']}"
-    p  "in CreateAnno @annotationIn['resource'] = #{@annotationIn['resource'].to_s}"
+    #p  "in CreateAnno @annotationIn['resource'] = #{@annotationIn['resource'].to_s}"
     p '============================================================================='
     puts "\n"
 
