@@ -23,7 +23,6 @@ class AnnotationsController < ApplicationController
         iiif = []
         @annotation.each do |annotation|
           iiif << annotation.to_iiif
-          #p annotation.to_iiif
         end
         iiif.to_json
         format.html {render json: iiif}
@@ -31,22 +30,17 @@ class AnnotationsController < ApplicationController
       end
     end
 
-
+=begin
   def getAnnotationsForCanvasViaListsPreRedis
-    # add redis
     annosForCanvas = ''
     @canvas = params['canvas_id']
     p "redis.get(@canvas: #{@canvas}"
     annosForCanvas = @redis.get(@canvas)
     if !annosForCanvas.nil?
       annoWLayerArrayUniq = annosForCanvas
-      p "YES: found response in redis for #{params['canvas_id']} :  #{annosForCanvas[1..100]}"
-      #@redis.del(@canvas)
-    ##
     else
         # replace @ru with hostUrl environment variable
         host_url_prefix = Rails.application.config.hostUrl
-        #host_url_prefix = 'localhost:5000/'
         p "host url = #{host_url_prefix}"
 
         bearerToken = ''
@@ -63,6 +57,7 @@ class AnnotationsController < ApplicationController
         #lists = AnnotationList.where("list_id like ? and list_id like ? and list_id like ?", "#{host_url_prefix}%", "%#{params['canvas_id']}%", "%/lists/%")
 
         annoWLayerArray = Array.new
+        annoWLayerArrayUniq = Array.new
 
         p  "in getAnnotationsForCanvasViaLists: lists.count = #{lists.count}"
         lists.each do |list|
@@ -88,6 +83,7 @@ class AnnotationsController < ApplicationController
       format.json {render json: annoWLayerArrayUniq, content_type: "application/json"}
     end
   end
+=end
 
   def getAnnotationsForCanvasViaLists
     annosForCanvas = ''
@@ -100,9 +96,7 @@ class AnnotationsController < ApplicationController
         #annoWLayerArrayUniq = annosForCanvas
         p "YES: found response in redis for #{params['canvas_id']} :  #{annosForCanvas[1..100]}"
       else
-        #annoWLayerArrayUniq = buildMemAnnosForCanvas @canvas
         annosForCanvas = buildMemAnnosForCanvas @canvas
-        #annosForCanvas = @redis.get(@canvas)
         p "NO: Just added redis record for annos on #{@canvas}"
       end
       annoWLayerArrayUniq = annosForCanvas
@@ -119,11 +113,11 @@ class AnnotationsController < ApplicationController
       #  @user = signInUserByBearerToken bearerToken
       #end
 
-      ###!!!! change back so second query is active
-      #lists = AnnotationList.where("list_id like ? and list_id like ?", "%#{params['canvas_id']}%", "%/lists/%")
       lists = AnnotationList.where("list_id like ? and list_id like ? and list_id like ?", "#{host_url_prefix}%", "%#{params['canvas_id']}%", "%/lists/%")
 
       annoWLayerArray = Array.new
+      annoWLayerArrayUniq = Array.new
+      p "just initted unique array"
 
       p  "in getAnnotationsForCanvasViaLists: lists.count = #{lists.count}"
 
@@ -145,7 +139,7 @@ class AnnotationsController < ApplicationController
           end
         end
         #annoWLayerArray.gsub!(/=>/,':')
-        annoWLayerArrayUniq = annoWLayerArray.uniq
+        annoWLayerArrayUniq = annoWLayerArray.uniq  if !annoWLayerArray.nil?
 
       end
     end
@@ -206,10 +200,8 @@ class AnnotationsController < ApplicationController
     p  "in CreateAnno @layer_id = #{@layer_id}"
     #p  "in CreateAnno testParam = #{testParam}"
 
-    #!!! uncomment below and lose the hardcode test
     @annotationIn = @paramsIn['annotation']
     p  "in CreateAnno @annotationIn = #{@annotationIn}"
-    #p  "in CreateAnno @annotationIn = #{@annotationIn.to_s}"
     #@annotationIn = JSON.parse(@annotationIn)
     #@annotationIn = JSON.parse(@annotationIn.to_s)
     puts "\n"
