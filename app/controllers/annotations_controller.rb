@@ -210,7 +210,7 @@ class AnnotationsController < ApplicationController
     @annotationIn = @paramsIn['annotation']
     p  "in CreateAnno @annotationIn = #{@annotationIn}"
     #p  "in CreateAnno @annotationIn = #{@annotationIn.to_s}"
-    @annotationIn = JSON.parse(@annotationIn)
+    #@annotationIn = JSON.parse(@annotationIn)
     #@annotationIn = JSON.parse(@annotationIn.to_s)
     puts "\n"
     p '============================================================================='
