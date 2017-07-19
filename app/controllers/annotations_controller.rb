@@ -403,6 +403,7 @@ class AnnotationsController < ApplicationController
       ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
       @annotation.destroy
       respond_to do |format|
+        p "about to respond in delete"
         format.html { redirect_to annotation_layers_url }
         format.json { head :no_content }
       end
