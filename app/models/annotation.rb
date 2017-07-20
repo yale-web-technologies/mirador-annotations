@@ -215,9 +215,10 @@ class Annotation < ActiveRecord::Base
     context = "http://iiif.io/api/presentation/2/context.json"
 
     #if allOrDelta == 'all'
-      @annotations = Annotation.all
-      #@annotations = Annotation.where("annotation_id like ?", "%#{host_url_prefix}%")
+      #@annotations = Annotation.all
       #@annotations = Annotation.where("annotation_id like ? and resource not like ? and resource not like ?" , "%#{host_url_prefix}%","%WordDocument%","OfficeDocumentSettings")
+      @annotations = Annotation.where("annotation_id like ? and canvas like ? and resource not like ? and resource not like ?" , "%#{host_url_prefix}%","/node/","%WordDocument%","OfficeDocumentSettings")
+
 
     p "annotations found: #{@annotations.count}"
     #else
@@ -358,8 +359,10 @@ class Annotation < ActiveRecord::Base
     #if allOrDelta == 'all'
       #@annotations = Annotation.all
       #@annotations = Annotation.where("annotation_id like ?", "%#{host_url_prefix}%")
-      @annotations = Annotation.where("annotation_id like ? and resource not like ? and resource not like ?" , "%#{host_url_prefix}%","%WordDocument%","OfficeDocumentSettings")
-      p "annotations found: #{@annotations.count}"
+      #@annotations = Annotation.where("annotation_id like ? and resource not like ? and resource not like ?" , "%#{host_url_prefix}%","%WordDocument%","OfficeDocumentSettings")
+      @annotations = Annotation.where("annotation_id like ? and canvas like ? and resource not like ? and resource not like ?" , "%#{host_url_prefix}%","/node/","%WordDocument%","OfficeDocumentSettings")
+
+    p "annotations found: #{@annotations.count}"
     #else
     #  @annotation = Annotation.where(['updated_at > ?', DateTime.now-allOrDelta.to_i.days])
     #end
