@@ -116,7 +116,7 @@ namespace :loadAnnotationsToSolr do
   task :csvAnnosNoResource => ["db:set_prod_env", :environment] do  |t, args|
   #task :csvAnnosNoResource => ["db:set_test_env", :environment] do  |t, args|
   #task :csvAnnosNoResource => ["db:set_dev_env", :environment] do  |t, args|
-      CSV.open("AnnosNoResourceLOTB.csv", "w") do |csv|
+      CSV.open("AnnosNoResource.csv", "w") do |csv|
         Annotation.feedAnnosNoResource csv
       end
 
@@ -129,7 +129,7 @@ namespace :loadAnnotationsToSolr do
                                  access_key_id: S3_Access_Key,
                                  secret_access_key: S3_Access_Secret
       )
-      file = 'AnnosNoResourceLOTB.csv'
+      file = 'AnnosNoResource.csv'
       name = S3_Bucket_Folder + "/" + File.basename(file)
       obj = s3.bucket(S3_Bucket).object(name)
       obj.upload_file(file)
@@ -141,7 +141,7 @@ namespace :loadAnnotationsToSolr do
   task :csvAnnosResourceOnly => ["db:set_prod_env", :environment] do  |t, args|
   #task :csvAnnosResourceOnly => ["db:set_test_env", :environment] do  |t, args|
   #task :csvAnnosResourceOnly => ["db:set_dev_env", :environment] do  |t, args|
-    CSV.open("AnnosResourceOnlyLOTB.csv", "w") do |csv|
+    CSV.open("AnnosResourceOnly.csv", "w") do |csv|
       Annotation.feedAnnosResourceOnly csv
     end
     # upload to AWS S3 bucket
@@ -150,19 +150,15 @@ namespace :loadAnnotationsToSolr do
     S3_Access_Key = Rails.application.config.S3_Key
     S3_Access_Secret = Rails.application.config.S3_Secret
 
-    #s3 = Aws::S3::Resource.new(region: 'us-east-1',
-    #                          access_key_id: 'REDACTED',
-    #                          secret_access_key: 'REDACTED'
-    #)
+
     s3 = Aws::S3::Resource.new(region: 'us-east-1',
                                access_key_id: S3_Access_Key,
                                secret_access_key: S3_Access_Secret
     )
-    file = 'AnnosResourceOnlyLOTB.csv'
+    file = 'AnnosResourceOnly.csv'
     name = "dev_annotation/" + File.basename(file)
     name = S3_Bucket_Folder + "/" + File.basename(file)
-    #bucket = 'REDACTED'
-    #obj = s3.bucket(bucket).object(name)
+
     obj = s3.bucket(S3_Bucket).object(name)
     obj.upload_file(file)
     p "file: #{name} was uploaded to #{S3_Bucket}"
