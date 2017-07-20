@@ -390,7 +390,7 @@ class AnnotationsController < ApplicationController
     #@annotation = Annotation.where(annotation_id: @ru).first
     @annotation = Annotation.where("annotation_id like ?", "%params['id']").first
     if @annotation.nil?
-      p 'did not find @annotation for destroy: ' + params[id]
+      p 'did not find @annotation for destroy: ' + params['id']
       format.json { render json: nil, status: :ok }
     else
       p 'just retrieved @annotation for destroy: ' + @annotation.annotation_id
