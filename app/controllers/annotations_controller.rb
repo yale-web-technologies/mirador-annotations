@@ -388,7 +388,7 @@ class AnnotationsController < ApplicationController
     puts "\ndelete params: #{params.to_s}"
 
     #@annotation = Annotation.where(annotation_id: @ru).first
-    @annotation = Annotation.where("annotation_id like ? ", "%${params['id']}").first
+    @annotation = Annotation.where("annotation_id like ? ", "%#{params['id']}").first
 
     #@annotation = Annotation.where("annotation_id like ? ", "%#{on['full']}%").first
 
