@@ -222,8 +222,9 @@ class AnnotationsController < ApplicationController
       #@ru = request.original_url.split('?').first
       # replace @ru with hostUrl environment variable
       p "host url = #{Rails.application.config.hostUrl}"
-      @ru = Rails.application.config.hostUrl + "/annotations"
+      @ru = Rails.application.config.hostUrl
       @ru += '/'   if !@ru.end_with? '/'
+      @ru = Rails.application.config.hostUrl + "annotations"
 
       @annotation_id = @ru + SecureRandom.uuid
       p "annotation_id = #{@annotation_id}"
@@ -379,17 +380,17 @@ class AnnotationsController < ApplicationController
     p 'in annotation_controller:destroy'
 
     #@ru = request.original_url   # will not work with rspec
-    @ru = Rails.application.config.hostUrl  + "/annotations/#{params['id']}"
-    @ru = Rails.application.config.hostUrl  + "annotations/#{params['id']}"
+    #@ru1 = Rails.application.config.hostUrl  + "/annotations/#{params['id']}"
+    #@ru = Rails.application.config.hostUrl  + "annotations/#{params['id']}"
     #@ru = params['id'] # for rspec
     #@ru = request.protocol + request.host_with_port + "/annotations/#{params['id']}"
     request.format = "json"
-puts "\ndelete parans: #{params.to_s}"
+    puts "\ndelete params: #{params.to_s}"
 
-
-    @annotation = Annotation.where(annotation_id: @ru).first
+    #@annotation = Annotation.where(annotation_id: @ru).first
+    @annotation = Annotation.where("annotation_id like ?", "%params['id']").first
     if @annotation.nil?
-      p 'did not find @annotation for destroy: ' + @ru
+      p 'did not find @annotation for destroy: ' + params[id]
       format.json { render json: nil, status: :ok }
     else
       p 'just retrieved @annotation for destroy: ' + @annotation.annotation_id
