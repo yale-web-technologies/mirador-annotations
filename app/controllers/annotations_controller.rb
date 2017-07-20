@@ -224,7 +224,7 @@ class AnnotationsController < ApplicationController
       p "host url = #{Rails.application.config.hostUrl}"
       @ru = Rails.application.config.hostUrl
       @ru += '/'   if !@ru.end_with? '/'
-      @ru = Rails.application.config.hostUrl + "annotations"
+      @ru = Rails.application.config.hostUrl + "annotations/"
 
       @annotation_id = @ru + SecureRandom.uuid
       p "annotation_id = #{@annotation_id}"
