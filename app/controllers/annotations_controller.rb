@@ -384,6 +384,7 @@ class AnnotationsController < ApplicationController
     #@ru = params['id'] # for rspec
     #@ru = request.protocol + request.host_with_port + "/annotations/#{params['id']}"
     request.format = "json"
+puts "\ndelete parans: #{params.to_s}"
 
 
     @annotation = Annotation.where(annotation_id: @ru).first
