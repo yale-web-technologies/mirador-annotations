@@ -377,7 +377,12 @@ class Annotation < ActiveRecord::Base
       p "#{count}) #{anno.annotation_id}"
       resource_id = anno.annotation_id + "_" + SecureRandom.uuid
       resource = anno.resource.gsub(/=>/,":")
-      resourceJSON = JSON.parse(resource)
+
+      begin
+        resourceJSON = JSON.parse(resource)
+      rescue
+       next
+      end
 
       if !resource.start_with?('[')
         chars = ActionView::Base.full_sanitizer.sanitize(resourceJSON{"chars"})
