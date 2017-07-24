@@ -258,6 +258,7 @@ class AnnotationsController < ApplicationController
       # Deal with possibility of 'on' being multiple canvases (or annotations); in this case 'on' will look like an array, which will mean multiple lists
       if !@annotationIn['on'].to_s.start_with?("[")
       #if @annotationIn['on'].kind_of?(Array)
+
         handleRequiredList
         @annotationOut['canvas'] = @annotationIn['on']['full']
       else
@@ -828,7 +829,7 @@ class AnnotationsController < ApplicationController
 
     ###!!!! change back so second query is active
     #lists = AnnotationList.where("list_id like ? and list_id like ?", "%#{canvas_id}%", "%/lists/%")
-    lists = AnnotationList.where("list_id like ? and list_id like ? and list_id like ?", "#{host_url_prefix}%", "%#canvas_id}%", "%/lists/%")
+    lists = AnnotationList.where("list_id like ? and list_id like ? and list_id like ?", "#{host_url_prefix}%", "%#{canvas_id}%", "%/lists/%")
 
     annoWLayerArray = Array.new
 

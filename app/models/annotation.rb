@@ -217,7 +217,8 @@ class Annotation < ActiveRecord::Base
     #if allOrDelta == 'all'
       #@annotations = Annotation.all
       #@annotations = Annotation.where("annotation_id like ? and resource not like ? and resource not like ?" , "%#{host_url_prefix}%","%WordDocument%","OfficeDocumentSettings")
-      @annotations = Annotation.where("annotation_id like ? and canvas like ? and resource not like ? and resource not like ?" , "%#{host_url_prefix}%","%/node%","%WordDocument%","OfficeDocumentSettings")
+      #@annotations = Annotation.where("annotation_id like ? and canvas like ? and resource not like ? and resource not like ?" , "%#{host_url_prefix}%","%/node%","%WordDocument%","OfficeDocumentSettings")
+      @annotations = Annotation.where("annotation_id like ? and resource not like ? and resource not like ? and (canvas like ? or canvas like ? or canvas like ?" , "%#{host_url_prefix}%","%WordDocument%","OfficeDocumentSettings","%/node%","%panel_01%","panel_02%")
 
 
     p "annotations found: #{@annotations.count}"
@@ -360,7 +361,9 @@ class Annotation < ActiveRecord::Base
       #@annotations = Annotation.all
       #@annotations = Annotation.where("annotation_id like ?", "%#{host_url_prefix}%")
       #@annotations = Annotation.where("annotation_id like ? and resource not like ? and resource not like ?" , "%#{host_url_prefix}%","%WordDocument%","OfficeDocumentSettings")
-      @annotations = Annotation.where("annotation_id like ? and canvas like ? and resource not like ? and resource not like ?" , "%#{host_url_prefix}%","%/node%","%WordDocument%","OfficeDocumentSettings")
+      #@annotations = Annotation.where("annotation_id like ? and canvas like ? and resource not like ? and resource not like ?" , "%#{host_url_prefix}%","%/node%","%WordDocument%","OfficeDocumentSettings")
+      @annotations = Annotation.where("annotation_id like ? and resource not like ? and resource not like ? and (canvas like ? or canvas like ? or canvas like ?" , "%#{host_url_prefix}%","%WordDocument%","OfficeDocumentSettings","%/node%","%panel_01%","panel_02%")
+
 
     p "annotations found: #{@annotations.count}"
     #else
