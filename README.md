@@ -7,12 +7,6 @@ Purpose: provide a simple IIIF Annotations server which can be used stand-alone,
 
 One main thrust of Mirador-Annotations is to support the IIIF Layers=>Lists=>Annotations structure as an alternate way of organizing annotations.  For example, a manuscript can be annotated with transcript, translation and commentary annotations and be organized by those functions along with the standard manifest=>canvas=>annotation_list structure.
 
-We are currently using it with some of its features disabled to allow ongoing project development in other areas.
-Mirador-Annotations:
-	- IIIF Authn:  contains code to enable it to use token-based IIIF authentication
-	- Webacls Authz: creates webacls based on user groups to determine if the calling user has access to a given resource
-
-
 **Getting Started:**
 --------------------
 Mirador-Annotations is basically a standard Ruby on Rails application with the usual deployment steps:
