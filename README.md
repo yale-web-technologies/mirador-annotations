@@ -14,14 +14,14 @@ Mirador-Annotations is basically a standard Ruby on Rails application with the u
 2.	Run bundle install
 3.	Rake db:migrate
 4. 	Set env config variables:
-        - IIIF_HOST_URL
-        - USE_REDIS
+        * IIIF_HOST_URL
+        * USE_REDIS
           if USE_REDIS is set to 'Y' then set these:
-            - REDIS_URL
-            - S3_Bucket
-            - S3_Bucket_Folder
-            - S3_Key
-            - S3_Secret
+            * REDIS_URL
+            * S3_Bucket
+            * S3_Bucket_Folder
+            * S3_Key
+            * S3_Secret
 
 **Usage:**
     - Mirador-Annotations receives new annotations in IIIF format and will save to whichever relational database
