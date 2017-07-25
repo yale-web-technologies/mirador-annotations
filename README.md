@@ -1,4 +1,5 @@
-Mirador-Annotations
+**Mirador-Annotations**
+
 Purpose: provide a simple IIIF Annotations server which can be used stand-alone, but is designed with pairing with Mirador in mind. It assumes an outside manifest and canvas server, but can be pointed to by a Mirador endpoint and used to store and retrieve annotations.
 One main thrust of Mirador-Annotations is to support the IIIF Layers=>Lists=>Annotations structure as an alternate way of organizing annotations. For example, a manuscript can be annotated with transcript, translation and commentary annotations and be organized by those functions along with the standard manifest=>canvas=>annotation_list structure.
 See wiki home page for more background and information.
