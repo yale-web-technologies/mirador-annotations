@@ -54,6 +54,7 @@ namespace :add_chap_scene_seq_tags do
       tags = getTags(anno)
       puts "    tags before: #{tags}"
 
+      deleteTags(anno)
       addTags(anno, [chapterTag, sceneTag, sequenceTag])
 
       tags = getTags(anno)
@@ -73,6 +74,18 @@ namespace :add_chap_scene_seq_tags do
       end
     end
     tags
+  end
+
+  def deleteTags(anno)
+    resourceItems = JSON.parse(anno.resource)
+    toKeep = []
+    resourceItems.each do |r|
+      t = r['chars']
+      unless r['@type'] == 'oa:Tag' && (t.match(/^chapter\d+$/) || t.match(/^scene\d+$/) || t.match(/^p\d+$/))
+        toKeep << r
+      end
+    end
+    anno.resource = toKeep.to_json
   end
 
   def addTags(anno, tags)
