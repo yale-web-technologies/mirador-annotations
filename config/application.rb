@@ -35,5 +35,10 @@ module MiradorAnnotationsServer
     #config.action_dispatch.default_headers.merge!('Content-Type' => 'application/json')
 
     }
+
+    config.autoload_paths += Dir["#{config.root}/lib", "#{config.root}/lib/**/"]
+
+    Rails.application.config.iiif_collections_host = ENV['IIIF_COLLECTIONS_HOST']
+
   end
 end
