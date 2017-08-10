@@ -12,7 +12,9 @@ module Export
     def export
       text = header
       @manifest_urls.each do |url|
+        Rails.logger.debug("Getting manifest from #{url}")
         manifest_json = open(url).read
+        Rails.logger.debug("Manifest received")
         manifest = IIIF::Manifest.parse_manifest(manifest_json)
         text << export_manifest(manifest)
       end
@@ -54,6 +56,12 @@ module Export
           text << generate_line(manifest, canvas, layer, annotation, true)
         end
       end
+      #text = check_invalid_layers(text, annos_struct, manifest, canvas)
+      text
+    end
+
+    def check_invalid_layers(in_text, annos_struct, manifest, canvas)
+      text = in_text
       annos_struct.each do |layer_id, pairs|
         unless @layers.include? layer_id
           pairs = annos_struct[layer_id]

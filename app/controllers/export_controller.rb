@@ -30,7 +30,9 @@ private
   def get_collection(project_id, user_id)
     service_host=Rails.application.config.iiif_collections_host
     url = "#{service_host}/node/#{project_id}/collection?user_id=#{user_id}"
+    logger.debug("Contacting #{service_host} to get collection data...")
     collection_json = open(url).read
+    logger.debug("Collection data received")
     IIIF::Collection.parse_collection(collection_json)
   end
 
