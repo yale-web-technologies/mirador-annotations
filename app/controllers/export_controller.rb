@@ -8,15 +8,17 @@ class ExportController < ApplicationController
     puts "pid:#{project_id} uid:#{user_id}"
 
     @collection = get_collection(project_id, user_id)
+    layers = get_layers(project_id)
 
     respond_to do |format|
       format.csv do
-        exporter = Export::CsvExporter.new(@collection)
+        exporter = Export::CsvExporter.new(@collection, layers)
         @lines = exporter.export
 
-        filename = @collection['label'].gsub(/\s+/, '_') + '.csv'
+        filename = @collection.label.gsub(/\s+/, '_') + '.csv'
         headers['Content-Disposition'] = "attachment; filename=\"#{filename}\""
-        headers['Content-Type'] = 'text/csv'
+        headers['Content-Type'] = 'text/csv; charset: utf-8'
+        #headers['Content-Type'] = 'text/html; charset: utf-8'
       end
       format.html do
         headers['Content-Type'] = 'text/html'
@@ -29,6 +31,11 @@ private
     service_host=Rails.application.config.iiif_collections_host
     url = "#{service_host}/node/#{project_id}/collection?user_id=#{user_id}"
     collection_json = open(url).read
-    JSON.parse(collection_json)
+    IIIF::Collection.parse_collection(collection_json)
+  end
+
+  def get_layers(project_id)
+    group = Group.where(group_id: project_id).first
+    group.annotation_layers
   end
 end
