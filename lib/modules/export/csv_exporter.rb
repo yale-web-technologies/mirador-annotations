@@ -24,9 +24,8 @@ module Export
       return ['Text',
         'Text Division',
         'Layer',
-        'Annotation ID',
-        'Annotation',
-        'Annotation (tag-stripped)',
+        'Annotation (ID)',
+        'Annotation (Body)',
         'Targetd By (ID)',
         'Targeted By (Body)',
         'Target (ID)',
@@ -99,13 +98,20 @@ module Export
         canvas['label'],
         layer_label,
         anno.id,
-        body_text,
-        strip_html_tags(body_text),
+        strip_ms_tags(body_text),
         targeting_annos_ids.join('|'),
         targeting_annos_body_texts.join('|'),
         target_annos_ids.join('|'),
         target_annos_body_texts.join('|')
       ].to_csv
+    end
+
+    def strip_ms_tags(s)
+      if s.match(/<!--.*?-->/m)  # if deemed copied from MS word
+        return strip_html_tags(s)
+      else
+        return s
+      end
     end
 
     def strip_html_tags(s)
