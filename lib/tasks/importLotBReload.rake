@@ -10,17 +10,10 @@ namespace :import do
     puts "Importing from: #{args.csv_url}"
 
     open(args.csv_url) do |f|
-      importer.import(f.read)
+      # Assuming the input is UTF-8, since it is exported from Google Sheets.
+      # Otherwise it will somehow think it is ASCII-8bit encoded.
+      text = f.read.force_encoding(Encoding::UTF_8)
+      importer.import(text)
     end
   end
 end
-
-
-
-
-
-
-
-
-
-
