@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161219215506) do
+ActiveRecord::Schema.define(version: 20170814174020) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -32,9 +32,10 @@ ActiveRecord::Schema.define(version: 20161219215506) do
     t.string   "label"
     t.string   "description"
     t.string   "license"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
     t.integer  "version"
+    t.integer  "order_weight", default: 0
   end
 
   add_index "annotation_layers", ["layer_id"], name: "index_annotation_layers_on_layer_id", using: :btree

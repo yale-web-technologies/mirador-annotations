@@ -11,7 +11,7 @@ class AnnotationLayersController < ApplicationController
       @annotation_layers = Array.new
       @annotation_layers = group.annotation_layers if !group.nil?
     else
-      @annotation_layers = AnnotationLayer.all#.order("layer_id")
+      @annotation_layers = AnnotationLayer.order('order_weight')
     end
     p "index: params.inspect " +      params.inspect
     p "index: params[id] = #{params['id']}"
