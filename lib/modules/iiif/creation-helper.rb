@@ -114,9 +114,16 @@ module IIIF
         'chars' =>  body_text
       }]
 
-      resource.push(create_tag(:chapter, chapter)) if chapter
-      resource.push(create_tag(:scene, scene)) if scene
-      resource.push(create_tag(:p, sequence)) if sequence
+      if chapter
+        resource.push(create_tag(:chapter, chapter))
+        if scene && scene != '0'
+          resource.push(create_tag(:scene, scene))
+          resource.push(create_tag(:p, sequence)) if sequence
+        end
+      end
+
+      puts "TOTOTOTO #{resource.inspect}" if chapter == '28'
+
       resource
     end
 
