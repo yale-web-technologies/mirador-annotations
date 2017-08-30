@@ -122,8 +122,6 @@ module IIIF
         end
       end
 
-      puts "TOTOTOTO #{resource.inspect}" if chapter == '28'
-
       resource
     end
 
