@@ -72,7 +72,7 @@ module Export
           rows << generate_row(manifest, canvas, layer, annotation, true)
         end
       end
-      rows = check_invalid_layers(rows, annos_struct, manifest, canvas)
+      #rows = check_invalid_layers(rows, annos_struct, manifest, canvas)
       rows
     end
 
