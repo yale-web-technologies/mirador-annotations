@@ -20,6 +20,13 @@ class ExportController < ApplicationController
         headers['Content-Type'] = 'text/csv; charset: utf-8'
         #headers['Content-Type'] = 'text/html; charset: utf-8'
       end
+
+      format.xlsx do
+        @exporter = Export::AxlsxExporter.new(@collection, layers)
+        filename = @collection.label.gsub(/\s+/, '_') + '.xlsx'
+        headers['Content-Disposition'] = "attachment; filename=\"#{filename}\""
+      end
+
       format.html do
         headers['Content-Type'] = 'text/html'
       end
