@@ -116,7 +116,7 @@ module IIIF
 
       if chapter
         resource.push(create_tag(:chapter, chapter))
-        if scene && scene != '0'
+        if scene
           resource.push(create_tag(:scene, scene))
           resource.push(create_tag(:p, sequence)) if sequence
         end
