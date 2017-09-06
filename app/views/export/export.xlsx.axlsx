@@ -1,0 +1,2 @@
+wb = xlsx_package.workbook
+@exporter.export(wb)
