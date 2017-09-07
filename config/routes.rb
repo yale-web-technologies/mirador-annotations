@@ -50,7 +50,9 @@ MiradorAnnotationsServer::Application.routes.draw do
   get 'doRedis', to: "annotations#doRedis"
   get 'setRedisKeys', to: "annotations#setRedisKeys"
 
-  get 'export', to: 'export#export', defaults: {format: 'csv'}
+  get 'export', to: 'export#export'
+  get 'export/check_status', to: 'export#check_status', defaults: {format: :json}
+  get 'export/download', to: 'export#download', defaults: {format: :xlsx}
 
   match '/' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}
   match 'getAccessToken' => 'application#CORS_preflight', via: [:options], defaults: {format: :json}

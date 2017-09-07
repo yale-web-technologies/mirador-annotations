@@ -1,1 +1,44 @@
-<h1><%= @collection['label'] %></h1>
+<style>
+
+</style>
+
+<h1>Exporting to xlsx</h1>
+
+<p>
+  Job ID: <%= @job_id %><br/>
+  File: <%= @filename %>
+</p>
+
+<p>
+  <span id="status">Status</span>
+</p>
+
+
+<script>
+(function($) {
+  var statusElem = jQuery('#status');
+  var startTime = new Date().valueOf();
+
+  statusElem.text('Generating report');
+
+  var intervalId = setInterval(function() {
+    jQuery.getJSON("/export/check_status?job_id=<%= @job_id %>").then(function(data) {
+      handleStatus(data);
+    });
+  }, 3000);
+
+  function handleStatus(status) {
+    if (status.isComplete) {
+      statusElem.text('Report is ready');
+      clearInterval(intervalId);
+      window.location = '/export/download.xlsx?label=<%= @collection.label %>&file_hash=<%= @file_hash %>'
+    } else if (status.errorCode === 0) {
+      var lapse = Math.round((new Date().valueOf() - startTime) / 1000);
+      statusElem.text('Generating report (' + lapse + ' seconds)');
+    } else {
+      statusElem.text(status.errorMessage);
+      clearInterval(intervalId);
+    }
+  }
+})();
+</script>

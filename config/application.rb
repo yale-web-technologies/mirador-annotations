@@ -36,9 +36,8 @@ module MiradorAnnotationsServer
 
     }
 
-    config.autoload_paths += Dir["#{config.root}/lib", "#{config.root}/lib/**/"]
+    config.autoload_paths += Dir["#{config.root}/app/models/", "#{config.root}/lib/**/"]
 
     Rails.application.config.iiif_collections_host = ENV['IIIF_COLLECTIONS_HOST']
-
   end
 end
