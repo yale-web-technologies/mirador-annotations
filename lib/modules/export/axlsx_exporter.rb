@@ -52,7 +52,6 @@ module Export
     end
 
     def export_manifest(manifest)
-      return [] # XXXX
       rows = []
       manifest.canvases.each do |canvas|
         rows.concat(export_canvas(manifest, canvas))
