@@ -6,7 +6,7 @@
 
 <p>
   Job ID: <%= @job_id %><br/>
-  File: <%= @filename %>
+  File: <%= @file_name %>
 </p>
 
 <p>
@@ -31,7 +31,8 @@
     if (status.isComplete) {
       statusElem.text('Report is ready');
       clearInterval(intervalId);
-      window.location = '/export/download.xlsx?label=<%= @collection.label %>&file_hash=<%= @file_hash %>'
+      //window.location = '/export/download.xlsx?label=<%= @collection.label %>&file_hash=<%= @file_hash %>'
+      window.location = 'https://s3.amazonaws.com/images.tenthousandrooms.yale.edu/dev_annotation/<%= @file_name %>';
     } else if (status.errorCode === 0) {
       var lapse = Math.round((new Date().valueOf() - startTime) / 1000);
       statusElem.text('Generating report (' + lapse + ' seconds)');

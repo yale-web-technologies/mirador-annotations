@@ -5,28 +5,30 @@ class ExportController < ApplicationController
   def export
     project_id = params[:project_id]
     user_id = params[:user_id]
-    puts "pid:#{project_id} uid:#{user_id}"
+    puts "project_id:#{project_id} user_id:#{user_id}"
 
     @collection = get_collection(project_id, user_id)
     layers = get_layers(project_id)
 
     respond_to do |format|
-      format.csv do
-        exporter = Export::CsvExporter.new(@collection, layers)
-        @lines = exporter.export
+      # format.csv do
+      #   exporter = Export::CsvExporter.new(@collection, layers)
+      #   @lines = exporter.export
 
-        filename = @collection.label.gsub(/\s+/, '_') + '.csv'
-        headers['Content-Disposition'] = "attachment; filename=\"#{filename}\""
-        headers['Content-Type'] = 'text/csv; charset: utf-8'
-        #headers['Content-Type'] = 'text/html; charset: utf-8'
-      end
+      #   filename = @collection.label.gsub(/\s+/, '_') + '.csv'
+      #   headers['Content-Disposition'] = "attachment; filename=\"#{filename}\""
+      #   headers['Content-Type'] = 'text/csv; charset: utf-8'
+      # end
 
       format.html do
         headers['Content-Type'] = 'text/html'
         @file_hash = SecureRandom.uuid
-        @filename = build_download_file_name(@collection.label)
-        filepath = build_export_file_path(@collection.label, @file_hash)
-        job = ::Collection.delay.export(@collection, layers, filepath)
+        @file_name = build_download_file_name(@collection.label, @file_hash)
+        file_path = build_export_file_path(@collection.label, @file_hash)
+        job = ::Collection.delay.export(collection: @collection,
+          layers: layers,
+          local_file_path: file_path,
+          remote_file_name: @file_name)
         @job_id = job.id
       end
     end
@@ -54,11 +56,9 @@ class ExportController < ApplicationController
   end
 
   def download
-    puts "DOWNLOAD"
     respond_to do |format|
       format.xlsx do
-        puts "XLSX"
-        filename = build_download_file_name(params[:label])
+        filename = build_download_file_name(params[:label], params[:file_hash])
         filepath = build_export_file_path(params[:label], params[:file_hash])
         send_file(filepath,
           filename: filename,
@@ -87,8 +87,8 @@ private
     "#{Rails.root}/tmp/export.#{name}.#{file_hash}.xlsx"
   end
 
-  def build_download_file_name(collection_label)
+  def build_download_file_name(collection_label, file_hash)
     name = collection_label.gsub(/\s+/, '_')
-    "#{name}.xlsx"
+    "#{name}.#{file_hash}.xlsx"
   end
 end
