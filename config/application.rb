@@ -38,6 +38,7 @@ module MiradorAnnotationsServer
 
     config.autoload_paths += Dir["#{config.root}/app/models/", "#{config.root}/lib/**/"]
 
-    Rails.application.config.iiif_collections_host = ENV['IIIF_COLLECTIONS_HOST']
+    config.iiif_collections_host = ENV['IIIF_COLLECTIONS_HOST']
+    config.s3_download_prefix = ENV['S3_PUBLIC_DOWNLOAD_PREFIX']
   end
 end

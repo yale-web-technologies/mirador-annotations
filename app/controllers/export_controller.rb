@@ -5,35 +5,28 @@ class ExportController < ApplicationController
   def export
     project_id = params[:project_id]
     user_id = params[:user_id]
-    puts "project_id:#{project_id} user_id:#{user_id}"
+    logger.debug("project_id:#{project_id} user_id:#{user_id}")
 
     @collection = get_collection(project_id, user_id)
     layers = get_layers(project_id)
 
     respond_to do |format|
-      # format.csv do
-      #   exporter = Export::CsvExporter.new(@collection, layers)
-      #   @lines = exporter.export
-
-      #   filename = @collection.label.gsub(/\s+/, '_') + '.csv'
-      #   headers['Content-Disposition'] = "attachment; filename=\"#{filename}\""
-      #   headers['Content-Type'] = 'text/csv; charset: utf-8'
-      # end
-
       format.html do
         headers['Content-Type'] = 'text/html'
         @file_hash = SecureRandom.uuid
         @file_name = build_download_file_name(@collection.label, @file_hash)
         file_path = build_export_file_path(@collection.label, @file_hash)
-        job = ::Collection.delay.export(collection: @collection,
+        @download_prefix = Rails.application.config.s3_download_prefix
+
+        @job = ::Collection.delay.export(collection: @collection,
           layers: layers,
           local_file_path: file_path,
           remote_file_name: @file_name)
-        @job_id = job.id
       end
     end
   end
 
+  ## Check status of the background job
   def check_status
     job_id = params[:job_id]
     job = Delayed::Job.find_by_id(job_id)
@@ -53,18 +46,6 @@ class ExportController < ApplicationController
       errorCode: errorCode,
       errorMessage: errorMessage
     }
-  end
-
-  def download
-    respond_to do |format|
-      format.xlsx do
-        filename = build_download_file_name(params[:label], params[:file_hash])
-        filepath = build_export_file_path(params[:label], params[:file_hash])
-        send_file(filepath,
-          filename: filename,
-          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-      end
-    end
   end
 
 private

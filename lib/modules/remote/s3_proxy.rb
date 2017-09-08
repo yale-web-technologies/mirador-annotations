@@ -17,5 +17,13 @@ module Remote
       obj = @s3.bucket(@bucket).object(remote_path)
       obj.upload_file(local_file_path)
     end
+
+    def delete_old_files(extension)
+      bucket = @s3.bucket(@bucket)
+      bucket.objects.each do |obj|
+        puts "hello"
+        puts "#{obj.key} => #{obj.etag}"
+      end
+    end
   end
 end
