@@ -72,57 +72,7 @@ class Annotation < ActiveRecord::Base
     preAuth.to_json
   end
 
-  # not used
-  def to_solr
-    # separate out resource into separate feed, for multiple resource stanzas add a within-resource id (a-z, 1-9 or random)
-    solr = Hash.new
-    #p "to_solr: annotation_id = #{annotation_id}: resource: #{resource}"
-    solr['@id'] = annotation_id
-    solr['@type'] = annotation_type
-    solr['@context'] = "http://iiif.io/api/presentation/2/context.json"
-    resource.gsub!(/\n/,"")
-    solr['resource'] = JSON.parse(resource)
-    #solr['within'] = ListAnnotationsMap.getListsForAnnotation annotation_id
-    motivation.gsub!(/\"/,'')
-    motivation.gsub!(/\]/,'')
-    motivation.gsub!(/\[/,'')
-    motivation.gsub!(' ','')
-    solr['motivation'] = motivation.split(",")
-    if !(defined?(annnotated_by)).nil?
-      if !annnotated_by.nil?
-        solr['annnotatedBy'] = JSON.parse(annotated_by)
-      end
-    end
-
-    # todo: just send on[full]. If on['full'] is a canvas leave it blank]
-    #solr['on'] = on
-    #onJSON = JSON.parse(on)
-    onJSON = JSON.parse(on.gsub(/=>/,":"))
-
-    #p "getSolrFeed: full = #{onJSON['full']} for annotation #{annotation_id}"
-
-    if onJSON['full'].include?("/canvas/")
-      solr['on'] = ''
-    else
-      solr['on'] = onJSON['full']
-    end
-
-    # todo: add original canvas, layers ?and manifest into?
-    @canvas_id = onJSON['full']
-    if (!onJSON['full'].include?('/canvas/'))
-      @annotation = Annotation.where(annotation_id:onJSON['full']).first
-      @canvas_id = getTargetingAnnosCanvas(@annotation)
-    end
-    solr['canvas_id'] = @canvas_id
-
-    #todo: add layers
-    layers = Array.new
-    solr['layers'] = getLayersForAnnotation annotation_id
-
-    solr#.to_json
-  end
-
-  def getLayersForAnnotation anno_id
+  def getLayersForAnnotation(anno_id)
     #p "in Annotation.getLayersForAnnotation: annotation_id = #{anno_id}"
     lists = ListAnnotationsMap.getListsForAnnotation anno_id
     #p "getLayers: list count = #{lists.count}"
@@ -140,259 +90,95 @@ class Annotation < ActiveRecord::Base
     layerArray
   end
 
-  #  move backwards from an annotations' target until the last (or first) targeted anno, then return this one's canvas
-  def self.getTargetingAnnosCanvas inputAnno
-    if inputAnno.nil?
-      p "there is no target anno!"
-      return nil
-    end
-    #p "in getTargetingAnnosCanvas: #{inputAnno.annotation_id}"
-    return(inputAnno.canvas) if (inputAnno.canvas.to_s.include?('/canvas/'))
-    targetAnnotation = Annotation.where(annotation_id:inputAnno.canvas).first
-    getTargetingAnnosCanvas targetAnnotation
-  end
-
-
   #==========================================================================
 
-  def self.get_xywh_from_svg svg_path, height, width
-    return if svg_path==''
+  def self.get_xywh_from_svg(svg_paths, width, height)
     begin
-      bbox = get_bounding_box(svg_path, height, width)
-    rescue
+      bbox = get_bounding_box(svg_paths, width, height)
+    rescue Exception => e
+        puts "ERROR calculating bounding box from paths #{svg_paths} - #{e}"
         xywh = "-99,-99,-99,-99"
     else
       x = bbox[:x]
       y = bbox[:y]
       width = bbox[:width]
       height = bbox[:height]
-      # force square using the larger of width and height
-      width = [width, height].max
+
+      # force square
+      width = [width, height].min
       height = width
 
-      #puts "x="+x.to_s
-      #puts "y="+y.to_s
-      #puts "width="+width.to_s
-      #puts "height="+height.to_s
-      #puts ""
-      #puts "svg_path = #{svg_path}"
-      #puts ""
-
-      xywh = [x.to_s, y.to_s, width.to_s, height.to_s].to_csv
+      xywh = [x.to_s, y.to_s, width.to_s, height.to_s].join(',')
     end
   end
 
-  def self.get_bounding_box(path,height,width)
+  def self.get_bounding_box(paths, max_width, max_height)
     include Magick
+
+    scale_factor = 10
+    paths = paths.map { |path| self.scale_down_path(path, scale_factor) }
+    max_width /= scale_factor
+    max_height /= scale_factor
 
     #create a drawing object
     drawing = Magick::Draw.new
 
     #create a new image for finding out the offset
-    #canvas = Image.new(16000,16000) {self.background_color = 'white' }
-    canvas = Image.new(height,width) {self.background_color = 'white' }
+    canvas = Image.new(max_width, max_height) {self.background_color = 'white' }
 
     #draw the path into the canvas image
-    drawing.path path
+    paths.each { |path| drawing.path path }
+
     drawing.draw canvas
 
     #trim the whitespace of the image
     canvas.trim!
 
     #bounding box information
-    { :x=> canvas.page.x, :y=>canvas.page.y, :width=> canvas.columns, :height=> canvas.rows}
+    { x: canvas.page.x * scale_factor,
+      y: canvas.page.y * scale_factor,
+      width: canvas.columns * scale_factor,
+      height: canvas.rows * scale_factor
+    }
   end
 
-
-  # this expects to be called from the controller or a rake task, and receives a csv object as a parameter
-  # todo: should also receive an allorDelta param from either rake task or controller REST call
-  def self.feedAnnosNoResource (csv) #,allorDelta)
-    p "in Annotation.feedAnnosNoResource!"
-    host_url_prefix = Rails.application.config.hostUrl
-    #host_url_prefix = 'http://localhost:5000/annotations'
-    #allOrDelta = "all" if allOrDelta.nil? or allOrDelta == '0'
-    p "host_url_prefix = #{host_url_prefix}"
-    context = "http://iiif.io/api/presentation/2/context.json"
-
-    #if allOrDelta == 'all'
-      #@annotations = Annotation.all
-      #@annotations = Annotation.where("annotation_id like ? and resource not like ? and resource not like ?" , "%#{host_url_prefix}%","%WordDocument%","OfficeDocumentSettings")
-      @annotations = Annotation.where("annotation_id like ? and canvas like ? and resource not like ? and resource not like ?" , "%#{host_url_prefix}%","%/node%","%WordDocument%","OfficeDocumentSettings")
-      #@annotations = Annotation.where("annotation_id like ? and resource not like ? and resource not like ? and (canvas like ? or canvas like ? or canvas like ?)" , "%#{host_url_prefix}%","%WordDocument%","OfficeDocumentSettings","%/node%","%/panel_01%","%/bv11%")
-
-
-    p "annotations found: #{@annotations.count}"
-    #else
-    #  @annotations = Annotation.where(['updated_at > ?', DateTime.now-allOrDelta.to_i.days])
-    #end
-
-    # Headers
-    csv << ["annotation_id", "annotation_type", "context", "on", "canvas", "motivation","layers", "bounding_box", "panel", "chapter", "scene", "display_name"]
-
-    count = 0
-    @annotations.each do |anno|
-      count += 1
-
-      # check anno.on and canvas
-      p "#{count}) #{anno.annotation_id}"
-      next if !anno.on.start_with?('{') && !anno.on.start_with?('[')
-      next if anno.canvas.nil?
-      @feedOn = nil
-      @canvas_id = nil
-      @targetAnno = anno
-
-      # if anno is not directly on a canvas: set feedOn = anno.canvas and set @canvas_id to original canvas
-
-      if !anno.on.start_with?('[')            # on is not an array
-        if !anno.canvas.include?("/canvas/")  # on is not a canvas
-          #@feedOn = anno.canvas
-          # get original canvas
-          @targetAnno = Annotation.getTargetedAnno(anno)
-          if !@targetAnno.nil?
-            #@canvas_id = @targetAnno.canvas
-            @feedOn = @targetAnno.canvas
-          end
-        else
-          @canvas_id = anno.canvas
-        end
-      else
-        # todo: I will have to deal with 'on' arrays; that is how Mirador is sending them now
-        p "on is on an array for anno: #{anno.annotation_id}"
-      end
-      #p "@canvas_id: #{@canvas_id}  feedOn: #{@feedOn}" #if !@feedOn.nil?
-
-      xywh = anno.service_block.gsub(/\r\n?/, "") unless anno.service_block.nil?
-
-      layers = Array.new
-
-      ## shouldn't it be anno.getLayersForAnnotation??
-      layers = @targetAnno.getLayersForAnnotation @targetAnno.annotation_id unless @targetAnno.nil?
-
-      if !layers.nil?
-        #p "layers = #{layers} for #{anno.annotation_id}" if layers.size > 0
-        layers = layers.to_s.gsub(/"/,'')
-        layers = layers.gsub(/\[/,'')
-        layers = layers.gsub(/]/,'')
-      else
-        p "no layers for anno: #{anno.annotation_id}"
-      end
-
-      anno.motivation.gsub!(/"/,'')
-
-      panel = ''
-      chapter = ''
-      scene = ''
-      startSceneNumberIndex = 0
-      sceneNumberLength = 0
-      fromSequenceOn = ''
-
-#=begin
-      #for LOTB panels, chapters and scenes
-      annoLength = anno.annotation_id.length
-      panelIndex = anno.annotation_id.index("Panel")
-      chapterIndex = anno.annotation_id.index("Chapter")
-      sceneIndex = anno.annotation_id.index("Scene")
-      if !sceneIndex.nil?
-        startSceneNumberIndex = sceneIndex+6
-        fromSceneNumberOn = anno.annotation_id[startSceneNumberIndex..annoLength]
-
-        if fromSceneNumberOn.index("_")
-          sceneNumberLength = fromSceneNumberOn.index("_") -1
-          #sceneNumberLength = fromSceneNumberOn
-          sceneNumber = anno.annotation_id[startSceneNumberIndex..startSceneNumberIndex + sceneNumberLength]
-          fromSequenceOn = "Sequence " + fromSceneNumberOn[fromSceneNumberOn.index("_")+1..fromSceneNumberOn.length]
-          p "fromSequenceOn = #{fromSequenceOn}"
-        else
-          sceneNumber = fromSceneNumberOn
-        end
-      else
-        sceneIndex = anno.annotation_id.length
-      end
-
-      begin
-        panel = anno.annotation_id[panelIndex..chapterIndex-2].gsub!(/_/," ")
-        p "panel = #{panel}"
-        # To-do
-        # qualify block below: if !panel.nil?
-        panel = "Panel 1" if panel=="Panel A"
-        panel = "Panel 2" if panel=="Panel B"
-        chapter = anno.annotation_id[chapterIndex..sceneIndex-2].gsub!(/_/," ")
-        scene = "Scene " + sceneNumber if !sceneNumber.nil?
-        # end LOTB panels, chapters and scenes
-      rescue
-        p "panel, chapter or scene error"
-      end
-
-      #Set Display Name
-      #dispName = anno.annotation_id
-      dispName = " "
-      if fromSequenceOn != ''
-        #dispName = anno.annotation_id[0..startSceneNumberIndex+sceneNumberLength] + ' ' + fromSequenceOn
-        dispName = panel + " " +  chapter + " " + scene + " " + fromSequenceOn
-        dispName.gsub!(/_/," ")
-      end
-      p ''
-      #end
-
-#=end
-      csv << [anno.annotation_id, anno.annotation_type, context, @feedOn, @canvas_id,anno.motivation,layers, xywh.to_s, panel, chapter, scene, dispName]
+  def self.scale_down_path(path, factor)
+    path.gsub(/[\d.]+/) do |match|
+      (match.to_f / factor).to_s
     end
   end
 
-  def self.getTargetedAnno inputAnno
-    #p "in Annotation.getTargetedAnno: annoId = #{inputAnno.annotation_id}"
-    onN = inputAnno.on
-    onN = onN.gsub(/=>/,':')# if onN.include?("=>")
-    onJSON = JSON.parse(onN)
-    targetAnnotation = Annotation.where(annotation_id:onJSON['full']).first
-    return if targetAnnotation.nil?
-    return(targetAnnotation) if (targetAnnotation.on.to_s.include?("oa:SvgSelector"))
-    getTargetedAnno targetAnnotation
-  end
-
-  def self.feedAnnosResourceOnly (csv) #,allorDelta)
-    p "in Annotation.feedAnnosNoResource!"
-    host_url_prefix = Rails.application.config.hostUrl
-    #host_url_prefix = 'http://localhost:5000/annotations'
-    #p "host_url_prefix = #{host_url_prefix}"
-    allOrDelta = "all" if allOrDelta.nil? or allOrDelta == '0'
-
-    #if allOrDelta == 'all'
-      #@annotations = Annotation.all
-      #@annotations = Annotation.where("annotation_id like ?", "%#{host_url_prefix}%")
-      @annotations = Annotation.where("annotation_id like ? and resource not like ? and resource not like ?" , "%#{host_url_prefix}%","%WordDocument%","OfficeDocumentSettings")
-      #@annotations = Annotation.where("annotation_id like ? and canvas like ? and resource not like ? and resource not like ?" , "%#{host_url_prefix}%","%/node%","%WordDocument%","OfficeDocumentSettings")
-      #@annotations = Annotation.where("annotation_id like ? and resource not like ? and resource not like ? and (canvas like ? or canvas like ? or canvas like ?  or canvas like ?)" , "%#{host_url_prefix}%","%WordDocument%","OfficeDocumentSettings","%/node%","%/panel_01%","%/bv11%")
-
-    p "annotations found: #{@annotations.count}"
-    #else
-    #  @annotation = Annotation.where(['updated_at > ?', DateTime.now-allOrDelta.to_i.days])
-    #end
-    count = 0
-    #headers
-    csv << ["annotation_id","resource_id", "type", "format", "chars"]
-    @annotations.each do |anno|
-      count += 1
-      p "#{count}) #{anno.annotation_id}"
-      resource_id = anno.annotation_id + "_" + SecureRandom.uuid
-      resource = anno.resource.gsub(/=>/,":")
-
-      begin
-        resourceJSON = JSON.parse(resource)
-      rescue
-       next
-      end
-
-      if !resource.start_with?('[')
-        chars = ActionView::Base.full_sanitizer.sanitize(resourceJSON{"chars"})
-        csv << [anno.annotation_id, resource_id, resourceJSON["@type"], resourceJSON["format"], chars]
-      else
-        chars = ActionView::Base.full_sanitizer.sanitize(resourceJSON[0]["chars"])
-        csv << [anno.annotation_id, resource_id, resourceJSON[0]["@type"], resourceJSON[0]["format"], chars]
-      end
+  ## Recursively follow "on" relation to the end and return all annotations
+  ## that targets a canvas directly.
+  def self.find_target_annotations_on_canvas(annotation)
+    self.find_target_annotations(annotation).select do |a|
+      a.on.include?('oa:SvgSelector')
     end
   end
 
+  ## Recursively follow "on" relation to find all transitive target annotations
+  def self.find_target_annotations(annotation)
+    target_annos = []
+    anno = IIIF::Anno.new(annotation)
+    targets = anno.targets.select do |target|
+      IIIF::Target.is_annotation(target)  # exclude targets that are canvas fragments
+    end
+    targets.each do |target|
+      target_id = target['full']
+      target_annotations = Annotation.where(annotation_id: target_id, active: true)
+      if target_annotations.empty?
+        puts "ERROR target annotation doesn't exit with id #{target_id}"
+      else
+        if target_annotations.size > 1
+          puts "ERROR duplicate annotation_id #{target_id}"
+        end
+        target_annotation = target_annotations.first
+        target_annos << target_annotation
+        target_annos.concat(self.find_target_annotations(target_annotation))
+      end
+    end
+    target_annos
+  end
 end
 
 

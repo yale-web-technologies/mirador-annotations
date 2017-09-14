@@ -1,12 +1,34 @@
 module IIIF
   class Anno
+    def self.make_array(object)
+      return [] if object.nil?
+      return object if object.kind_of?(Array)
+      [object]
+    end
+
+    def self.get_targets(annotation)
+      target = JSON.parse(annotation.on)
+      self.make_array(target)
+    end
+
+    def self.get_resource(annotation)
+      resource = JSON.parse(annotation.resource)
+      self.make_array(resource)
+    end
+
     ## annotation: an Annotation (model) object
     def initialize(annotation)
       @annotation = annotation
+      @targets = self.class.get_targets(annotation)
+      @resource = self.class.get_resource(annotation)
     end
 
     def id
       @annotation.annotation_id
+    end
+
+    def type
+      @annotation.annotation_type
     end
 
     def body_text
@@ -16,8 +38,7 @@ module IIIF
     end
 
     def targets
-      target = JSON.parse(sanitize_json(@annotation.on))
-      makeArray(target)
+      @targets
     end
 
     def target_annotations
@@ -34,10 +55,24 @@ module IIIF
       Annotation.where(canvas: @annotation.annotation_id)
     end
 
+    def resource
+      @resource
+    end
+
+    def tags
+      @resource.select do |r|
+        r['@type'] == 'oa:Tag'
+      end
+    end
+
+    def motivation
+      JSON.parse(@annotation.motivation)
+    end
+
   private
     def get_text_resource
       resource = JSON.parse(@annotation.resource)
-      resources = makeArray(resource)
+      resources = self.class.make_array(resource)
       items = resources.select { |item| item['@type'] === 'dctypes:Text' }
 
       if items.size > 0
@@ -48,17 +83,6 @@ module IIIF
       else
         return nil
       end
-    end
-
-    def makeArray(object)
-      return [] if object.nil?
-      return object if object.kind_of?(Array)
-      [object]
-    end
-
-    def sanitize_json(json)
-      json2 = json.gsub('\n', '\\n')
-      json2.gsub('=>', ':')
     end
   end
 end

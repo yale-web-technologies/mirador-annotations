@@ -13,7 +13,7 @@ module Remote
 
     def upload_file(local_file_path, remote_file_name)
       remote_path = "#{@bucket_folder}/#{remote_file_name}"
-      Rails.logger.debug("Uploading to S3: #{local_file_path} -> #{remote_path}")
+      puts "Uploading to S3: #{local_file_path} -> #{remote_path}"
       obj = @s3.bucket(@bucket).object(remote_path)
       obj.upload_file(local_file_path)
     end

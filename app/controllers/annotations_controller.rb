@@ -650,26 +650,6 @@ class AnnotationsController < ApplicationController
     end
   end
 
-  # GET /solrFeed.json
-  def getAnnotationsForSolrFeed
-
-    # replace @ru with hostUrl environment variable
-    p "host url = #{Rails.application.config.hostUrl}"
-    @annotation = Annotation.all
-    respond_to do |format|
-      solr = []
-      i=0
-      @annotation.each do |annotation|
-        #break if i > 3
-        i+=1
-        solr << annotation.to_solr
-      end
-      solr.to_json
-      format.html {render json: solr}
-      format.json {render json: solr, content_type: "application/json"}
-    end
-  end
-
   def updateSvg
     annotation_id = params['id']
     svg = params['svg']
@@ -763,37 +743,6 @@ class AnnotationsController < ApplicationController
       #format.json {render :text => allLayers}
       #format.text {render xml: allLayers, content_type: "xml"}
       format.text {render :text => allLayers, :content_type => Mime::TEXT.to_s}
-    end
-  end
-
-  def feedAnnosNoResourceWrapper
-    allOrDelta = params['delta']
-    allOrDelta = "all" if allOrDelta.nil? or allOrDelta == '0'
-
-    p "in controller: feedAnnosNoResourceWrapper"
-    annos = CSV.generate do |csv|
-      Annotation.feedAnnosNoResource csv
-    end
-
-    respond_with do |format|
-      #format.csv {render :csv => annos, content_type: "application/csv"}
-      format.text {render :text => annos, content_type: "application/csv"}
-    end
-  end
-
-  def feedAnnosResourceOnlyWrapper
-    allOrDelta = params['delta']
-    allOrDelta = "all" if allOrDelta.nil? or allOrDelta == '0'
-
-    p "in controller: feedAnnosResourceOnlyWrapper"
-    annos = CSV.generate do |csv|
-      Annotation.feedAnnosResourceOnly csv
-    end
-
-    p "about to respond: annos = #{annos}"
-    respond_with do |format|
-      format.text {render :text => annos, content_type: "application/csv"}
-      format.csv {render :text => annos, content_type: "application/csv"}
     end
   end
 
