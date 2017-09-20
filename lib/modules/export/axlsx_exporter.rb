@@ -11,8 +11,8 @@ module Export
 
     def export(wb)
       @manifests.each do |manifest|
-        wb.add_worksheet(name: 'Annotations') do |sheet|
-          sheet.name = manifest.label
+        # It seems worksheet name cannot exceed 31 characters (bytes)
+        wb.add_worksheet(name: manifest.label.slice(0, 25)) do |sheet|
           sheet.add_row(header_row)
           export_manifest(manifest).each do |row|
             sheet.add_row(row)
