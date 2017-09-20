@@ -161,24 +161,19 @@ module Export
     end
 
     def get_layer_for_annotation(annotation)
-      puts "anno: #{annotation.annotation_id}"
       list_annotations = ListAnnotationsMap.where(annotation_id: annotation.annotation_id)
-
       list_annotation = list_annotations[0]
-      puts "list_annotation: #{list_annotation}"
       list_id = list_annotation.list_id
-      puts "list_id: #{list_id}"
       order_weight = list_annotation.sequence
-      puts "weight: #{order_weight}"
       layer_lists = LayerListsMap.where(list_id: list_id)
       layer_list = layer_lists[0]
-      puts "layer_list: #{layer_list}"
       layer_id = layer_list.layer_id
-      puts "layer_id: #{layer_id}"
       layers = AnnotationLayer.where(layer_id: layer_id)
       layer = layers[0]
-      puts "layer: #{layer}"
       [layer, order_weight]
+    rescue Exception => e
+      Rails.logger.error("Failed to get layer for annotation #{annotation.annotation_id} - #{e}")
+      [nil, 0]
     end
   end
 end
