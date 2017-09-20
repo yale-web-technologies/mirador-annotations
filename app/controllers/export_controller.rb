@@ -64,12 +64,19 @@ private
   end
 
   def build_export_file_path(collection_label, file_hash)
-    name = collection_label.gsub(/\s+/, '_')
+    name = to_ascii(collection_label).gsub(/\s+/, '_')
     "#{Rails.root}/tmp/export.#{name}.#{file_hash}.xlsx"
   end
 
   def build_download_file_name(collection_label, file_hash)
-    name = collection_label.gsub(/\s+/, '_')
+    name = to_ascii(collection_label).gsub(/\s+/, '_')
     "#{name}.#{file_hash}.xlsx"
+  end
+
+  # To make filename safe for S3 upload
+  def to_ascii(s)
+    s = s.encode('ASCII')
+  rescue Encoding::UndefinedConversionError => e
+    'Export'
   end
 end
