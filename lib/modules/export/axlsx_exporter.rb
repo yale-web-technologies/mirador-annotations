@@ -11,8 +11,7 @@ module Export
 
     def export(wb)
       @manifests.each do |manifest|
-        # It seems worksheet name cannot exceed 31 characters (bytes)
-        wb.add_worksheet(name: manifest.label.slice(0, 25)) do |sheet|
+        wb.add_worksheet(name: filter_worksheet_name(manifest.label)) do |sheet|
           sheet.add_row(header_row)
           export_manifest(manifest).each do |row|
             sheet.add_row(row)
@@ -27,6 +26,12 @@ module Export
     end
 
   private
+    def filter_worksheet_name(name)
+      # It seems worksheet name cannot exceed 31 characters (bytes)
+      name = ActionController::Base.helpers.truncate(name, length: 31)
+      name = name.gsub(/[\\\/*\[\]:?]/, '_') # invalid chars for excel worksheet name
+    end
+
     def download_manifests(manifest_urls)
       manifests = []
       manifest_urls.each do |url|
