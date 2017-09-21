@@ -14,7 +14,7 @@ module IIIF
     end
 
     def manifests
-      @collection_data['manifests']
+      @collection_data['manifests'] || []
     end
   end
 end

@@ -13,7 +13,7 @@ module Remote
 
     def upload_file(local_file_path, remote_file_name)
       remote_path = "#{@bucket_folder}/#{remote_file_name}"
-      puts "Uploading to S3: #{local_file_path} -> #{remote_path}"
+      Rails.logger.info "Uploading to S3: #{local_file_path} -> #{remote_path}"
       obj = @s3.bucket(@bucket).object(remote_path)
       obj.upload_file(local_file_path)
     end
@@ -21,8 +21,7 @@ module Remote
     def delete_old_files(extension)
       bucket = @s3.bucket(@bucket)
       bucket.objects.each do |obj|
-        puts "hello"
-        puts "#{obj.key} => #{obj.etag}"
+        Rails.logger.debug "#{obj.key} => #{obj.etag}"
       end
     end
   end

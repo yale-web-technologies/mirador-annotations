@@ -1,45 +1,7 @@
-<style>
-
-</style>
-
 <h1>Exporting to xlsx</h1>
 
-<p>
-  Job ID: <%= @job.id %><br/>
-  File: <%= @file_name %>
-</p>
-
-<p>
-  <span id="status">Status</span>
-</p>
-
-
-<script>
-(function($) {
-  var statusElem = jQuery('#status');
-  var startTime = new Date().valueOf();
-
-  statusElem.text('Generating report');
-
-  var intervalId = setInterval(function() {
-    jQuery.getJSON("/export/check_status?job_id=<%= @job.id %>").then(function(data) {
-      handleStatus(data);
-    });
-  }, 3000);
-
-  function handleStatus(status) {
-    console.log('Job status:', status);
-    if (status.isComplete) {
-      statusElem.text('Report is ready');
-      clearInterval(intervalId);
-      window.location = '<%= @download_prefix %>/<%= @file_name %>';
-    } else if (status.errorCode === 0) {
-      var lapse = Math.round((new Date().valueOf() - startTime) / 1000);
-      statusElem.text('Generating report (' + lapse + ' seconds)');
-    } else {
-      statusElem.text(status.errorMessage);
-      clearInterval(intervalId);
-    }
-  }
-})();
-</script>
+<% if @error.nil? %>
+  <%= render 'status' %>
+<% else %>
+  <%= render 'error' %>
+<% end %>
