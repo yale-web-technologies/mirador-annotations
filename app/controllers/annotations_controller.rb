@@ -192,96 +192,64 @@ class AnnotationsController < ApplicationController
 
   # POST /annotation
   def create
-    #@annotationIn = params
-    # for new params with layer_id and annotation
-    @paramsIn = params
-    @layer_id = @paramsIn['layer_id']
-    #testParam = @paramsIn['testParam']
-    p  "in CreateAnno @layer_id = #{@layer_id}"
-    #p  "in CreateAnno testParam = #{testParam}"
+    p "AnnotationsController#create params: #{params.inspect}"
+    p "hostUrl: #{Rails.application.config.hostUrl}"
 
-    @annotationIn = @paramsIn['annotation']
-    p  "in CreateAnno @annotationIn = #{@annotationIn}"
-    #@annotationIn = JSON.parse(@annotationIn)
-    #@annotationIn = JSON.parse(@annotationIn.to_s)
-    puts "\n"
-    p '============================================================================='
-    p  "in CreateAnno params = #{params.inspect}"
-    p  "in CreateAnno @layer_id = #{@layer_id}"
-    p  "in CreateAnno @annotationIn['@type'] = #{@annotationIn['@type']}"
-    #p  "in CreateAnno @annotationIn['resource'] = #{@annotationIn['resource'].to_s}"
-    p '============================================================================='
-    puts "\n"
+    @layer_id = params['layer_id']
+    @annotationIn = params['annotation']
 
     @problem = ''
-    #if !validate_annotation @annotationIn
-    #  errMsg = "Annotation record not valid and could not be saved: " + @problem
-    #  render :json => { :error => errMsg },
-    #         :status => :unprocessable_entity
-    #else
-      #@ru = request.original_url.split('?').first
-      # replace @ru with hostUrl environment variable
-      p "host url = #{Rails.application.config.hostUrl}"
-      @ru = Rails.application.config.hostUrl
-      @ru += '/'   if !@ru.end_with? '/'
-      @ru = Rails.application.config.hostUrl + "annotations/"
 
-      @annotation_id = @ru + SecureRandom.uuid
-      p "annotation_id = #{@annotation_id}"
+    @ru = Rails.application.config.hostUrl
+    @ru += '/' if !@ru.end_with? '/'
+    @annotation_id = "#{@ru}annotations/#{SecureRandom.uuid}"
+    p "annotation_id: #{@annotation_id}"
 
-      @annotation_id = @annotation_id + SecureRandom.uuid
+    @annotationOut = Hash.new
+    @annotationOut['annotation_id'] = @annotation_id
+    @annotationOut['annotation_type'] = @annotationIn['@type']
+    @annotationOut['motivation'] = @annotationIn['motivation']
+    @annotationOut['description'] = @annotationIn['description']
+    @annotationOut['annotated_by'] = @annotationIn['annotatedBy'].to_json
 
-      @annotationOut = Hash.new
-      @annotationOut['annotation_id'] = @annotation_id
-      @annotationOut['annotation_type'] = @annotationIn['@type']
-      @annotationOut['motivation'] = @annotationIn['motivation']
-      @annotationOut['description'] = @annotationIn['description']
-      @annotationOut['annotated_by'] = @annotationIn['annotatedBy'].to_json
+    #TODO: consider if canvas convenience field should be set to original canvas for targeting annotations as well.
+    # @annotationOut['canvas']  = @annotationIn['on']['full']
 
-      #TODO: consider if canvas convenience field should be set to original canvas for targeting annotations as well.
-      # @annotationOut['canvas']  = @annotationIn['on']['full']
+    @annotationOut['resource']  = @annotationIn['resource'].to_json
+    @annotationOut['active'] = true
+    @annotationOut['version'] = 1
 
-      @annotationOut['resource']  = @annotationIn['resource'].to_json
-      @annotationOut['active'] = true
-      @annotationOut['version'] = 1
+    @annotationOut['on'] = @annotationIn['on']
+    p "@annotationIn['on'] = #{@annotationIn['on']}"
 
-#=====================================================================
-      # hardcode a multiple on as test for multiple on's:
-      #@annotationIn['on'] =
-#'[{"@type": "oa:Annotation","full": "http://mirador-annotations-tenkr-stg.herokuapp.com/annotations/6172538a-3433-4eb5-aaa6-de6c562ab7ab"},{"@type": "oa:Annotation","full": "http://manifest.tenthousandrooms.yale.edu/node/311/canvas/14116"}]'
-#=====================================================================
-      @annotationOut['on'] = @annotationIn['on']
-      p "@annotationIn['on'] = #{@annotationIn['on']}"
+    # determine the required list for this layer and canvas (this is project-specific)
+    # and create as needed (if this is the first annotation for this layer/canvas)
+    # Deal with possibility of 'on' being multiple canvases (or annotations); in this case 'on' will look like an array, which will mean multiple lists
+    if !@annotationIn['on'].to_s.start_with?("[")
+    #if @annotationIn['on'].kind_of?(Array)
 
-      # determine the required list for this layer and canvas (this is project-specific)
-      # and create as needed (if this is the first annotation for this layer/canvas)
-      # Deal with possibility of 'on' being multiple canvases (or annotations); in this case 'on' will look like an array, which will mean multiple lists
-      if !@annotationIn['on'].to_s.start_with?("[")
-      #if @annotationIn['on'].kind_of?(Array)
-
-        handleRequiredList
-        @annotationOut['canvas'] = @annotationIn['on']['full']
-      else
-        handleRequiredListMultipleOn
-        @annotationOut['canvas'] = setMultipleCanvas
-      end
+      handleRequiredList
+      @annotationOut['canvas'] = @annotationIn['on']['full']
+    else
+      handleRequiredListMultipleOn
+      @annotationOut['canvas'] = setMultipleCanvas
+    end
 
     p "in CreateAnno: @annotationOut['canvas'] = #{@annotationOut['canvas']}"
     p "in CreateAnno: about to setMap: @annotationIn['within'] = #{@annotationIn['within']}"
-      ListAnnotationsMap.setMap @annotationIn['within'], @annotation_id
-      create_annotation_acls_via_parent_lists @annotation_id
-      @annotation = Annotation.new(@annotationOut)
-      #authorize! :create, @annotation
-      request.format = "json"
-      p 'about to respond in create'
-      respond_to do |format|
-        if @annotation.save
-          format.json { render json: @annotation.to_iiif, status: :created, content_type: "application/json"} #, location: @annotation }
-        else
-          format.json { render json: @annotation.errors, status: :unprocessable_entity, content_type: "application/json" }
-        end
+    ListAnnotationsMap.setMap @annotationIn['within'], @annotation_id
+    create_annotation_acls_via_parent_lists @annotation_id
+    @annotation = Annotation.new(@annotationOut)
+    #authorize! :create, @annotation
+    request.format = "json"
+    p 'about to respond in create'
+    respond_to do |format|
+      if @annotation.save
+        format.json { render json: @annotation.to_iiif, status: :created, content_type: "application/json"} #, location: @annotation }
+      else
+        format.json { render json: @annotation.errors, status: :unprocessable_entity, content_type: "application/json" }
       end
-    #end
+    end
   end
 
   # PUT /annotation/1
