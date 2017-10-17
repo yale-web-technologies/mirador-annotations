@@ -70,8 +70,6 @@ gem 'redis', '~>3.2'
 gem 'aws-sdk', '~> 2'
 gem 'aws-sdk-rails'
 
-
-
 #gem 'mirador-annotation-solr-loader', :path => "~/rails_projects/mirador-annotation-solr-loader/"
 #gem 'annotation_solr_loader', github: 'ydc2/annotation-solr-loader', tag: 'v1.5'
 #gem 'mirador-annotation-solr-loader', :path => "/Users/rlechich/rails_projects/"
@@ -83,6 +81,8 @@ gem 'aws-sdk-rails'
 
 # Use debugger
 # gem 'debugger', group: [:development, :test]
+
+gem 'single_test'
 
 group :production do
   gem 'rails_12factor', '0.0.2'
@@ -97,5 +97,4 @@ end
 group :test do
   gem 'rspec'
   gem 'rspec-rails'
-  gem 'single_test'
 end
