@@ -8,6 +8,15 @@ class AnnotationList < ActiveRecord::Base
   has_many :list_annotations_maps
   has_many :webacls, foreign_key: "resource_id"
 
+  def self.create_from_iiif(json_obj)
+    params = json_obj.merge(list_id: json_obj['@id'],
+      list_type: json_obj['@type'])
+    params.delete('@id')
+    params.delete('@type')
+    params.delete('@context')
+    self.create(params)
+  end
+
   def to_iiif
     iiif = Hash.new
     iiif['@id'] = list_id

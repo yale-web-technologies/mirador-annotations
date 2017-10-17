@@ -25,9 +25,11 @@ class AnnotationListsController < ApplicationController
   # GET /list/1
   # GET /list/1.json
   def show
+    puts "AnnotationListsController#show params: #{params.inspect}"
+
     @ru = request.original_url
     #@ru = request.protocol + request.host_with_port + "/lists/#{params['id']}"
-    p "in lists#show: @ru = #{@ru}"
+    p "in lists#show: @ru: [#{@ru}]"
     @annotation_list = AnnotationList.where(list_id: @ru).first
     #authorize! :show, @annotation_list
     respond_to do |format|
@@ -39,10 +41,12 @@ class AnnotationListsController < ApplicationController
   # POST /list
   # POST /list.json
   def create
-    @annotationListIn = JSON.parse(params.to_json)
+    puts "AnnotationListsController#create params: #{params.inspect}"
+    @annotationListIn = params
     @problem = ''
     if !validate_annotationList @annotationListIn
       errMsg = "AnnotationList record not valid and could not be updated: " + @problem
+      puts "ERROR AnnotationListController#create #{errMsg}"
       render :json => { :error => errMsg },
              :status => :unprocessable_entity
     else

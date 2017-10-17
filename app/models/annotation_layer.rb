@@ -13,6 +13,15 @@ class AnnotationLayer < ActiveRecord::Base
                   :license,
                   :version
 
+  def self.create_from_iiif(json_obj)
+    params = json_obj.merge(layer_id: json_obj['@id'],
+      layer_type: json_obj['@type'])
+    params.delete('@id')
+    params.delete('@type')
+    params.delete('@context')
+    self.create(params)
+  end
+
   def to_iiif
     iiif = Hash.new
     iiif['@id'] = layer_id

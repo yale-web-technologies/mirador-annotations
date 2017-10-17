@@ -218,9 +218,7 @@ class AnnotationsController < ApplicationController
     @annotationOut['resource']  = @annotationIn['resource'].to_json
     @annotationOut['active'] = true
     @annotationOut['version'] = 1
-
-    @annotationOut['on'] = @annotationIn['on']
-    p "@annotationIn['on'] = #{@annotationIn['on']}"
+    @annotationOut['on'] = @annotationIn['on'].to_json
 
     # determine the required list for this layer and canvas (this is project-specific)
     # and create as needed (if this is the first annotation for this layer/canvas)
@@ -255,14 +253,12 @@ class AnnotationsController < ApplicationController
   # PUT /annotation/1
   # PUT /annotation/1.json
   def update
-    p "in update"
-    #@ru = request.original_url
     @ru = Rails.application.config.hostUrl
 
     # Determine from the passed-in layer_id if the layer was changed
-    editObject = JSON.parse(params.to_json)
+    editObject = params
     @layerIdIn = editObject['layer_id'][0]
-    @annotationIn = JSON.parse(editObject['annotation'].to_json)
+    @annotationIn = editObject['annotation']
     #use @annotationIn['within'] to determine if the anno already belongs to this layer, if so set updateLists = false
     updateLists = true
     @annotationIn['within'].each do |list_id|
@@ -323,8 +319,8 @@ class AnnotationsController < ApplicationController
           respond_to do |format|
             if @annotation.update_attributes(
                 :annotation_type => @annotationIn['@type'],
-                :motivation => @annotationIn['motivation'],
-                :on => @annotationIn['on'],
+                :motivation => @annotationIn['motivation'].to_json,
+                :on => @annotationIn['on'].to_json,
                 :resource => @annotationIn['resource'].to_json,
                 :annotated_by => @annotationIn['annotatedBy'].to_json,
                 :version => newVersion,
@@ -487,6 +483,7 @@ class AnnotationsController < ApplicationController
   end
 
   def constructRequiredListId layer_id, canvas_id
+    puts "AnnotationsController#constructRequiredListId layer_id: #{layer_id}, canvas_id: #{canvas_id}"
     #@ru = request.original_url.split('?').first
     @ru = Rails.application.config.hostUrl
     @ru += '/'   if !@ru.end_with? '/'

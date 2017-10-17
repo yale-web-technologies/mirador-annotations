@@ -159,7 +159,7 @@ class Annotation < ActiveRecord::Base
   ## Recursively follow "on" relation to find all transitive target annotations
   def self.find_target_annotations(annotation)
     target_annos = []
-    anno = IIIF::Anno.new(annotation)
+    anno = IIIFAdapter::Anno.new(annotation)
     targets = anno.targets.select do |target|
       IIIF::Target.is_annotation(target)  # exclude targets that are canvas fragments
     end

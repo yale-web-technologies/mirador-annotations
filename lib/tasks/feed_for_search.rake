@@ -64,7 +64,7 @@ namespace :feed_for_search do
     anno_annos = []
 
     annotations.each do |anno|
-      is_on_canvas =  IIIF::Anno.new(anno).targets
+      is_on_canvas =  IIIFAdapter::Anno.new(anno).targets
         .map {|target| IIIF::Target.is_canvas(target) }
         .include?(true)
       if is_on_canvas
@@ -82,7 +82,7 @@ namespace :feed_for_search do
     max_width = 30000
     max_height = 16000
 
-    targets = IIIF::Anno.new(annotation).targets.select do |target|
+    targets = IIIFAdapter::Anno.new(annotation).targets.select do |target|
       IIIF::Target.is_canvas(target)
     end
 

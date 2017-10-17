@@ -139,14 +139,16 @@ class AnnotationLayersController < ApplicationController
   # PUT /layer/1.json
 
   def update
-    @annotationLayerIn = JSON.parse(params.to_json)
+    puts "AnnotationLayersController#update params: #{params.inspect}"
+    @annotationLayerIn = params['annotationLayer']
+
     @problem = ''
-    if !validate_annotationLayer @annotationLayerIn
+    if !validate_annotationLayer(@annotationLayerIn)
       errMsg = "Annotation Layer not valid and could not be updated: " + @problem
+      puts "ERROR: #{errMsg}"
       render :json => { :error => errMsg },
              :status => :unprocessable_entity
     else
-
       @annotationLayer = AnnotationLayer.where(layer_id: @annotationLayerIn['@id']).first
       #authorize! :update, @annotationLayer
 
@@ -326,16 +328,20 @@ class AnnotationLayersController < ApplicationController
 
   protected
 
-  def validate_annotationLayer annotationLayer
+  def validate_annotationLayer(layer)
     valid = true
-    if !annotationLayer['@type'].to_s.downcase! == 'sc:layer'
-      @problem = "invalid '@type': #{anotationLayer['@type']}"
+
+    if layer['@id'].nil?
+      @problem = "missing ID"
+      valid = false
+    elsif layer['@type'] != 'sc:Layer'
+      @problem = "invalid type: #{layer['@type']}"
+      valid = false
+    elsif layer['label'].nil?
+      @problem = "missing label"
       valid = false
     end
-    if annotationLayer['label'].nil?
-      @problem = "missing 'label'"
-      valid = false
-    end
+
     valid
   end
 

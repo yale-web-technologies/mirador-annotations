@@ -10,7 +10,7 @@ module Import
 
     def initialize(hostUrl)
       @hostUrl = hostUrl
-      @helper = IIIF::CreationHelper.new
+      @helper = CreationHelper.new
     end
 
     def import(csv)
@@ -33,15 +33,15 @@ module Import
       sequence += 1
 
       [
-        IIIF::LAYER_KEY_ENGLISH,
-        IIIF::LAYER_KEY_TIBETAN,
-        IIIF::LAYER_KEY_ENGLISH_MANUAL,
-        IIIF::LAYER_KEY_TIBETAN_MANUAL,
-        IIIF::LAYER_KEY_ENGLISH_INSCRIPTION,
-        IIIF::LAYER_KEY_TIBETAN_INSCRIPTION,
-        IIIF::LAYER_KEY_CANONICAL_SOURCE,
-        IIIF::LAYER_KEY_CANONICAL_SOURCE_2RY_3RY,
-        IIIF::LAYER_KEY_SCENE_WORKING_NOTES
+        LAYER_KEY_ENGLISH,
+        LAYER_KEY_TIBETAN,
+        LAYER_KEY_ENGLISH_MANUAL,
+        LAYER_KEY_TIBETAN_MANUAL,
+        LAYER_KEY_ENGLISH_INSCRIPTION,
+        LAYER_KEY_TIBETAN_INSCRIPTION,
+        LAYER_KEY_CANONICAL_SOURCE,
+        LAYER_KEY_CANONICAL_SOURCE_2RY_3RY,
+        LAYER_KEY_SCENE_WORKING_NOTES
       ].each do |layer_key|
         create_annotation(layer_key, parsed, sequence) if parsed[layer_key]
       end
@@ -79,15 +79,15 @@ module Import
         :panel => panel,
         :chapter => prune_text(row[1]),
         :scene => scene,
-        IIIF::LAYER_KEY_TIBETAN => prune_text(row[3]),
-        IIIF::LAYER_KEY_TIBETAN_INSCRIPTION => prune_text(row[5]),
-        IIIF::LAYER_KEY_TIBETAN_MANUAL => prune_text(row[7]),
-        IIIF::LAYER_KEY_ENGLISH => prune_text(row[4]),
-        IIIF::LAYER_KEY_ENGLISH_INSCRIPTION => prune_text(row[6]),
-        IIIF::LAYER_KEY_ENGLISH_MANUAL => prune_text(row[8]),
-        IIIF::LAYER_KEY_CANONICAL_SOURCE => prune_text(row[9]),
-        IIIF::LAYER_KEY_CANONICAL_SOURCE_2RY_3RY => prune_text(row[10]),
-        IIIF::LAYER_KEY_SCENE_WORKING_NOTES => prune_text(row[11]),
+        LAYER_KEY_TIBETAN => prune_text(row[3]),
+        LAYER_KEY_TIBETAN_INSCRIPTION => prune_text(row[5]),
+        LAYER_KEY_TIBETAN_MANUAL => prune_text(row[7]),
+        LAYER_KEY_ENGLISH => prune_text(row[4]),
+        LAYER_KEY_ENGLISH_INSCRIPTION => prune_text(row[6]),
+        LAYER_KEY_ENGLISH_MANUAL => prune_text(row[8]),
+        LAYER_KEY_CANONICAL_SOURCE => prune_text(row[9]),
+        LAYER_KEY_CANONICAL_SOURCE_2RY_3RY => prune_text(row[10]),
+        LAYER_KEY_SCENE_WORKING_NOTES => prune_text(row[11]),
         :canvas => @@canvas_map[panel]
       }
     end

@@ -46,7 +46,7 @@ module Export
 private
 
     def create_row_no_resource(annotation)
-      anno = IIIF::Anno.new(annotation)
+      anno = IIIFAdapter::Anno.new(annotation)
       puts "id: #{anno.id}"
 
       target_id = nil  # eventual target canvas
@@ -74,7 +74,7 @@ private
         end
         target_id = target['full']
         target_anno = target_annos.first
-        canvas_id = IIIF::Anno.get_targets(target_anno).first['full']
+        canvas_id = IIIFAdapter::Anno.get_targets(target_anno).first['full']
 
       else  # target is a canvas fragment
         target_id = ''
@@ -106,7 +106,7 @@ private
     end
 
     def create_row_resource_only(annotation)
-      anno = IIIF::Anno.new(annotation)
+      anno = IIIFAdapter::Anno.new(annotation)
       resource_id = "#{anno.id}_#{SecureRandom.uuid}"
 
       resource_items = anno.resource.select { |r| r['@type'] == 'dctypes:Text' }

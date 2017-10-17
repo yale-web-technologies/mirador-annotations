@@ -100,13 +100,13 @@ module Export
       new_annos = []
       annotations.each do |anno|
         new_annos << anno
-        new_annos += IIIF::Anno.new(anno).targeting_annotations
+        new_annos += IIIFAdapter::Anno.new(anno).targeting_annotations
       end
       new_annos
     end
 
     def generate_row(manifest, canvas, layer, annotation, valid)
-      anno = IIIF::Anno.new(annotation)
+      anno = IIIFAdapter::Anno.new(annotation)
 
       if valid
         layer_label = layer.label
@@ -115,10 +115,10 @@ module Export
       end
 
       body_text = anno.body_text || ''
-      targeting_annos = anno.targeting_annotations.map { |anno| IIIF::Anno.new(anno) }
+      targeting_annos = anno.targeting_annotations.map { |anno| IIIFAdapter::Anno.new(anno) }
       targeting_annos_body_texts = targeting_annos.map { |anno| strip_html_tags(anno.body_text) }
       targeting_annos_ids = targeting_annos.map { |anno| anno.id }
-      target_annos = anno.target_annotations.map { |anno| IIIF::Anno.new(anno) }
+      target_annos = anno.target_annotations.map { |anno| IIIFAdapter::Anno.new(anno) }
       target_annos_body_texts = target_annos.map { |anno| strip_html_tags(anno.body_text) }
       target_annos_ids = target_annos.map { |anno| anno.id }
 

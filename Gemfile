@@ -14,6 +14,8 @@ gem 'rails', github: 'rails/rails', branch: '4-2-stable'  # avoid arel problem
 gem 'bootstrap-sass', '2.3.2.0'
 gem 'sprockets', '2.12.3'
 
+gem 'pg', '0.15.1'
+
 gem 'json'
 
 gem 'therubyracer'
@@ -28,26 +30,6 @@ gem 'rack-cors', :require => 'rack/cors'
 gem 'axlsx', '2.1.0.pre'
 
 gem 'delayed_job_active_record', '~> 4.1.2'
-
-group :development, :test do
-  # Use sqlite3 as the database for Active Record for dev
-  gem 'sqlite3'
-
-  gem 'rspec-rails'
-  gem 'rspec'
-end
-
-group :production do
-  # Use postgres as the database for Active Record for dev
-  gem 'pg', '0.15.1'
-  gem 'rails_12factor', '0.0.2'
-end
-
-group :development, :test do
-gem 'factory_girl_rails', '~> 4.2.0'
-gem 'simplecov', :require => false, :group => :test
-gem 'rubocop', require: false
-end
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 4.0.3'
@@ -101,3 +83,19 @@ gem 'aws-sdk-rails'
 
 # Use debugger
 # gem 'debugger', group: [:development, :test]
+
+group :production do
+  gem 'rails_12factor', '0.0.2'
+end
+
+group :development, :test do
+  gem 'factory_girl_rails', '~> 4.2.0'
+  gem 'simplecov', :require => false, :group => :test
+  gem 'rubocop', require: false
+end
+
+group :test do
+  gem 'rspec'
+  gem 'rspec-rails'
+  gem 'single_test'
+end

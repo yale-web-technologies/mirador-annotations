@@ -1,4 +1,4 @@
-module IIIF
+module IIIFAdapter
   class Anno
     def self.make_array(object)
       return [] if object.nil?

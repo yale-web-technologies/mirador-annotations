@@ -1,4 +1,4 @@
-module IIIF
+module import
   LAYER_KEY_ENGLISH = :english
   LAYER_KEY_TIBETAN = :tibetan
   LAYER_KEY_ENGLISH_MANUAL = :english_manual

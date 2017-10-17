@@ -69,54 +69,54 @@ RSpec.describe AnnotationLayersController, type: :controller do
       end
     end
 
-
     context 'when Put is called' do
       describe 'Put annotationList json' do
         before(:each) do
-          @annoLayerString ='{"label": "Layer 2", "motivation": "yale:transcribing", "license": "http://creativecommons.org/licenses/by/4.0/", "@type": "sc:Layer", "@context": "http://iiif.io/api/presentation/2/context.json", "otherContent": "http://localhost:5000/lists/1"}'
-          post :create, JSON.parse(@annoLayerString)
-          @layer = AnnotationLayer.last()
-          #@layer = post :create, JSON.parse(@annoLayerString)
-          @layerJSON = JSON.parse(@annoLayerString)
-          @layerJSON['@id'] = @layer.layer_id
+          AnnotationLayer.delete_all
+          @params = IIIF::Layer.create(id: '/layer/1', options: {
+            'label' => 'Old Label'
+          })
+          layer = AnnotationLayer.create_from_iiif(@params)
+          @old_id = layer.layer_id
         end
 
         it 'does not change the record count' do
-          @layerJSON['label'] = 'label update'
-          expect { put :update, @layerJSON }.to change(AnnotationLayer, :count).by(0)
+          params = @params.merge('@id' => @old_id, 'label' => 'New Label')
+          expect { put :update, id: 0, annotationLayer: params, format: :json }
+          .to change(AnnotationLayer, :count).by(0)
         end
 
         it 'returns a 200 response' do
-          @layerJSON['label'] = 'label update'
-          put :update, @layerJSON, :format => 'json'
+          params = @params.merge('@id' => @old_id, 'label' => 'New Label')
+          put :update, id: 0, annotationLayer: params, :format => :json
           expect(response.status).to eq(200)
         end
 
         it 'updates the label field' do
-          @layerJSON['label'] = 'label update'
-          put :update, @layerJSON, :format => 'json'
-          responseJSON = JSON.parse(response.body)
-          expect(responseJSON['label']).to eq("label update")
+          params = @params.merge('@id' => @old_id, 'label' => 'New Label')
+          put :update, id: 0, annotationLayer: params, :format => :json
+          layer = JSON.parse(response.body)
+          puts "tototo #{layer.inspect}"
+          expect(layer['label']).to eq("New Label")
         end
 
         it 'fails validation correctly' do
-          @layerJSON['label'] = nil
-          put :update, @layerJSON, :format => 'json'
+          params = @params.merge('@id' => @old_id, 'label' => nil)
+          put :update, id: 0, annotationLayer: params, :format => :json
           expect(response.status).to eq(422)
         end
 
 
         it 'creates a version correctly' do
-          @layerJSON['label'] = 'label update'
-          put :update, @layerJSON, :format => 'json'
-          @layer = AnnotationLayer.last()
-          @version = AnnoListLayerVersion.last()
-          expect(@layer.version).to eq(2)
-          expect(@version.all_id).to eq(@layer.layer_id)
-          expect(@version.all_type.downcase).to eq("sc:layer")
-          expect(@version.all_version).to eq(@layer.version-1)
+          params = @params.merge('@id' => @old_id, 'label' => 'New Layer')
+          put :update, id: 0, annotationLayer: params, :format => :json
+          layer = AnnotationLayer.last()
+          version = AnnoListLayerVersion.last()
+          expect(layer.version).to eq(2)
+          expect(version.all_id).to eq(layer.layer_id)
+          expect(version.all_type).to eq("sc:Layer")
+          expect(version.all_version).to eq(layer.version - 1)
         end
-
       end
     end
 

@@ -1,5 +1,18 @@
 module IIIF
   class Target
+    def self.create(targeting_canvas:, options:)
+      if targeting_canvas
+        target = {
+          '@type' => 'oa:SpecificResource'
+        }
+      else
+        target = {
+          '@type' => 'oa:Annotation'
+        }
+      end
+      target.merge(options)
+    end
+
     # true if the target is a canvas
     def self.is_canvas(target)
       target['@type'] != 'oa:Annotation'

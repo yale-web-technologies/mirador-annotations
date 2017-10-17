@@ -230,6 +230,8 @@ GEM
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.0)
+    single_test (0.6.0)
+      rake
     spring (2.0.0)
       activesupport (>= 4.2)
     sprockets (2.12.3)
@@ -241,7 +243,6 @@ GEM
       actionpack (>= 3.0)
       activesupport (>= 3.0)
       sprockets (>= 2.8, < 4.0)
-    sqlite3 (1.3.12)
     systemu (2.6.5)
     therubyracer (0.12.2)
       libv8 (~> 3.16.14.0)
@@ -299,9 +300,9 @@ DEPENDENCIES
   sass-rails (~> 4.0.3)
   sdoc (~> 0.4.0)
   simplecov
+  single_test
   spring
   sprockets (= 2.12.3)
-  sqlite3
   therubyracer
   turbolinks
   uglifier (>= 1.3.0)
