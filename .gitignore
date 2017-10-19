@@ -46,3 +46,6 @@ pickle-email-*.html
 .rvmrc
 .ruby-gemset
 .ruby-version
+
+local_env
+.env

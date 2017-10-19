@@ -1,0 +1,40 @@
+version: "2"
+
+services:
+  rails:
+    container_name: annotation-server-rails
+    build: .
+    ports:
+      - 3000:3000
+    command: "bundle exec rails s -p 3000 -b '0.0.0.0'"
+    stdin_open: true
+    tty: true
+    links:
+      - postgres:postgres
+      - redis:redis
+    environment:
+      VIRTUAL_HOST: ${RAILS_SERVER_HOSTNAME}
+      DB_HOST: ${DB_HOST}
+      DATABASE_DEV: ${DATABASE_DEV}
+      DB_USERNAME_DEV: ${DB_USERNAME_DEV}
+      DB_PASSWORD_DEV: ${DB_PASSWORD_DEV}
+    volumes:
+      - ${APPLICATION_PATH}:/app 
+    expose:
+      - "3000"
+
+  postgres:
+    container_name: annotation-server-postgres
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: ${DB_USERNAME_DEV} 
+      POSTGRES_PASSWORD: ${DB_PASSWORD_DEV}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  redis:
+    container_name: annotation-server-redis
+    image: redis:latest
+
+volumes:
+  postgres-data:
