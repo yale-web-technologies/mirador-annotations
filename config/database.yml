@@ -1,6 +1,6 @@
 default: &default
   adapter: postgresql
-  host: localhost
+  host: <%= ENV['DB_HOST'] %>
   pool: 5
   timeout: 5000
   encodeing: utf8
