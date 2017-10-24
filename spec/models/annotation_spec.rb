@@ -1,5 +1,11 @@
 require 'rails_helper'
 
-RSpec.describe Annotation, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+RSpec.describe Annotation do
+  describe 'associations' do
+    subject { described_class.new }
+
+    it { is_expected.to have_many(:annotation_tag_maps) }
+
+    it { is_expected.to have_many(:annotation_tags) } 
+  end
 end
