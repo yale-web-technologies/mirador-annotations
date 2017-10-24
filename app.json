@@ -1,0 +1,58 @@
+{
+  "name": "IIIF Annotation Server",
+  "description": "",
+  "scripts": {
+  },
+  "env": {
+    "IIIF_COLLECTIONS_HOST": {
+      "required": true
+    },
+    "IIIF_HOST_URL": {
+      "required": true
+    },
+    "LANG": {
+      "required": true
+    },
+    "RACK_ENV": {
+      "required": true
+    },
+    "RAILS_ENV": {
+      "required": true
+    },
+    "RAILS_SERVE_STATIC_FILES": {
+      "required": true
+    },
+    "S3_Bucket": {
+      "required": true
+    },
+    "S3_Bucket_Folder": {
+      "required": true
+    },
+    "S3_Key": {
+      "required": true
+    },
+    "S3_PUBLIC_DOWNLOAD_PREFIX": {
+      "required": true
+    },
+    "S3_Secret": {
+      "required": true
+    },
+    "SECRET_KEY_BASE": {
+      "required": true
+    },
+    "USE_REDIS": {
+      "required": true
+    }
+  },
+  "formation": {
+  },
+  "addons": [
+    "heroku-postgresql",
+    "scheduler"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/ruby"
+    }
+  ]
+}
