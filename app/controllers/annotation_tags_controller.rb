@@ -1,0 +1,2 @@
+class AnnotationTagsController < ApplicationController
+end

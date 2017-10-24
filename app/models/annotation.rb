@@ -17,6 +17,8 @@ class Annotation < ActiveRecord::Base
                   :service_block,
                   :order_weight
   has_many :webacls, foreign_key: "resource_id"
+  has_many :annotation_tag_maps
+  has_many :annotation_tags, through: :annotation_tag_maps
 
   def to_iiif
     #return if (label.startsWith?=='Tibetan')
