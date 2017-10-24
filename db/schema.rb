@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170901184618) do
+ActiveRecord::Schema.define(version: 20171024144617) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -59,6 +59,20 @@ ActiveRecord::Schema.define(version: 20170901184618) do
   end
 
   add_index "annotation_lists", ["list_id"], name: "index_annotation_lists_on_list_id", using: :btree
+
+  create_table "annotation_tag_maps", force: :cascade do |t|
+    t.integer  "annotation_id"
+    t.integer  "annotation_tag_id"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+  end
+
+  create_table "annotation_tags", force: :cascade do |t|
+    t.string   "name"
+    t.string   "description"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
 
   create_table "annotations", force: :cascade do |t|
     t.string   "annotation_id"
