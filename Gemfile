@@ -82,8 +82,6 @@ gem 'aws-sdk-rails'
 # Use debugger
 # gem 'debugger', group: [:development, :test]
 
-gem 'single_test'
-
 group :production do
   gem 'rails_12factor', '0.0.2'
 end
@@ -92,11 +90,9 @@ group :development, :test do
   gem 'factory_girl_rails', '~> 4.2.0'
   gem 'simplecov', :require => false, :group => :test
   gem 'rubocop', require: false
-end
-
-group :test do
   gem 'rspec'
   gem 'rspec-rails'
   gem 'shoulda'
   gem 'shoulda-matchers'
+  gem 'single_test'
 end
