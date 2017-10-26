@@ -92,5 +92,7 @@ group :development, :test do
   gem 'rubocop', require: false
   gem 'rspec'
   gem 'rspec-rails'
+  gem 'shoulda'
+  gem 'shoulda-matchers'
   gem 'single_test'
 end
