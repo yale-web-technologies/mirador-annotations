@@ -8,12 +8,16 @@ namespace :migrate_annotation_tags do
       tags = resources.select { |entry| entry["@type"] == "oa:Tag"}
       tags.each do |entry|
         tag_name = entry["chars"]
-        tag = AnnotationTag.where(name: tag_name)
+        # .first accounts for any duplicate tags from other migrations
+        tag = AnnotationTag.where(name: tag_name).first
         # create the tag if not in the db
-        if tag.empty?
+        if tag.nil?
           tag = AnnotationTag.create(name: tag_name)
         end
-        anno.annotation_tags << tag
+        # check if the association already exists
+        if anno.annotation_tag_maps.where(annotation_tag_id: tag.id).first.nil?
+          anno.annotation_tags << tag
+        end
       end
     end
   end
