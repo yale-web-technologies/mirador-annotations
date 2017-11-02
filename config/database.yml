@@ -1,12 +1,12 @@
 default: &default
   adapter: postgresql
-  host: <%= ENV['DB_HOST'] %>
   pool: 5
   timeout: 5000
   encodeing: utf8
 
 development:
   <<: *default
+  host: <%= ENV['DB_HOST_DEV'] %>
   database: <%= ENV['DATABASE_DEV'] %>
   username: <%= ENV['DB_USERNAME_DEV'] %>
   password: <%= ENV['DB_PASSWORD_DEV'] %>
@@ -16,11 +16,13 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
+  host: <%= ENV['DB_HOST_TEST'] %>
   database: <%= ENV['DATABASE_TEST'] %>
   username: <%= ENV['DB_USERNAME_TEST'] %>
   password: <%= ENV['DB_PASSWORD_TEST'] %>
 
 production:
+  host: <%= ENV['DB_HOST_PROD'] %>
   database: <%= ENV['DATABASE_PROD'] %>
   username: <%= ENV['DB_USERNAME_PROD'] %>
   password: <%= ENV['DB_PASSWORD_PROD'] %>

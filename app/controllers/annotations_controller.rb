@@ -144,10 +144,10 @@ class AnnotationsController < ApplicationController
     #TODO: consider if canvas convenience field should be set to original canvas for targeting annotations as well.
     # @annotationOut['canvas']  = @annotationIn['on']['full']
 
-    resource = @annotationIn['resource'].to_json
+    resource = @annotationIn['resource']
     tags = parse_tags(resource)
 
-    @annotationOut['resource']  = resource
+    @annotationOut['resource']  = resource.to_json
     @annotationOut['active'] = true
     @annotationOut['version'] = 1
     @annotationOut['on'] = @annotationIn['on'].to_json
