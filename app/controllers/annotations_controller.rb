@@ -261,7 +261,7 @@ class AnnotationsController < ApplicationController
         )
 
           # Update tags associated with the annotation
-          tags = parse_tags(@annotationIn['resource'].to_json)
+          tags = parse_tags(@annotationIn['resource'])
           @annotation.annotation_tags = tags
 
           format.html { redirect_to @annotation, notice: 'Annotation was successfully updated.' }
@@ -683,6 +683,7 @@ class AnnotationsController < ApplicationController
     parsed_tags = []
     # only interested in resources that are a tag
     tags = resource.select { |entry| entry["@type"] == "oa:Tag"}
+    return [] if tags.empty?
     tags.each do |entry|
       tag_name = entry["chars"]
       tag = AnnotationTag.where(name: tag_name).first

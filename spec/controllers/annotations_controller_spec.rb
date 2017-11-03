@@ -233,7 +233,14 @@ RSpec.describe AnnotationsController, :type => :controller do
     describe 'Put annotation json' do
       before(:each) do
         # Need to update tags and text (resource chars)
+        @annotation["within"] = [
+          "#{ENV['DB_HOST_DEV']}/lists/list1",
+          "#{ENV['DB_HOST_DEV']}/lists/list2"
+        ]
+        @annotation["resource"] << @tag1
+        @annotation["resource"] << @tag2
         post_to_create(@annotation)
+        @annotation["@id"] = Annotation.last["annotation_id"]
         @new_annotation = @annotation.clone
         @new_annotation["resource"] = IIIF::Resource.
           create(
@@ -255,21 +262,27 @@ RSpec.describe AnnotationsController, :type => :controller do
       end
       
       it 'returns a 200 response' do
-        put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json" 
+        put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
         expect(response.status).to eq(200)
       end
 
-      xit 'does not change the record count' do
-        @annoJSON['motivation'] = 'yale:transliterating'
-        expect { put :update, @annoJSON }.to change(Annotation, :count).by(0)
+      it 'does not change the record count' do
+        put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
+        expect(Annotation.all.count).to eq(1)
       end
 
 
-      xit 'updates the motivation field' do
-        @annoJSON['motivation'] = 'yale:transliterating'
-        put :update, @annoJSON, :format => 'json'
+      it 'updates the motivation field' do
+        @new_annotation['motivation'] = 'yale:transliterating'
+        put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
         responseJSON = JSON.parse(response.body)
-        expect(responseJSON['motivation']).to eq("yale:transliterating")
+        expect(responseJSON['motivation']).to eq(["yale:transliterating"])
+      end
+
+      it 'updates tags' do
+        old_tags = Annotation.last.annotation_tags.clone
+        put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
+        expect(Annotation.last.annotation_tags).to_not match_array(old_tags)
       end
 
       xit 'fails validation correctly' do
@@ -310,6 +323,13 @@ RSpec.describe AnnotationsController, :type => :controller do
   context 'when Delete is called' do
     describe 'Delete annotation' do
       before(:each) do
+        # Add tags
+        @annotation["resource"] << @tag1
+        @annotation["resource"] << @tag2
+
+        post_to_create(@annotation)
+
+        # Old stuff
         @annoString =#'{"annotation_id":"http://test.host/annotations/testAnnotation",
                       '{"@type": "oa:annotation",
                       "motivation": "yale:transcribing",
@@ -326,24 +346,30 @@ RSpec.describe AnnotationsController, :type => :controller do
         # @webAclDel = Webacl.create(JSON.parse(@aclDelete))
       end
 
-      xit 'returns a 204 ("deleted") response' do
-        #annoUID = @annotation.annotation_id.split('annotations/').last
-        annoUID = @annotation.annotation_id
-        delete :destroy, format: :json, id: annoUID
+      it 'returns a 204 ("deleted") response' do
+        annotation_id = Annotation.last.annotation_id
+        delete :destroy, format: :json, id: annotation_id
         expect(response.status).to eq(204)
       end
 
-      xit 'decreases the Annotation record count' do
-        #annoUID = @annotation.annotation_id.split('annotations/').last
-        annoUID = @annotation.annotation_id
-        expect {delete :destroy, {format: :json, id: annoUID} }.to change(Annotation, :count).by(-1)
+      it 'decreases the Annotation record count' do
+        annotation_id = Annotation.last.annotation_id
+        expect { delete :destroy, format: :json, id: annotation_id }
+          .to change(Annotation, :count).by(-1)
       end
 
-      xit 'deletes the Annotation record' do
-        #annoUID = @annotation.annotation_id.split('annotations/').last
-        annoUID = @annotation.annotation_id
-        delete :destroy, format: :json, id: annoUID
-        expect(@annotationDeleted = Annotation.where(annotation_id: @annotation.annotation_id).first).to eq(nil)
+      it 'does not delete tags' do
+        annotation_id = Annotation.last.annotation_id
+        tag_count = Annotation.last.annotation_tags.count
+        delete :destroy, format: :json, id: annotation_id
+        expect(AnnotationTag.all.count).to eq(tag_count)
+      end
+
+      it 'deletes tag mapping' do
+        annotation_id = Annotation.last.annotation_id
+        tag_map_count = Annotation.last.annotation_tag_maps.count
+        delete :destroy, format: :json, id: annotation_id
+        expect(AnnotationTagMap.all).to_not eq(tag_map_count)
       end
 
       xit 'deletes the list_annotations map correctly' do
