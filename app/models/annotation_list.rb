@@ -5,8 +5,14 @@ class AnnotationList < ActiveRecord::Base
                    :description,
                    :version
 
-  has_many :list_annotations_maps
+  has_many :list_annotations_maps, foreign_key: :list_id, primary_key: :list_id
   has_many :webacls, foreign_key: "resource_id"
+
+  has_many :layer_lists_maps, foreign_key: :list_id, primary_key: :list_id
+  has_many :annotations, through: :list_annotations_maps
+
+  has_many :annotation_layers, through: :layer_lists_maps 
+  belongs_to :canvas
 
   def self.create_from_iiif(json_obj)
     params = json_obj.merge(list_id: json_obj['@id'],

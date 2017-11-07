@@ -1,9 +1,11 @@
 class LayerListsMap < ActiveRecord::Base
-  belongs_to :annotation_layer
+  belongs_to :annotation_layer, foreign_key: "layer_id", primary_key: "layer_id"
+  belongs_to :annotation_list, foreign_key: "list_id", primary_key: "list_id"
 
   attr_accessible  :layer_id,
                    :sequence,
                    :list_id
+
   def self.setMap within, list_id
     if !within.nil?
       within.each do |layer_id|

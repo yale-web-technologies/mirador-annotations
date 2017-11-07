@@ -20,6 +20,10 @@ class Annotation < ActiveRecord::Base
   has_many :annotation_tag_maps, dependent: :delete_all
   has_many :annotation_tags, through: :annotation_tag_maps
 
+  has_many :annotation_lists, through: :list_annotations_map
+  has_many :list_annotations_map, foreign_key: :annotation_id, primary_key: :annotation_id, dependent: :destroy
+  has_many :canvases, through: :annotation_lists
+
   def to_iiif
     #return if (label.startsWith?=='Tibetan')
     iiif = Hash.new
@@ -72,6 +76,14 @@ class Annotation < ActiveRecord::Base
     preAuth['serviceBlock'] = service_block
     p preAuth.to_s
     preAuth.to_json
+  end
+
+  def annotation_layers
+    layers = []
+    annotation_lists.each do |list|
+      layers.concat(list.annotation_layers)
+    end
+    layers.uniq
   end
 
   def getLayersForAnnotation(anno_id)

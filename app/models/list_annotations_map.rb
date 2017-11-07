@@ -1,4 +1,6 @@
 class ListAnnotationsMap < ActiveRecord::Base
+  belongs_to :annotation_list, foreign_key: "list_id", primary_key: "list_id"
+  belongs_to :annotation, foreign_key: "annotation_id", primary_key: "annotation_id"
   attr_accessible  :list_id,
                    :sequence,
                    :annotation_id,
@@ -7,7 +9,6 @@ class ListAnnotationsMap < ActiveRecord::Base
   def self.setMap within, anno_id
     if !within.nil?
       within.each do |list_id|
-        #list_annotation_map = self.where("list_id = ? and annotation_id = ?", list_id, anno_id).first
         list_annotation_map = self.where(list_id: list_id, annotation_id: anno_id).first
         if list_annotation_map.nil?
           newHighSeq = getNextSeqForList(list_id)
