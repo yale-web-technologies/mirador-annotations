@@ -101,12 +101,12 @@ RSpec.describe AnnotationsController, :type => :controller do
       )
 
     @tag1 = {
-      "@type": "oa:Tag",
-      "chars": "chapter2"
+      "@type" => "oa:Tag",
+      "chars" => "chapter2"
     }
     @tag2 = {
-      "@type": "oa:Tag",
-      "chars": "scene1"
+      "@type" => "oa:Tag",
+      "chars" => "scene1"
     }
 
   end
@@ -182,6 +182,12 @@ RSpec.describe AnnotationsController, :type => :controller do
         expect(Annotation.last.annotation_tags.length).to eq(2)
       end
 
+      it 'sends response which has tags' do
+        @annotation["resource"] << @tag1
+        post_to_create(@annotation)
+        response_anno = JSON.parse(response.body)
+        expect(response_anno["resource"]).to eq(@annotation["resource"])
+      end
 
       after(:each) do
         sign_out @user
@@ -249,7 +255,7 @@ RSpec.describe AnnotationsController, :type => :controller do
              'chars' => 'changed'
            }
           )
-        new_tag = { "@type": "oa:Tag", "chars": "chapter10" }
+        new_tag = { "@type" => "oa:Tag", "chars" => "chapter10" }
         @new_annotation["resource"] << new_tag
         sign_in @user
       end
@@ -279,10 +285,15 @@ RSpec.describe AnnotationsController, :type => :controller do
         expect(responseJSON['motivation']).to eq(["yale:transliterating"])
       end
 
-      it 'updates tags' do
-        old_tags = Annotation.last.annotation_tags.clone
+      it 'updates the resource field' do
         put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
-        expect(Annotation.last.annotation_tags).to_not match_array(old_tags)
+        expect(Annotation.last['resource']).to_not eq(@annotation['resource'])
+      end
+
+      it 'updates tags' do
+        num_old_tags = Annotation.last.annotationg_tags.count
+        put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
+        expect(Annotation.last.annotation_tags.count).to_not match_array(num_old_tags)
       end
 
       xit 'fails validation correctly' do

@@ -64,7 +64,6 @@ class AnnotationsController < ApplicationController
                 annoWLayerHash= Hash.new
                 annoWLayerHash["layer_id"] = layer_id
                 annoWLayerHash["annotation"] = annotation.to_iiif
-                annoWLayerHash["tags"] = annotation.annotation_tags
                 annoWLayerArray.push(annoWLayerHash)
               end
             end
