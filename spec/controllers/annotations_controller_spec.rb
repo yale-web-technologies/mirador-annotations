@@ -201,12 +201,24 @@ RSpec.describe AnnotationsController, :type => :controller do
         sign_in @user
       end
 
+      def getAnnoID(anno)
+        anno.annotation_id.split('annotations/').last
+      end
+
       it 'returns a 200 response' do
         post_to_create(@annotation)
-        anno = Annotation.last()
-        annoUID = anno.annotation_id.split('annotations/').last
-        get :show, {format: :json, id: annoUID}
+        anno = Annotation.last
+        get :show, {format: :json, id: getAnnoID(anno)}
         expect(response.status).to eq(200)
+      end
+
+      it 'response has tags' do
+        @annotation["resource"] << @tag1
+        @annotation["resource"] << @tag2
+        post_to_create(@annotation)
+        anno = Annotation.last
+        get :show, {format: :json, id: getAnnoID(anno)}
+        expect(JSON.parse(response.body)['resource']).to eq(@annotation['resource'])
       end
 
       xit 'retrieves motivation correctly' do
@@ -291,7 +303,7 @@ RSpec.describe AnnotationsController, :type => :controller do
       end
 
       it 'updates tags' do
-        num_old_tags = Annotation.last.annotationg_tags.count
+        num_old_tags = Annotation.last.annotation_tags.count
         put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
         expect(Annotation.last.annotation_tags.count).to_not match_array(num_old_tags)
       end
