@@ -163,18 +163,22 @@ class AnnotationsController < ApplicationController
       handleRequiredListMultipleOn
       @annotationOut['canvas'] = setMultipleCanvas
     end
-
+   
     p "in CreateAnno: @annotationOut['canvas'] = #{@annotationOut['canvas']}"
     p "in CreateAnno: about to setMap: @annotationIn['within'] = #{@annotationIn['within']}"
     ListAnnotationsMap.setMap @annotationIn['within'], @annotation_id
     create_annotation_acls_via_parent_lists @annotation_id
     @annotation = Annotation.new(@annotationOut)
+    
+    unless check_anno_auth(request, @annotation)
+      return render_forbidden("There was an error creating the annotation")
+    end
 
     # associate the tags
     tags.each do |tag|
       @annotation.annotation_tags << tag 
     end
-
+    
     #authorize! :create, @annotation
     request.format = "json"
     p 'about to respond in create'
@@ -213,6 +217,11 @@ class AnnotationsController < ApplicationController
 
     @problem = ''
     @annotation = Annotation.where(annotation_id: @annotationIn['@id']).first
+
+    unless check_anno_auth(request, @annotation)
+      return render_forbidden("There was an error updating the annotation")
+    end
+
     #-------
     p 'just searched for this annotation: id = ' + @annotation.annotation_id
     if @annotation.nil?
@@ -271,7 +280,7 @@ class AnnotationsController < ApplicationController
         end
       end
     end
-  end
+end
 
   # DELETE /annotation/1
   # DELETE /annotation/1.json
@@ -286,6 +295,11 @@ class AnnotationsController < ApplicationController
       p 'did not find @annotation for destroy: ' + params['id']
       format.json { render json: nil, status: :ok }
     else
+
+      unless check_anno_auth(request, @annotation)
+        return render_forbidden("There was an error deleting the annotation")
+      end
+
       p 'just retrieved @annotation for destroy: ' + @annotation.annotation_id
       #authorize! :delete, @annotation
       if @annotation.version.nil? ||  @annotation.version < 1
@@ -693,5 +707,14 @@ class AnnotationsController < ApplicationController
       parsed_tags << tag
     end
     parsed_tags
+  end 
+
+  def check_anno_auth(request, annotation)
+    AnnoAuthValidator.authorize(request.headers['Authorization'], getTargetingAnnosCanvas(annotation))
   end
+
+  def render_forbidden(message)
+    render  status: :forbidden, json: { message: message }.to_json
+  end
+
 end

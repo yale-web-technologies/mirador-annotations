@@ -1,10 +1,15 @@
 require 'rails_helper'
 require "cancan/matchers"
 require "list_annotations_map"
+require './spec/support/anno_auth_helper'
 
 include Warden::Test::Helpers
 Warden.test_mode!
 include Devise::TestHelpers
+
+RSpec.configure do |c|
+  c.include AnnoAuthHelper
+end
 
 RSpec.describe AnnotationsController, :type => :controller do
 
@@ -14,6 +19,12 @@ RSpec.describe AnnotationsController, :type => :controller do
     database = config[Rails.env]["database"]
     username = config[Rails.env]["username"]
     password = config[Rails.env]["password"]
+
+    Rails.application.secrets.jwt_password = 'abc123'
+    Rails.application.config.jwt_canvas_verification_url = 'http://testserver.com'
+    allow(JWT).to receive(:decode).and_return([{"group_id" => "10", "user_id" => "100"}])
+    set_anno_auth_token("someencryptedtoken")
+    stub_anno_auth("10", "true", /testserver.com/)
 
     @annoList1 ='{"list_id": "http://localhost:5000/lists/list1", "list_type": "sc:AnnotationList", "label":"transcription layer 1 list 1"}'
     @annotation_list1 = AnnotationList.create(JSON.parse(@annoList1))
@@ -103,8 +114,8 @@ RSpec.describe AnnotationsController, :type => :controller do
 
     # add within
     @annotation["within"] = [
-      "#{ENV['DB_HOST_TEST']}/lists/list1",
-      "#{ENV['DB_HOST_TEST']}/lists/list2"
+      "#{ENV['IIIF_HOST_URL']}/lists/list1",
+      "#{ENV['IIIF_HOST_URL']}/lists/list2"
     ]
 
     @tag1 = {
@@ -116,6 +127,24 @@ RSpec.describe AnnotationsController, :type => :controller do
       "chars" => "scene1"
     }
 
+  end
+
+  shared_examples 'invalid annotation auth' do
+    it 'Authentication issues with endpoint for JWT' do 
+      scenarios = []
+      scenarios.push({ group_id: "11", has_access: "true", endpoint: /testserver.com/})
+      scenarios.push({ group_id: "10", has_access: "false", endpoint: /testserver.com/})
+      scenarios.push({ group_id: nil, has_access: nil, endpoint: /testserver.com/})
+
+      scenarios.each do |scenario|
+        group_id = scenario[:group_id]
+        has_access = scenario[:has_access]
+        endpoint = scenario[:endpoint]
+        stub_anno_auth(group_id, has_access, endpoint)
+        request_proc.call
+        expect(response.status).to eq(403)
+      end
+    end
   end
 
   context 'when Post is called' do
@@ -176,7 +205,7 @@ RSpec.describe AnnotationsController, :type => :controller do
         # Check the active record and the field is correct
         post_to_create(@annotation)
         actual_lists = get_lists(Annotation.last)
-        expected_lists = ["localhost/lists/list1", "localhost/lists/list2", "localhost/lists/layer/1_https://whatever.fake.edu/canvas/1"]
+        expected_lists = ["#{ENV['IIIF_HOST_URL']}/lists/list1", "#{ENV['IIIF_HOST_URL']}/lists/list2", "#{ENV['IIIF_HOST_URL']}/lists/layer/1_https://whatever.fake.edu/canvas/1"]
         expect(actual_lists).to eq(expected_lists)
       end
 
@@ -194,6 +223,12 @@ RSpec.describe AnnotationsController, :type => :controller do
           body = JSON.parse(response.body)
           expect(body[attr]).to be_a(type)
           # resource, on, motivation should all be type JSON
+        end
+      end
+
+      it_behaves_like 'invalid annotation auth', @annotation do
+        let(:request_proc) do
+          ->() { post_to_create(@annotation) }
         end
       end
 
@@ -238,7 +273,7 @@ RSpec.describe AnnotationsController, :type => :controller do
       it 'has within' do
         get_last_anno
         body = JSON.parse(response.body)
-        expected_within = ["localhost/lists/list1", "localhost/lists/list2", "localhost/lists/layer/1_https://whatever.fake.edu/canvas/1"]
+        expected_within = ["#{ENV['IIIF_HOST_URL']}/lists/list1", "#{ENV['IIIF_HOST_URL']}/lists/list2", "#{ENV['IIIF_HOST_URL']}/lists/layer/1_https://whatever.fake.edu/canvas/1"]
         expect(body["within"]).to eq(expected_within)
       end
 
@@ -365,6 +400,12 @@ RSpec.describe AnnotationsController, :type => :controller do
         end
       end
 
+      it_behaves_like 'invalid annotation auth' do
+        let(:request_proc) do
+          ->() {  put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json" }
+        end
+      end
+
       after(:each) do
         sign_out @user
       end
@@ -422,6 +463,15 @@ RSpec.describe AnnotationsController, :type => :controller do
         expect(archived_anno["@id"]).to eq(annotation_id)
       end
 
+      it_behaves_like 'invalid annotation auth' do
+        let(:request_proc) do
+          ->() {
+            annotation_id = Annotation.last.annotation_id
+            delete :destroy, format: :json, id: annotation_id
+           }
+        end
+      end
+
       after(:each) do
         sign_out @user
       end
@@ -468,7 +518,7 @@ def get_last_anno
 end
 
 def get_layers(anno)
-  anno_id = "#{ENV['DB_HOST_TEST']}/annotations/" + get_anno_id(anno)
+  anno_id = "#{ENV['IIIF_HOST_URL']}/annotations/" + get_anno_id(anno)
   lists = ListAnnotationsMap.getListsForAnnotation(anno_id)
   layers = []
   lists.each do |list|
@@ -478,6 +528,6 @@ def get_layers(anno)
 end
 
 def get_lists(anno)
-  anno_id = "#{ENV['DB_HOST_TEST']}/annotations/" + get_anno_id(anno)
+  anno_id = "#{ENV['IIIF_HOST_URL']}/annotations/" + get_anno_id(anno)
   ListAnnotationsMap.getListsForAnnotation(anno_id)
 end

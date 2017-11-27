@@ -70,6 +70,8 @@ gem 'redis', '~>3.2'
 gem 'aws-sdk', '~> 2'
 gem 'aws-sdk-rails'
 
+gem 'jwt'
+
 #gem 'mirador-annotation-solr-loader', :path => "~/rails_projects/mirador-annotation-solr-loader/"
 #gem 'annotation_solr_loader', github: 'ydc2/annotation-solr-loader', tag: 'v1.5'
 #gem 'mirador-annotation-solr-loader', :path => "/Users/rlechich/rails_projects/"
@@ -98,4 +100,5 @@ group :development, :test do
   gem 'shoulda'
   gem 'shoulda-matchers'
   gem 'single_test'
+  gem 'webmock'
 end
