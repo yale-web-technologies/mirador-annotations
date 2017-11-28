@@ -121,7 +121,11 @@ RSpec.describe AnnotationsController, :type => :controller do
   context 'when Post is called' do
     describe 'POST annotation json' do
       
-      JSON_TYPES = %w(resource motivation on)
+      ANNO_ATTR = {
+        "resource" => Array,
+        "motivation" => Array,
+        "on" => Hash
+      }
 
       before(:each) do
         sign_in @user
@@ -171,8 +175,7 @@ RSpec.describe AnnotationsController, :type => :controller do
       it 'belongs to correct list' do
         # Check the active record and the field is correct
         post_to_create(@annotation)
-        anno_id = "#{ENV['DB_HOST_TEST']}/annotations/" + getAnnoID(Annotation.last)
-        actual_lists = ListAnnotationsMap.getListsForAnnotation(anno_id)
+        actual_lists = getLists(Annotation.last)
         expected_lists = ["localhost/lists/list1", "localhost/lists/list2", "localhost/lists/layer/1_https://whatever.fake.edu/canvas/1"]
         expect(actual_lists).to eq(expected_lists)
       end
@@ -180,25 +183,19 @@ RSpec.describe AnnotationsController, :type => :controller do
       it 'belongs to correct layer' do
         # Check the active record and the field is correct
         post_to_create(@annotation)
-        anno_id = "#{ENV['DB_HOST_TEST']}/annotations/" + getAnnoID(Annotation.last)
-        lists = ListAnnotationsMap.getListsForAnnotation(anno_id)
-        layers = []
-        lists.each do |list|
-          layers << LayerListsMap.getLayersForList(list)
-          binding.pry
-        end
-        expect(layers).to eq(nil)
+        layers = getLayers(Annotation.last)
+        expect(layers).to eq(["layer/1"])
       end
 
-      JSON_TYPES.each do |attr|
+      # has proper attribute types
+      ANNO_ATTR.each do |attr, type|
         it "#{attr} is in JSON format" do
           post_to_create(@annotation)
           body = JSON.parse(response.body)
-          expect(body[attr]).to be_a_JSON 
+          expect(body[attr]).to be_a(type)
           # resource, on, motivation should all be type JSON
         end
       end
-
 
       after(:each) do
         sign_out @user
@@ -209,7 +206,14 @@ RSpec.describe AnnotationsController, :type => :controller do
   context 'when Get is called' do
     describe 'GET annotation json' do
 
-      ANNO_ATTRS = %w(id type contex resource motivation on).freeze
+      ANNO_ATTRS = {
+        "@id" => String,
+        "@type" => String,
+        "@context" => String,
+        "resource" => Array,
+        "motivation" => Array,
+        "on" => Hash
+      }
 
       before(:each) do
         # sign_in @user
@@ -223,12 +227,11 @@ RSpec.describe AnnotationsController, :type => :controller do
         expect(response.status).to eq(200)
       end
 
-      ANNO_ATTRS.each do |attr|
+      ANNO_ATTRS.each do |attr, type|
         it "has #{attr}" do
           getLastAnno
           body = JSON.parse(response.body)
-          # this breaks for within, within is created on the fly
-          expect(body["#{attr}"]).to eq(@annotation["#{attr}"])
+          expect(body["#{attr}"]).to be_a(type)
         end
       end
 
@@ -274,6 +277,34 @@ RSpec.describe AnnotationsController, :type => :controller do
         new_tag = { "@type" => "oa:Tag", "chars" => "chapter10" }
         @new_annotation["resource"] << new_tag
         sign_in @user
+
+        @another_annotation = {
+          "@type": "oa:annotation",
+          "@context": "http://iiif.io/api/presentation/2/context.json",
+          "resource": [
+            {
+              "@type": "dctypes:Text",
+              "format": "text/html",
+              "chars": "<p>Hello World</p>"
+            }
+          ],
+          "within": [
+            "http://blah.edu/canvas/1",
+            "http://blah.edu/canvas/8"
+          ],
+          "motivation": [
+            "oa:commenting"
+          ],
+          "on": {
+            "@type": "oa:SpecificResource",
+            "full": "http://blad.edu/canvas/1",
+            "selector": {
+              "@type": "oa:SvgSelector",
+              "value": "<svg>somestuff</svg>"
+            }
+          },
+          "@id": Annotation.last["annotation_id"]
+        }
       end
 
       it 'returns a 200 response' do
@@ -311,17 +342,27 @@ RSpec.describe AnnotationsController, :type => :controller do
       end
 
       it 'updates layer' do
-        put :update, { annotation: @new_annotation, layer_id: 'layer/3'}, :format => "json"
+        # layer must be a list, but it will only read the first entry
+        new_layer = ["layer/3"]
+        put :update, { annotation: @new_annotation, layer_id: new_layer}, :format => "json"
+        layers = getLayers(Annotation.last)
+        expect(layers).to eq(new_layer)
       end
 
       it 'updates list' do
-        anno_id = "#{ENV['DB_HOST_TEST']}/annotations/" + getAnnoID(Annotation.last)
-        actual_lists = ListAnnotationsMap.getListsForAnnotation(anno_id)
-        expected_lists = ["localhost/lists/list1", "localhost/lists/list2", "localhost/lists/layer/1_https://whatever.fake.edu/canvas/1"]
-        expect(actual_lists).to eq(expected_lists)
+        old_lists = getLists(Annotation.last).freeze
+        put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
+        actual_lists = getLists(Annotation.last)
+        expect(actual_lists).to_not eq(old_lists)
       end
 
-      it 'updates all fields correctly' do
+
+      ATTRS = %w(@type @context resource within motivation on @id)
+      ATTRS.each do |attr|
+        it 'updates #{attr}' do
+          put :update, { annotation: @another_annotation, layer_id: 'layer/1'}, :format => "json"
+          expect(getLastAnno[attr]).to eq(@another_annotation[attr])
+        end
       end
 
       after(:each) do
@@ -381,15 +422,6 @@ RSpec.describe AnnotationsController, :type => :controller do
         expect(archived_anno["@id"]).to eq(annotation_id)
       end
 
-      xit 'deletes the list_annotations map correctly' do
-        # fix this in above test
-        #annoUID = @annotation.annotation_id.split('annotations/').last
-        annoUID = @annotation.annotation_id
-        delete :destroy, format: :json, id: annoUID
-        @lists = ListAnnotationsMap.getListsForAnnotation @annotation.annotation_id
-        expect(@lists).to eq([])
-      end
-
       after(:each) do
         sign_out @user
       end
@@ -433,4 +465,19 @@ end
 def getLastAnno
   anno = Annotation.last
   get :show, {format: :json, id: getAnnoID(anno)}
+end
+
+def getLayers(anno)
+  anno_id = "#{ENV['DB_HOST_TEST']}/annotations/" + getAnnoID(anno)
+  lists = ListAnnotationsMap.getListsForAnnotation(anno_id)
+  layers = []
+  lists.each do |list|
+    layers << LayerListsMap.getLayersForList(list)
+  end
+  layers.flatten!
+end
+
+def getLists(anno)
+  anno_id = "#{ENV['DB_HOST_TEST']}/annotations/" + getAnnoID(anno)
+  ListAnnotationsMap.getListsForAnnotation(anno_id)
 end
