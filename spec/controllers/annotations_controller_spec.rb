@@ -175,7 +175,7 @@ RSpec.describe AnnotationsController, :type => :controller do
       it 'belongs to correct list' do
         # Check the active record and the field is correct
         post_to_create(@annotation)
-        actual_lists = getLists(Annotation.last)
+        actual_lists = get_lists(Annotation.last)
         expected_lists = ["localhost/lists/list1", "localhost/lists/list2", "localhost/lists/layer/1_https://whatever.fake.edu/canvas/1"]
         expect(actual_lists).to eq(expected_lists)
       end
@@ -183,7 +183,7 @@ RSpec.describe AnnotationsController, :type => :controller do
       it 'belongs to correct layer' do
         # Check the active record and the field is correct
         post_to_create(@annotation)
-        layers = getLayers(Annotation.last)
+        layers = get_layers(Annotation.last)
         expect(layers).to eq(["layer/1"])
       end
 
@@ -223,20 +223,20 @@ RSpec.describe AnnotationsController, :type => :controller do
       end
 
       it 'returns a 200 response' do
-        getLastAnno
+        get_last_anno
         expect(response.status).to eq(200)
       end
 
       ANNO_ATTRS.each do |attr, type|
         it "has #{attr}" do
-          getLastAnno
+          get_last_anno
           body = JSON.parse(response.body)
           expect(body["#{attr}"]).to be_a(type)
         end
       end
 
       it 'has within' do
-        getLastAnno
+        get_last_anno
         body = JSON.parse(response.body)
         expected_within = ["localhost/lists/list1", "localhost/lists/list2", "localhost/lists/layer/1_https://whatever.fake.edu/canvas/1"]
         expect(body["within"]).to eq(expected_within)
@@ -247,7 +247,7 @@ RSpec.describe AnnotationsController, :type => :controller do
         @annotation["resource"] << @tag2
         post_to_create(@annotation)
         anno = Annotation.last
-        get :show, {format: :json, id: getAnnoID(anno)}
+        get :show, {format: :json, id: get_anno_id(anno)}
         expect(JSON.parse(response.body)['resource']).to eq(@annotation['resource'])
       end
 
@@ -345,14 +345,14 @@ RSpec.describe AnnotationsController, :type => :controller do
         # layer must be a list, but it will only read the first entry
         new_layer = ["layer/3"]
         put :update, { annotation: @new_annotation, layer_id: new_layer}, :format => "json"
-        layers = getLayers(Annotation.last)
+        layers = get_layers(Annotation.last)
         expect(layers).to eq(new_layer)
       end
 
       it 'updates list' do
-        old_lists = getLists(Annotation.last).freeze
+        old_lists = get_lists(Annotation.last).freeze
         put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
-        actual_lists = getLists(Annotation.last)
+        actual_lists = get_lists(Annotation.last)
         expect(actual_lists).to_not eq(old_lists)
       end
 
@@ -361,7 +361,7 @@ RSpec.describe AnnotationsController, :type => :controller do
       ATTRS.each do |attr|
         it 'updates #{attr}' do
           put :update, { annotation: @another_annotation, layer_id: 'layer/1'}, :format => "json"
-          expect(getLastAnno[attr]).to eq(@another_annotation[attr])
+          expect(get_last_anno[attr]).to eq(@another_annotation[attr])
         end
       end
 
@@ -458,17 +458,17 @@ def post_to_create(annotation)
   post :create, { annotation: annotation, layer_id: 'layer/1' }, :format => 'json'
 end
 
-def getAnnoID(anno)
+def get_anno_id(anno)
   anno.annotation_id.split('annotations/').last
 end
 
-def getLastAnno
+def get_last_anno
   anno = Annotation.last
-  get :show, {format: :json, id: getAnnoID(anno)}
+  get :show, {format: :json, id: get_anno_id(anno)}
 end
 
-def getLayers(anno)
-  anno_id = "#{ENV['DB_HOST_TEST']}/annotations/" + getAnnoID(anno)
+def get_layers(anno)
+  anno_id = "#{ENV['DB_HOST_TEST']}/annotations/" + get_anno_id(anno)
   lists = ListAnnotationsMap.getListsForAnnotation(anno_id)
   layers = []
   lists.each do |list|
@@ -477,7 +477,7 @@ def getLayers(anno)
   layers.flatten!
 end
 
-def getLists(anno)
-  anno_id = "#{ENV['DB_HOST_TEST']}/annotations/" + getAnnoID(anno)
+def get_lists(anno)
+  anno_id = "#{ENV['DB_HOST_TEST']}/annotations/" + get_anno_id(anno)
   ListAnnotationsMap.getListsForAnnotation(anno_id)
 end
