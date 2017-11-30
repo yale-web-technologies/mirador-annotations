@@ -1,5 +1,17 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
-ENV['RAILS_ENV'] ||= 'test'
+
+# ENV['RAILS_ENV'] ||= 'test'
+
+# Setting RAILS_ENV explicitly to test. We don't want the possibility
+# of being set to other values inadvertently, especially production or 
+# develoment.
+ENV['RAILS_ENV'] = 'test'
+
+# As of 11/30/2017, creation of annotation IDs depend on the value of
+# IIIF_HOST_URL. Need to set it to the same value here as the tests
+# use for there expectations, etc.
+ENV['IIIF_HOST_URL'] = 'localhost'
+
 require 'spec_helper'
 require File.expand_path('../../config/environment', __FILE__)
 require 'rspec/rails'
