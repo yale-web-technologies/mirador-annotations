@@ -1,5 +1,6 @@
 require 'rails_helper'
 require "cancan/matchers"
+require "list_annotations_map"
 
 include Warden::Test::Helpers
 Warden.test_mode!
@@ -13,10 +14,6 @@ RSpec.describe AnnotationsController, :type => :controller do
     database = config[Rails.env]["database"]
     username = config[Rails.env]["username"]
     password = config[Rails.env]["password"]
-    puts "TOTOTO env #{Rails.env}"
-    puts "TOTOTO host #{host}"
-    puts "TOTOTO database #{database}"
-    puts "TOTOTO annos #{Annotation.count}"
 
     @annoList1 ='{"list_id": "http://localhost:5000/lists/list1", "list_type": "sc:AnnotationList", "label":"transcription layer 1 list 1"}'
     @annotation_list1 = AnnotationList.create(JSON.parse(@annoList1))
@@ -81,91 +78,124 @@ RSpec.describe AnnotationsController, :type => :controller do
     @webAcl16= Webacl.create(JSON.parse(@acl16))
 
 
+    @annotation = IIIF::Annotation.
+      create(
+        id: 'https://whatever.fake.edu/annotation/1',
+      resource: IIIF::Resource.
+        create(
+          id: nil, 
+          options: {
+            'chars' => 'Anno 1'
+          }
+        ),
+      target: IIIF::Target.
+        create(
+          targeting_canvas: true,
+          options: {
+            'full' => 'https://whatever.fake.edu/canvas/1',
+            'selector' => {
+              "@type" => "oa:SvgSelector",
+              "value" => "svg stuff"
+            }
+          }
+        )
+      )
+
+    # add within
+    @annotation["within"] = [
+      "#{ENV['DB_HOST_TEST']}/lists/list1",
+      "#{ENV['DB_HOST_TEST']}/lists/list2"
+    ]
+
+    @tag1 = {
+      "@type" => "oa:Tag",
+      "chars" => "chapter2"
+    }
+    @tag2 = {
+      "@type" => "oa:Tag",
+      "chars" => "scene1"
+    }
+
   end
 
   context 'when Post is called' do
     describe 'POST annotation json' do
+      
+      ANNO_ATTR = {
+        "resource" => Array,
+        "motivation" => Array,
+        "on" => Hash
+      }
+
       before(:each) do
         sign_in @user
       end
 
       it 'returns a 201 ("created") response' do
-        anno = IIIF::Annotation.create(id: nil,
-          resource: IIIF::Resource.create(id: nil, options: {'chars' => 'Anno 1'}),
-          target: IIIF::Target.create(targeting_canvas: true, options: {
-            'full' => '/canvas/1'
-          })
-        );
-        post :create, {annotation: anno, layer_id: '/layer/1'}, :format => 'json'
-        puts "MOTOTO annos #{Annotation.count}"
+        post_to_create(@annotation)
         expect(response.status).to eq(201)
       end
 
       it 'creates a new Annotation' do
-        anno = IIIF::Annotation.create(id: nil,
-          resource: IIIF::Resource.create(id: nil, options: {'chars' => 'Anno 1'}),
-          target: IIIF::Target.create(targeting_canvas: true, options: {
-            'full' => '/canvas/1'
-          })
-        );
-        expect { post :create, {annotation: anno, layer_id: '/layer/1'}, :format => 'json' }.to change(Annotation, :count).by(1)
+        post_to_create(@annotation)
+        # Can't determine what the annotation_id will be (hash)
+        # so just get the latest ActiveRecord entry
+        resource = JSON.parse(Annotation.last["resource"])
+        target = Annotation.last["target"]
+        expect(resource).to eq(@annotation["resource"])
+        expect(target).to eq(@annotation["target"])
       end
 
       it 'creates an @id for the returned annotation' do
-        anno = IIIF::Annotation.create(id: nil,
-          resource: IIIF::Resource.create(id: nil, options: {'chars' => 'Anno 1'}),
-          target: IIIF::Target.create(targeting_canvas: true, options: {
-            'full' => '/canvas/1'
-          })
-        );
-        post :create, {annotation: anno, layer_id: '/layer/1'}, :format => 'json'
+        post_to_create(@annotation)
         response_anno = JSON.parse(response.body)
         expect(response_anno['@id']).to be_truthy
       end
 
       it 'assigns the version' do
-        pending("fix broken test")
-        post :create, JSON.parse(@annoString)
-        @annotation = Annotation.last()
-        expect(@annotation['version']).to eq (1)
+        post_to_create(@annotation)
+        expect(Annotation.last['version']).to eq (1)
       end
 
-      it 'fails validation if motivation is nil' do
-        pending("fix broken test")
-        annoJSON = JSON.parse(@annoString)
-        annoJSON['motivation'] = nil
-        post :create, annoJSON
-        expect(response.status).to eq(422)
+      it 'has tags' do
+        # add tags to resource
+        @annotation["resource"] << @tag1
+        @annotation["resource"] << @tag2
+        post_to_create(@annotation)
+        expect(Annotation.last.annotation_tags.length).to eq(2)
       end
 
-      it 'does not fail validation if within is nil' do
-        pending("fix broken test")
-        annoJSON = JSON.parse(@annoString)
-        annoJSON['within'] = nil
-        post :create, annoJSON
-        expect(response.status).to eq(201)
+      it 'sends response which has tags' do
+        @annotation["resource"] << @tag1
+        post_to_create(@annotation)
+        response_anno = JSON.parse(response.body)
+        expect(response_anno["resource"]).to eq(@annotation["resource"])
       end
 
-      it 'updates the map if within is not nil' do
-        pending("fix broken test")
-        annoJSON = JSON.parse(@annoString)
-        post :create, annoJSON
-        json = JSON.parse(response.body)
-        lists = ListAnnotationsMap.getListsForAnnotation json['@id']
-        expect(lists).not_to eq(nil)
-        expect(lists).to eq(annoJSON['within'])
+      it 'belongs to correct list' do
+        # Check the active record and the field is correct
+        post_to_create(@annotation)
+        actual_lists = get_lists(Annotation.last)
+        expected_lists = ["localhost/lists/list1", "localhost/lists/list2", "localhost/lists/layer/1_https://whatever.fake.edu/canvas/1"]
+        expect(actual_lists).to eq(expected_lists)
       end
 
-      it 'creates the right number of webacls' do
-        pending("fix broken test")
-        annoJSON = JSON.parse(@annoString)
-        post :create, annoJSON
-        json = JSON.parse(response.body)
-        webacls = Webacl.getAclsByResource json['@id']
-        expect(webacls).not_to eq(nil)
-        expect(webacls.count).to eq(3)
+      it 'belongs to correct layer' do
+        # Check the active record and the field is correct
+        post_to_create(@annotation)
+        layers = get_layers(Annotation.last)
+        expect(layers).to eq(["layer/1"])
       end
 
+      # has proper attribute types
+      ANNO_ATTR.each do |attr, type|
+        it "#{attr} is in JSON format" do
+          post_to_create(@annotation)
+          body = JSON.parse(response.body)
+          expect(body[attr]).to be_a(type)
+          # resource, on, motivation should all be type JSON
+        end
+      end
 
       after(:each) do
         sign_out @user
@@ -175,39 +205,52 @@ RSpec.describe AnnotationsController, :type => :controller do
 
   context 'when Get is called' do
     describe 'GET annotation json' do
+
+      ANNO_ATTRS = {
+        "@id" => String,
+        "@type" => String,
+        "@context" => String,
+        "resource" => Array,
+        "motivation" => Array,
+        "on" => Hash
+      }
+
       before(:each) do
-        sign_in @user
+        # sign_in @user
+        @annotation["resource"] << @tag1
+        @annotation["resource"] << @tag2
+        post_to_create(@annotation)
       end
 
       it 'returns a 200 response' do
-        pending("fix broken test")
-        post :create, JSON.parse(@annoString)
-        @annotation = Annotation.last()
-        annoUID = @annotation.annotation_id.split('annotations/').last
-        get :show, {format: :json, id: annoUID}
+        get_last_anno
         expect(response.status).to eq(200)
       end
 
-      it 'retrieves motivation correctly' do
-        pending("fix broken test")
-        post :create, JSON.parse(@annoString)
-        @annotation = Annotation.last()
-        annoUID = @annotation.annotation_id.split('annotations/').last
-        get :show, {format: :json, id: annoUID}
-        responseJSON = JSON.parse(response.body)
-        expect(responseJSON['motivation']).to eq("yale:transcribing")
+      ANNO_ATTRS.each do |attr, type|
+        it "has #{attr}" do
+          get_last_anno
+          body = JSON.parse(response.body)
+          expect(body["#{attr}"]).to be_a(type)
+        end
       end
 
-      it 'does not fail if within is nil' do
-        pending("fix broken test")
-        annoJSON = JSON.parse(@annoString)
-        annoJSON['within'] = nil
-        post :create, annoJSON
-        @annotation = Annotation.last()
-        annoUID = @annotation.annotation_id.split('annotations/').last
-        get :show, {format: :json, id: annoUID}
-        expect(response.status).to eq(200)
+      it 'has within' do
+        get_last_anno
+        body = JSON.parse(response.body)
+        expected_within = ["localhost/lists/list1", "localhost/lists/list2", "localhost/lists/layer/1_https://whatever.fake.edu/canvas/1"]
+        expect(body["within"]).to eq(expected_within)
       end
+
+      it 'response has tags' do
+        @annotation["resource"] << @tag1
+        @annotation["resource"] << @tag2
+        post_to_create(@annotation)
+        anno = Annotation.last
+        get :show, {format: :json, id: get_anno_id(anno)}
+        expect(JSON.parse(response.body)['resource']).to eq(@annotation['resource'])
+      end
+
       after(:each) do
         sign_out @user
       end
@@ -218,79 +261,110 @@ RSpec.describe AnnotationsController, :type => :controller do
   context 'when Put is called' do
     describe 'Put annotation json' do
       before(:each) do
-        @annoString ='{"annotation_id":"http://localhost:5000/annotations/testAnnotation",
-                      "annotation_type": "oa:annotation",
-                      "motivation": "yale:transcribing",
-                      "within":["http://localhost:5000/lists/list1","http://localhost:5000/lists/list2"],
-                      "resource":{"@type":"cnt:ContentAsText","chars":"transcription1 list 1 annotation 1 **","format":"text/plain"},
-                      "annotatedBy":{"@id":"http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001","@type":"prov:Agent","name":"Test User 8"},
-                      "on":"http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1140"}'
-        @annotation = Annotation.create(JSON.parse(@annoString))
-        @annoJSON = JSON.parse(@annoString)
+        # Need to update tags and text (resource chars)
+        @annotation["resource"] << @tag1
+        @annotation["resource"] << @tag2
+        post_to_create(@annotation)
+        @annotation["@id"] = Annotation.last["annotation_id"]
+        @new_annotation = @annotation.clone
+        @new_annotation["resource"] = IIIF::Resource.
+          create(
+           id: nil,
+           options: {
+             'chars' => 'changed'
+           }
+          )
+        new_tag = { "@type" => "oa:Tag", "chars" => "chapter10" }
+        @new_annotation["resource"] << new_tag
         sign_in @user
-      end
 
-      describe 'abilities' do
-        #ability = Ability.new(@user)
-        #ability.should be_able_to(:read, Annotation)
-        #subject(:ability) { Ability.new(@user) }
-        #it {is_expected.not_to_be_able_to :read, Annotation}
-      end
-
-      it 'does not change the record count' do
-        pending("fix broken test")
-        @annoJSON['motivation'] = 'yale:transliterating'
-        expect { put :update, @annoJSON }.to change(Annotation, :count).by(0)
+        @another_annotation = {
+          "@type": "oa:annotation",
+          "@context": "http://iiif.io/api/presentation/2/context.json",
+          "resource": [
+            {
+              "@type": "dctypes:Text",
+              "format": "text/html",
+              "chars": "<p>Hello World</p>"
+            }
+          ],
+          "within": [
+            "http://blah.edu/canvas/1",
+            "http://blah.edu/canvas/8"
+          ],
+          "motivation": [
+            "oa:commenting"
+          ],
+          "on": {
+            "@type": "oa:SpecificResource",
+            "full": "http://blad.edu/canvas/1",
+            "selector": {
+              "@type": "oa:SvgSelector",
+              "value": "<svg>somestuff</svg>"
+            }
+          },
+          "@id": Annotation.last["annotation_id"]
+        }
       end
 
       it 'returns a 200 response' do
-        pending("fix broken test")
-        @annoJSON['motivation'] = 'yale:transliterating'
-        put :update, @annoJSON, :format => 'json'
+        put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
         expect(response.status).to eq(200)
       end
+
+      it 'does not change the record count' do
+        put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
+        expect(Annotation.all.count).to eq(1)
+      end
+
 
       it 'updates the motivation field' do
-        pending("fix broken test")
-        @annoJSON['motivation'] = 'yale:transliterating'
-        put :update, @annoJSON, :format => 'json'
+        @new_annotation['motivation'] = 'yale:transliterating'
+        put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
         responseJSON = JSON.parse(response.body)
-        expect(responseJSON['motivation']).to eq("yale:transliterating")
+        expect(responseJSON['motivation']).to eq(["yale:transliterating"])
       end
 
-      it 'fails validation correctly' do
-        pending("fix broken test")
-        @annoJSON['motivation'] = nil
-        put :update, @annoJSON, :format => 'json'
-        expect(response.status).to eq(422)
+      it 'updates the resource field' do
+        put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
+        expect(Annotation.last['resource']).to_not eq(@annotation['resource'])
       end
 
-      it 'does not fail if  if [within] is blank' do
-        pending("fix broken test")
-        @annoJSON['within'] = nil
-        put :update, @annoJSON, :format => 'json'
-        expect(response.status).to eq(200)
+      it 'updates tags' do
+        num_old_tags = Annotation.last.annotation_tags.count
+        put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
+        expect(Annotation.last.annotation_tags.count).to_not match_array(num_old_tags)
       end
 
-      it 'updates the list_annotations map correctly'  do
-        pending("fix broken test")
-        @annoJSON['motivation'] = 'yale:transliterating'
-        put :update, @annoJSON, :format => 'json'
-        @lists = ListAnnotationsMap.getListsForAnnotation @annotation.annotation_id
-        expect(@lists).to eq(@annoJSON['within'])
+      it 'updates version' do
+        put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
+        expect(Annotation.last.version).to eq(2)
       end
 
-      it 'creates a version correctly' do
-        pending("fix broken test")
-        @annoJSON['motivation'] = 'yale:transliterating'
-        put :update, @annoJSON, :format => 'json'
-        @annotation = Annotation.last()
-        @version = AnnoListLayerVersion.last()
-        expect(@annotation.version).to eq(2)
-        expect(@version.all_id).to eq(@annotation.annotation_id)
-        expect(@version.all_type).to eq("oa:annotation")
-        expect(@version.all_version).to eq(@annotation.version-1)
+      it 'updates layer' do
+        # layer must be a list, but it will only read the first entry
+        new_layer = ["layer/3"]
+        put :update, { annotation: @new_annotation, layer_id: new_layer}, :format => "json"
+        layers = get_layers(Annotation.last)
+        expect(layers).to eq(new_layer)
       end
+
+      it 'updates list' do
+        old_lists = get_lists(Annotation.last).freeze
+        put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
+        actual_lists = get_lists(Annotation.last)
+        expect(actual_lists).to_not eq(old_lists)
+      end
+
+
+      ATTRS = %w(@type @context resource within motivation on @id)
+      ATTRS.each do |attr|
+        it 'updates #{attr}' do
+          put :update, { annotation: @another_annotation, layer_id: 'layer/1'}, :format => "json"
+          expect(get_last_anno[attr]).to eq(@another_annotation[attr])
+        end
+      end
+
       after(:each) do
         sign_out @user
       end
@@ -300,64 +374,52 @@ RSpec.describe AnnotationsController, :type => :controller do
   context 'when Delete is called' do
     describe 'Delete annotation' do
       before(:each) do
-        @annoString =#'{"annotation_id":"http://test.host/annotations/testAnnotation",
-                      '{"@type": "oa:annotation",
-                      "motivation": "yale:transcribing",
-                      "within":["http://localhost:5000/lists/list1","http://localhost:5000/lists/list2"],
-                      "resource":{"@type":"cnt:ContentAsText","chars":"transcription1 list 1 annotation 1 **","format":"text/plain"},
-                      "annotatedBy":{"@id":"http://annotations.tenthousandrooms.yale.edu/user/5390bd85a42eedf8a4000001","@type":"prov:Agent","name":"Test User 8"},
-                      "on":"http://dms-data.stanford.edu/Walters/zw200wd8767/canvas/canvas-359#xywh=47,191,1036,1140"}'
+        # Add tags
+        @annotation["resource"] << @tag1
+        @annotation["resource"] << @tag2
 
-        # sign_in @user
-        # post :create, JSON.parse(@annoString)
-        # @annotation = Annotation.last()
-        # @aclDelete ='{"resource_id":"' + @annotation.annotation_id + '", "acl_mode": "delete", "group_id": "http://localhost:5000/groups/testGroup"}'
-        # #p @aclDelete.to_s
-        # @webAclDel = Webacl.create(JSON.parse(@aclDelete))
+        post_to_create(@annotation)
       end
 
       it 'returns a 204 ("deleted") response' do
-        pending("fix broken test")
-        #annoUID = @annotation.annotation_id.split('annotations/').last
-        annoUID = @annotation.annotation_id
-        delete :destroy, format: :json, id: annoUID
+        annotation_id = Annotation.last.annotation_id
+        delete :destroy, format: :json, id: annotation_id
         expect(response.status).to eq(204)
       end
 
       it 'decreases the Annotation record count' do
-        pending("fix broken test")
-        #annoUID = @annotation.annotation_id.split('annotations/').last
-        annoUID = @annotation.annotation_id
-        expect {delete :destroy, {format: :json, id: annoUID} }.to change(Annotation, :count).by(-1)
+        annotation_id = Annotation.last.annotation_id
+        expect { delete :destroy, format: :json, id: annotation_id }
+          .to change(Annotation, :count).by(-1)
       end
 
-      it 'deletes the Annotation record' do
-        pending("fix broken test")
-        #annoUID = @annotation.annotation_id.split('annotations/').last
-        annoUID = @annotation.annotation_id
-        delete :destroy, format: :json, id: annoUID
-        expect(@annotationDeleted = Annotation.where(annotation_id: @annotation.annotation_id).first).to eq(nil)
+      it 'does not delete tags' do
+        annotation_id = Annotation.last.annotation_id
+        tag_count = Annotation.last.annotation_tags.count
+        delete :destroy, format: :json, id: annotation_id
+        expect(AnnotationTag.all.count).to eq(tag_count)
       end
 
-      it 'deletes the list_annotations map correctly' do
-        pending("fix broken test")
-        #annoUID = @annotation.annotation_id.split('annotations/').last
-        annoUID = @annotation.annotation_id
-        delete :destroy, format: :json, id: annoUID
-        @lists = ListAnnotationsMap.getListsForAnnotation @annotation.annotation_id
-        expect(@lists).to eq([])
+      it 'deletes tag mapping' do
+        annotation_id = Annotation.last.annotation_id
+        tag_map_count = Annotation.last.annotation_tag_maps.count
+        delete :destroy, format: :json, id: annotation_id
+        expect(AnnotationTagMap.all).to_not eq(tag_map_count)
       end
 
-      it 'creates a version correctly' do
-        pending("fix broken test")
-        #annoUID = @annotation.annotation_id.split('annotations/').last
-        annoUID = @annotation.annotation_id
-        delete :destroy, format: :json, id: annoUID
-        @version = AnnoListLayerVersion.last()
-        expect(@annotation.version).to eq(1)
-        expect(@version.all_id).to eq(@annotation.annotation_id)
-        expect(@version.all_type).to eq("oa:annotation")
-        expect(@version.all_version).to eq(@annotation.version)
+      it 'detelets the list_annotations map' do
+        # the list it belonged to no longer has this annotation ID
+        annotation_id = Annotation.last.annotation_id
+        delete :destroy, format: :json, id: annotation_id
+        lists = ListAnnotationsMap.getListsForAnnotation annotation_id
+        expect(lists).to eq([])
+      end
+
+      it 'versions the deletion' do
+        annotation_id = Annotation.last.annotation_id
+        delete :destroy, format: :json, id: annotation_id
+        archived_anno = JSON.parse(AnnoListLayerVersion.last["all_content"])
+        expect(archived_anno["@id"]).to eq(annotation_id)
       end
 
       after(:each) do
@@ -390,4 +452,32 @@ RSpec.describe AnnotationsController, :type => :controller do
     @user.destroy
   end
 
+end
+
+def post_to_create(annotation)
+  post :create, { annotation: annotation, layer_id: 'layer/1' }, :format => 'json'
+end
+
+def get_anno_id(anno)
+  anno.annotation_id.split('annotations/').last
+end
+
+def get_last_anno
+  anno = Annotation.last
+  get :show, {format: :json, id: get_anno_id(anno)}
+end
+
+def get_layers(anno)
+  anno_id = "#{ENV['DB_HOST_TEST']}/annotations/" + get_anno_id(anno)
+  lists = ListAnnotationsMap.getListsForAnnotation(anno_id)
+  layers = []
+  lists.each do |list|
+    layers << LayerListsMap.getLayersForList(list)
+  end
+  layers.flatten!
+end
+
+def get_lists(anno)
+  anno_id = "#{ENV['DB_HOST_TEST']}/annotations/" + get_anno_id(anno)
+  ListAnnotationsMap.getListsForAnnotation(anno_id)
 end

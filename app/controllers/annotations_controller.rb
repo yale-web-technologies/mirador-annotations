@@ -9,8 +9,6 @@ class AnnotationsController < ApplicationController
   before_action :set_redis , only: [:create, :edit, :update, :destroy, :doRedis, :getAnnotationsForCanvasViaLists]
 
   include CanCan::ControllerAdditions
-  #skip_before_action :verify_authenticity_token
-  #before_action :authenticate_user!
   respond_to :json, :text, :csv
 
   # GET /list
@@ -18,8 +16,6 @@ class AnnotationsController < ApplicationController
     def index
       @annotation = Annotation.all
       respond_to do |format|
-        #format.html #index.html.erb
-        #format.json { render json: @annotation }
         iiif = []
         @annotation.each do |annotation|
           iiif << annotation.to_iiif
@@ -30,70 +26,13 @@ class AnnotationsController < ApplicationController
       end
     end
 
-=begin
-  def getAnnotationsForCanvasViaListsPreRedis
-    annosForCanvas = ''
-    @canvas = params['canvas_id']
-    p "redis.get(@canvas: #{@canvas}"
-    annosForCanvas = @redis.get(@canvas)
-    if !annosForCanvas.nil?
-      annoWLayerArrayUniq = annosForCanvas
-    else
-        # replace @ru with hostUrl environment variable
-        host_url_prefix = Rails.application.config.hostUrl
-        p "host url = #{host_url_prefix}"
-
-        bearerToken = ''
-        p 'in getAnnotationsForCanvasViaLists: params = ' + params.inspect
-        #p 'in getAnnotationsForCanvasViaLists: headers: ' + request.headers.inspect
-        bearerToken = request.headers["bearer-token"] #user is logged in and has a bearer token
-        #p "bearerToken = #{bearerToken}"
-        if (bearerToken)
-          @user = signInUserByBearerToken bearerToken
-        end
-
-        ###!!!! change back so second query is active
-        lists = AnnotationList.where("list_id like ? and list_id like ?", "%#{params['canvas_id']}%", "%/lists/%")
-        #lists = AnnotationList.where("list_id like ? and list_id like ? and list_id like ?", "#{host_url_prefix}%", "%#{params['canvas_id']}%", "%/lists/%")
-
-        annoWLayerArray = Array.new
-        annoWLayerArrayUniq = Array.new
-
-        p  "in getAnnotationsForCanvasViaLists: lists.count = #{lists.count}"
-        lists.each do |list|
-          layer_id = getLayerFromListName list.list_id
-          if !layer_id.nil?
-            annotations = ListAnnotationsMap.getAnnotationsForList list.list_id
-            annotations.each do |annotation|
-              #if !annotation.nil?
-              if !annotation.nil? && @canvas = annotation
-                annoWLayerHash= Hash.new
-                annoWLayerHash["layer_id"] = layer_id
-                annoWLayerHash["annotation"] = annotation.to_iiif
-                annoWLayerArray.push(annoWLayerHash)
-              end
-            end
-          end
-        end
-        annoWLayerArrayUniq = annoWLayerArray.uniq
-        @redis.set(@canvas, annoWLayerArrayUniq)
-     end
-    respond_to do |format|
-      format.html {render json: annoWLayerArrayUniq}
-      format.json {render json: annoWLayerArrayUniq, content_type: "application/json"}
-    end
-  end
-=end
-
   def getAnnotationsForCanvasViaLists
     annosForCanvas = ''
     @canvas = params['canvas_id']
     if Rails.application.config.useRedis == 'Y'
       p "redis.get(@canvas: #{@canvas}"
-      #annoWLayerArrayUniq = @redis.get(@canvas)
       annosForCanvas = @redis.get(@canvas)
       if !annosForCanvas.nil?
-        #annoWLayerArrayUniq = annosForCanvas
         p "YES: found response in redis for #{params['canvas_id']} :  #{annosForCanvas[1..100]}"
       else
         annosForCanvas = buildMemAnnosForCanvas @canvas
@@ -106,12 +45,6 @@ class AnnotationsController < ApplicationController
 
       bearerToken = ''
       p 'in getAnnotationsForCanvasViaLists: params = ' + params.inspect
-      #p 'in getAnnotationsForCanvasViaLists: headers: ' + request.headers.inspect
-      #bearerToken = request.headers["bearer-token"] #user is logged in and has a bearer token
-      #p "bearerToken = #{bearerToken}"
-      #if (bearerToken)
-      #  @user = signInUserByBearerToken bearerToken
-      #end
 
       lists = AnnotationList.where("list_id like ? and list_id like ? and list_id like ?", "#{host_url_prefix}%", "%#{params['canvas_id']}%", "%/lists/%")
 
@@ -122,14 +55,12 @@ class AnnotationsController < ApplicationController
       p  "in getAnnotationsForCanvasViaLists: lists.count = #{lists.count}"
 
       lists.each do |list|
-        #p  "               list_id = #{list.list_id}"
         layer_id = getLayerFromListName list.list_id
         if !layer_id.nil?
           annotations = ListAnnotationsMap.getAnnotationsForList list.list_id
           annotations.each do |annotation|
             if !annotation.nil? &&
               if !annotation.active==false # [jrl]
-                #p "annotation.active = #{annotation.active}"
                 annoWLayerHash= Hash.new
                 annoWLayerHash["layer_id"] = layer_id
                 annoWLayerHash["annotation"] = annotation.to_iiif
@@ -138,9 +69,7 @@ class AnnotationsController < ApplicationController
             end
           end
         end
-        #annoWLayerArray.gsub!(/=>/,':')
         annoWLayerArrayUniq = annoWLayerArray.uniq  if !annoWLayerArray.nil?
-
       end
     end
       respond_to do |format|
@@ -178,7 +107,6 @@ class AnnotationsController < ApplicationController
     end
 
     @annotation = Annotation.where(annotation_id: @ru).first
-    #authorize! :show, @annotation_list
     request.format = "json"
     respond_to do |format|
       if !@annotation.nil?
@@ -215,7 +143,10 @@ class AnnotationsController < ApplicationController
     #TODO: consider if canvas convenience field should be set to original canvas for targeting annotations as well.
     # @annotationOut['canvas']  = @annotationIn['on']['full']
 
-    @annotationOut['resource']  = @annotationIn['resource'].to_json
+    resource = @annotationIn['resource']
+    tags = parse_tags(resource)
+
+    @annotationOut['resource']  = resource.to_json
     @annotationOut['active'] = true
     @annotationOut['version'] = 1
     @annotationOut['on'] = @annotationIn['on'].to_json
@@ -238,6 +169,12 @@ class AnnotationsController < ApplicationController
     ListAnnotationsMap.setMap @annotationIn['within'], @annotation_id
     create_annotation_acls_via_parent_lists @annotation_id
     @annotation = Annotation.new(@annotationOut)
+
+    # associate the tags
+    tags.each do |tag|
+      @annotation.annotation_tags << tag 
+    end
+
     #authorize! :create, @annotation
     request.format = "json"
     p 'about to respond in create'
@@ -262,10 +199,10 @@ class AnnotationsController < ApplicationController
     #use @annotationIn['within'] to determine if the anno already belongs to this layer, if so set updateLists = false
     updateLists = true
     @annotationIn['within'].each do |list_id|
-    p "updateTest: is passed in layer #{@layerIdIn} in [within]"
+      p "updateTest: is passed in layer #{@layerIdIn} in [within]"
       layersForList = LayerListsMap.getLayersForList list_id
       layersForList.each do |layerForList|
-        p "withinList #{list_id} has layer #{layerForList}"
+      p "withinList #{list_id} has layer #{layerForList}"
         if layerForList == @layerIdIn
           updateLists = false
           break
@@ -275,68 +212,65 @@ class AnnotationsController < ApplicationController
     p "updateLists = #{updateLists}"
 
     @problem = ''
-    #if !validate_annotation @annotationIn
-    #  errMsg = "Annotation not valid and could not be updated: " + @problem
-    #  p "Annotation not valid and could not be updated: #{errMsg}"
-    #  render :json => { :error => errMsg },
-    #         :status => :unprocessable_entity
-    #else
-      @annotation = Annotation.where(annotation_id: @annotationIn['@id']).first
-      #-------
-      p 'just searched for this annotation: id = ' + @annotation.annotation_id
-      if @annotation.nil?
-        format.json { render json: nil, status: :ok }
-      else
-          #authorize! :update, @annotation
-
-          if @annotation.version.nil? ||  @annotation.version < 1
-            @annotation.version = 1
-          end
-          if !version_annotation @annotation
-            errMsg = "Annotation could not be updated: " + @problem
-            render :json => { :error => errMsg },
-                   :status => :unprocessable_entity
-          end
-
-          if (updateLists == true)
-            p "updating lists for anno: #{@annotation.annotation_id}"
-            list_id =  constructRequiredListId @layerIdIn, @annotation.canvas
-            canvas_id = getTargetingAnnosCanvas(@annotation)
-            p "updating lists: constructed list = #{list_id}"
-            checkListExists list_id, @layerIdIn, canvas_id
-
-            @annotationIn['within'] = Array.new
-            @annotationIn['within'].push(list_id)
-
-            ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
-            p "******* just deleted list_anno_maps for #{ @annotation.annotation_id} *************"
-            p "******* within =  #{ @annotationIn['within'].to_s }************"
-            ListAnnotationsMap.setMap @annotationIn['within'], @annotation.annotation_id
-          end
-
-          newVersion = @annotation.version + 1
-          request.format = "json"
-          respond_to do |format|
-            if @annotation.update_attributes(
-                :annotation_type => @annotationIn['@type'],
-                :motivation => @annotationIn['motivation'].to_json,
-                :on => @annotationIn['on'].to_json,
-                :resource => @annotationIn['resource'].to_json,
-                :annotated_by => @annotationIn['annotatedBy'].to_json,
-                :version => newVersion,
-                :order_weight => @annotationIn['orderWeight']
-            )
-              format.html { redirect_to @annotation, notice: 'Annotation was successfully updated.' }
-              format.json { render json: @annotation.to_iiif, status: 200, content_type: "application/json"}
-            else
-              format.html { render action: "edit" }
-              format.json { render json: @annotation.errors, status: :unprocessable_entity, content_type: "application/json" }
-            end
-          end
+    @annotation = Annotation.where(annotation_id: @annotationIn['@id']).first
+    #-------
+    p 'just searched for this annotation: id = ' + @annotation.annotation_id
+    if @annotation.nil?
+      # No annotation found
+      format.json { render json: nil, status: :ok }
+    else
+      if @annotation.version.nil? ||  @annotation.version < 1
+        # Correctly assign a version number
+        @annotation.version = 1
+      end
+      if !version_annotation @annotation
+        errMsg = "Annotation could not be updated: " + @problem
+        render :json => { :error => errMsg },
+               :status => :unprocessable_entity
       end
 
+      if updateLists 
+        p "updating lists for anno: #{@annotation.annotation_id}"
+        list_id =  constructRequiredListId @layerIdIn, @annotation.canvas
+        canvas_id = getTargetingAnnosCanvas(@annotation)
+        p "updating lists: constructed list = #{list_id}"
+        checkListExists list_id, @layerIdIn, canvas_id
 
-    #end
+        @annotationIn['within'] = Array.new
+        @annotationIn['within'].push(list_id)
+
+        ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
+        p "******* just deleted list_anno_maps for #{ @annotation.annotation_id} *************"
+        p "******* within =  #{ @annotationIn['within'].to_s }************"
+        ListAnnotationsMap.setMap @annotationIn['within'], @annotation.annotation_id
+      end
+
+      newVersion = @annotation.version + 1
+      request.format = "json"
+      respond_to do |format|
+
+        if @annotation.update_attributes(
+            :annotation_type => @annotationIn['@type'],
+            :motivation => @annotationIn['motivation'].to_json,
+            :on => @annotationIn['on'].to_json,
+            :resource => @annotationIn['resource'].to_json,
+            :annotated_by => @annotationIn['annotatedBy'].to_json,
+            :version => newVersion,
+            :order_weight => @annotationIn['orderWeight']
+        )
+
+          # Update tags associated with the annotation
+          tags = parse_tags(@annotationIn['resource'])
+          @annotation.annotation_tags = tags
+
+          format.html { redirect_to @annotation, notice: 'Annotation was successfully updated.' }
+          format.json { render json: @annotation.to_iiif, status: 200, content_type: "application/json"}
+        else
+          format.html { render action: "edit" }
+          format.json { render json: @annotation.errors, status: :unprocessable_entity, content_type: "application/json" }
+        end
+      end
+    end
   end
 
   # DELETE /annotation/1
@@ -391,14 +325,10 @@ class AnnotationsController < ApplicationController
 
     unless annotation['within'].nil?
       annotation['within'].each do |list_id|
-        #if !list_id.include?("_INACTIVE")
           @annotation_list = AnnotationList.where(list_id: list_id).first
           if @annotation_list.nil?
-            #@problem = "'within' element: Annotation List " + list_id + " does not exist"
-            #valid = false
           end
         end
-      #end
     end
 
     if annotation['resource'].nil?
@@ -443,27 +373,16 @@ class AnnotationsController < ApplicationController
     #****************************************************
     # multiple "on's" will be an array
     #****************************************************
-    #p "@annotationIn[annoId]: #{@annotationIn['annotation_id']}"
-    #p "@annotationIn['on']: #{@annotationIn['on']}"
-    #puts "\n"
-    #on_array = JSON.parse(@annotationIn['on'].split(","))
     @annotationIn['on'].each do |on|
-        #p "in ['on'] loop: on = : #{on}"
         on = JSON.parse(on.to_json)
         #===================================
         @canvas_id = on['full']
-        #p "@canvas_id = #{@canvas_id}"
         if (!on['full'].to_s.include?('/canvas/'))
-          #@annotation = Annotation.where(annotation_id:on['full']).first
           @annotation = Annotation.where("annotation_id like ? ", "%#{on['full']}%").first
           if !@annotation.nil?
-            #p "@annotationIn[annoId]just found for this on: #{@annotation.annotation_id}"
             @canvas_id = getTargetingAnnosCanvas(@annotation)
           end
         end
-        #return nil if @canvas_id.nil?
-        #p "now @canvas_id = #{@canvas_id}"
-        #@canvas_id = on['full']
         @required_list_id = constructRequiredListId @layer_id, @canvas_id if !@canvas_id.nil?
         checkListExists @required_list_id, @layer_id, @canvas_id  if !@canvas_id.nil?
         #====================================
@@ -474,20 +393,14 @@ class AnnotationsController < ApplicationController
     @annotationIn['canvas'] = '|'
     @annotationIn['on'].each do |on|
      @annotationIn['canvas'] +=  on['full'] + '|'
-     # p "in setMultipleCanvas: " + @annotationIn['canvas']
-     # p "on = #{on}"
-      #p "on['full'] = #{on['full']}"
-      #puts "\n"
     end
     return @annotationIn['canvas']
   end
 
   def constructRequiredListId layer_id, canvas_id
     puts "AnnotationsController#constructRequiredListId layer_id: #{layer_id}, canvas_id: #{canvas_id}"
-    #@ru = request.original_url.split('?').first
     @ru = Rails.application.config.hostUrl
     @ru += '/'   if !@ru.end_with? '/'
-    #list_id = request.protocol + request.host_with_port + "/lists/" + layer_id + "_" + canvas_id # host_with_port seems to be returning varying values
     puts "\n"
     p "in constructRequiredListId: layer_id = #{layer_id}  and canvas_id = #{canvas_id}"
     puts "\n"
@@ -504,7 +417,6 @@ class AnnotationsController < ApplicationController
     end
     # add to within if necessary
     if @annotationIn['within'].nil?
-    #if !@annotationIn.key?(:within)
       withinArray = Array.new
       withinArray.push(list_id)
       @annotationIn['within'] = withinArray
@@ -554,10 +466,7 @@ class AnnotationsController < ApplicationController
     onN.gsub!(/=>/,':')
     p "onN = #{onN}"
     onJSON = JSON.parse(onN)
-    #p "full = #{onJSON['full']}"
-    #return(inputAnno) if (inputAnno.canvas.to_s.include?("oa:SvgSelector"))
     targetAnnotation = Annotation.where(annotation_id:onJSON['full']).first
-    #p "returned anno canvas = #{targetAnnotation.canvas}"
     return(targetAnnotation) if (targetAnnotation.on.to_s.include?("oa:SvgSelector"))
     getTargetedAnno targetAnnotation
   end
@@ -569,8 +478,6 @@ class AnnotationsController < ApplicationController
     return(inputAnno.canvas) if (inputAnno.canvas.to_s.include?('/canvas/'))
     p "in getTargetingAnnosCanvas: inputAnno.canvas = #{inputAnno.canvas}"
     p "getTargetingAnnosCanvas:                        anno_id = #{inputAnno.annotation_id}  and canvas = #{inputAnno.canvas}"
-    #targetAnnotation = Annotation.where(canvas:inputAnno.canvas).first
-    #targetAnnotation = Annotation.where(annotation_id:inputAnno.canvas).first
     targetAnnotation = Annotation.where("annotation_id like ? ", "%#{inputAnno.canvas}%").first
 
 
@@ -628,31 +535,15 @@ class AnnotationsController < ApplicationController
     p "new svg = #{new_svg}"
 
     request.format = "json"
-=begin
-    respond_to do |format|
-      if annotation.update_attributes(
-          :on => annotation['on'].to_json
-      )
-        format.html { redirect_to annotation, notice: 'Annotation was successfully updated.' }
-        format.json { render json: annotation.to_iiif, status: 200, content_type: "application/json"}
-      else
-        format.html { render action: "edit" }
-        format.json { render json: annotation.errors, status: :unprocessable_entity, content_type: "application/json" }
-      end
-    end
-=end
   end
 
   def getSvg
     annotation_id = params['id']
-    #p "id = #{annotation_id}"
     annotation = Annotation.where(annotation_id: annotation_id).first
     on = JSON.parse(annotation.on)
     p "on = #{on.to_json}"
     svg = on["selector"]["value"]
     p "svg = #{svg}"
-    #render json: annotation.to_iiif
-    #render json: svg.to_s
     render json: on
   end
 
@@ -660,7 +551,6 @@ class AnnotationsController < ApplicationController
     on = JSON.parse(anno.on)
     svg = on["selector"]["value"]
     svgHash = Hash.from_xml(svg)
-    #puts "svgHash.svg.path.d: #{svgHash["svg"]["path"]["d"]}"
     svg_path = svgHash["svg"]["path"]["d"]
   end
 
@@ -705,16 +595,12 @@ class AnnotationsController < ApplicationController
     response.content_type ='xml'
 
     respond_with do |format|
-      #format.json {render :text => allLayers}
-      #format.text {render xml: allLayers, content_type: "xml"}
       format.text {render :text => allLayers, :content_type => Mime::TEXT.to_s}
     end
   end
 
   # simple Redis test
   def doRedis
-    #redis = Redis.new
-    #@redis.set("royKey", "Roy's Key")
     @redis.set("royKey", '{"royKey":"Roys Key"}')
     royKey = @redis.get("royKey")
     royKey = JSON.parse(@redis.get("royKey"))
@@ -723,7 +609,6 @@ class AnnotationsController < ApplicationController
       format.text {render :text => royKey, content_type: "application/json"}
       format.json {render :text => royKey, content_type: "application/json"}
     end
-
   end
 
   def set_redis
@@ -764,11 +649,9 @@ class AnnotationsController < ApplicationController
     end
     annoWLayerArrayUniq = annoWLayerArray.uniq
     @redis.set(canvas_id, annoWLayerArrayUniq)
-    #return @redis.get(canvas_id)
   end
 
   def setRedisKeys
-    #annotations.lotb.yale.edu/setRedisKeys?canvas_id=http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01
     @redis = Redis.new(url: ENV["REDIS_URL"])
 
     @canvasKey = params['canvas_id']
@@ -786,17 +669,29 @@ class AnnotationsController < ApplicationController
     redisValue.gsub!(/=>/,":")
     @redis.set(@canvasKey,redisValue)
 
-
-    # redisValue_Panel_01 = open("http://annotations.lotb.yale.edu/getAnnotationsViaList?canvas_id=http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01").read
-    # redisValue_Panel_01 = open("http://annotations.lotb.yale.edu/getAnnotationsViaList?canvas_id=http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01").read
-    # redisValue_Panel_01.gsub!(/=>/,":")
-    # redisValue_Panel_01 = JSON.parse(redisValue_Panel_01)
-    # @redis.set("http://manifests.ydc2.yale.edu/LOTB/canvas/panel_01",redisValue_Panel_01)
-
     respond_to do |format|
       format.html { render html: 'RedisKey set', status: :ok }
       format.json { render json: '{"RedisKey": "set"}', status: :ok }
     end
   end
 
+  private
+
+  def parse_tags(resource)
+    # resource is a JSON object that conforms to IIIF standard
+    parsed_tags = []
+    # only interested in resources that are a tag
+    tags = resource.select { |entry| entry["@type"] == "oa:Tag"}
+    return [] if tags.empty?
+    tags.each do |entry|
+      tag_name = entry["chars"]
+      tag = AnnotationTag.where(name: tag_name).first
+      # create the tag if not in the db
+      if tag.nil?
+        tag = AnnotationTag.create(name: tag_name)
+      end
+      parsed_tags << tag
+    end
+    parsed_tags
+  end
 end

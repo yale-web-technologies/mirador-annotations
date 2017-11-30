@@ -87,6 +87,9 @@ group :production do
 end
 
 group :development, :test do
+  gem 'pry-byebug'
+  gem 'pry-rails'
+  gem 'database_cleaner'
   gem 'factory_girl_rails', '~> 4.2.0'
   gem 'simplecov', :require => false, :group => :test
   gem 'rubocop', require: false
