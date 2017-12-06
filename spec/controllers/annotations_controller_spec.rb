@@ -14,87 +14,19 @@ end
 RSpec.describe AnnotationsController, :type => :controller do
 
   before(:each) do
-    config   = Rails.configuration.database_configuration
-    host     = config[Rails.env]["host"]
-    database = config[Rails.env]["database"]
-    username = config[Rails.env]["username"]
-    password = config[Rails.env]["password"]
-
+    Rails.application.config.use_jwt_auth = true
     Rails.application.secrets.jwt_password = 'abc123'
     Rails.application.config.jwt_canvas_verification_url = 'http://testserver.com'
     allow(JWT).to receive(:decode).and_return([{"group_id" => "10", "user_id" => "100"}])
     set_anno_auth_token("someencryptedtoken")
     stub_anno_auth("10", "true", /testserver.com/)
 
-    @annoList1 ='{"list_id": "http://localhost:5000/lists/list1", "list_type": "sc:AnnotationList", "label":"transcription layer 1 list 1"}'
-    @annotation_list1 = AnnotationList.create(JSON.parse(@annoList1))
-    @annoList2 ='{"list_id": "http://localhost:5000/lists/list2", "list_type": "sc:AnnotationList", "label":"transcription layer 1 list 2"}'
-    @annotation_list2 = AnnotationList.create(JSON.parse(@annoList2))
-
-    @usr ='{"uid":"jasper99", "password":"pass-word", "email":"jasper99@yale.edu", "encrypted_password":"7KVcbLRkKU15XiCRlTGuj0raudw+pl+SaGVnm456LoE", "provider":"cas", "sign_in_count":"0"}'
-    @grp='{"group_id": "http://localhost:5000/groups/testGroup", "group_description":"test group"}'
-    @usrgrp = '{"user_id":"jasper99","group_id":"http://localhost:5000/groups/testGroup"}'
-    @usrgrp2 = '{"user_id":"jasper99","group_id":"http://localhost:5000/groups/testGroup3"}'
-
-
-    @aclList1 ='{"resource_id":"http://localhost:5000/lists/list1", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup"}'
-    @webAclList1= Webacl.create(JSON.parse(@aclList1))
-    @aclList1w ='{"resource_id":"http://localhost:5000/lists/list1", "acl_mode": "write", "group_id": "http://localhost:5000/groups/testGroup"}'
-    @webAclList1w= Webacl.create(JSON.parse(@aclList1w))
-    @aclList2 ='{"resource_id":"http://localhost:5000/lists/list2", "acl_mode": "prognosticate", "group_id": "http://localhost:5000/groups/testGroup2"}'
-    @webAclList2= Webacl.create(JSON.parse(@aclList2))
-
-    @acl1 ='{"resource_id":"http://localhost:5000/layers/testLayer1", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup"}'
-    @acl2 ='{"resource_id":"http://localhost:5000/layers/testLayer1", "acl_mode": "create", "group_id": "http://localhost:5000/groups/testGroup"}'
-    @acl3 ='{"resource_id":"http://localhost:5000/layers/testLayer1", "acl_mode": "update", "group_id": "http://localhost:5000/groups/testGroup"}'
-    @acl4 ='{"resource_id":"http://localhost:5000/layers/testLayer1", "acl_mode": "delete", "group_id": "http://localhost:5000/groups/testGroup"}'
-
-    @acl5 ='{"resource_id":"http://localhost:5000/layers/testLayer2", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup"}'
-    @acl6 ='{"resource_id":"http://localhost:5000/layers/testLayer2", "acl_mode": "create", "group_id": "http://localhost:5000/groups/testGroup"}'
-    @acl7 ='{"resource_id":"http://localhost:5000/layers/testLayer2", "acl_mode": "update", "group_id": "http://localhost:5000/groups/testGroup"}'
-    @acl8 ='{"resource_id":"http://localhost:5000/layers/testLayer2", "acl_mode": "delete", "group_id": "http://localhost:5000/groups/testGroup"}'
-
-    @acl9 ='{"resource_id":"http://localhost:5000/layers/testLayer3", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup3"}'
-    @acl10 ='{"resource_id":"http://localhost:5000/layers/testLayer3", "acl_mode": "create", "group_id": "http://localhost:5000/groups/testGroup3"}'
-    @acl11 ='{"resource_id":"http://localhost:5000/layers/testLayer3", "acl_mode": "update", "group_id": "http://localhost:5000/groups/testGroup3"}'
-    @acl12 ='{"resource_id":"http://localhost:5000/layers/testLayer3", "acl_mode": "delete", "group_id": "http://localhost:5000/groups/testGroup3"}'
-
-
-    @acl13 ='{"resource_id":"http://localhost:5000/annotations/testAnnotation", "acl_mode": "read", "group_id": "http://localhost:5000/groups/testGroup"}'
-    @acl14 ='{"resource_id":"http://localhost:5000/annotations/testAnnotation", "acl_mode": "create", "group_id": "http://localhost:5000/groups/testGroup"}'
-    @acl15 ='{"resource_id":"http://localhost:5000/annotations/testAnnotation", "acl_mode": "update", "group_id": "http://localhost:5000/groups/testGroup"}'
-    @acl16 ='{"resource_id":"http://localhost:5000/annotations/testAnnotation", "acl_mode": "delete", "group_id": "http://localhost:5000/groups/testGroup"}'
-
-    @user= User.create!(JSON.parse(@usr))
-    @group= Group.create(JSON.parse(@grp))
-    @user.groups.create JSON.parse(@usrgrp)
-    @webAcl1= Webacl.create(JSON.parse(@acl1))
-    @webAcl2= Webacl.create(JSON.parse(@acl2))
-    @webAcl3= Webacl.create(JSON.parse(@acl3))
-    @webAcl4= Webacl.create(JSON.parse(@acl4))
-
-    @webAcl5= Webacl.create(JSON.parse(@acl5))
-    @webAcl6= Webacl.create(JSON.parse(@acl6))
-    @webAcl7= Webacl.create(JSON.parse(@acl7))
-    @webAcl8= Webacl.create(JSON.parse(@acl8))
-
-    @webAcl9= Webacl.create(JSON.parse(@acl9))
-    @webAcl10= Webacl.create(JSON.parse(@acl10))
-    @webAcl11= Webacl.create(JSON.parse(@acl11))
-    @webAcl12= Webacl.create(JSON.parse(@acl12))
-
-    @webAcl13= Webacl.create(JSON.parse(@acl13))
-    @webAcl14= Webacl.create(JSON.parse(@acl14))
-    @webAcl15= Webacl.create(JSON.parse(@acl15))
-    @webAcl16= Webacl.create(JSON.parse(@acl16))
-
-
     @annotation = IIIF::Annotation.
       create(
         id: 'https://whatever.fake.edu/annotation/1',
       resource: IIIF::Resource.
         create(
-          id: nil, 
+          id: nil,
           options: {
             'chars' => 'Anno 1'
           }
@@ -126,39 +58,48 @@ RSpec.describe AnnotationsController, :type => :controller do
       "@type" => "oa:Tag",
       "chars" => "scene1"
     }
-
   end
 
   shared_examples 'invalid annotation auth' do
-    it 'Authentication issues with endpoint for JWT' do 
-      scenarios = []
-      scenarios.push({ group_id: "11", has_access: "true", endpoint: /testserver.com/})
-      scenarios.push({ group_id: "10", has_access: "false", endpoint: /testserver.com/})
-      scenarios.push({ group_id: nil, has_access: nil, endpoint: /testserver.com/})
+    before(:all) do
+      @scenarios = [
+        { group_id: "11", has_access: "true", endpoint: /testserver.com/ },
+        { group_id: "10", has_access: "false", endpoint: /testserver.com/ },
+        { group_id: nil, has_access: nil, endpoint: /testserver.com/}
+      ]
+    end
 
-      scenarios.each do |scenario|
-        group_id = scenario[:group_id]
-        has_access = scenario[:has_access]
-        endpoint = scenario[:endpoint]
+    it 'returns 403 when jwt auth is enabled' do
+      Rails.application.config.use_jwt_auth = true
+
+      @scenarios.each do |scenario|
+        group_id, has_access, endpoint = scenario.values_at(:group_id, :has_access, :endpoint)
         stub_anno_auth(group_id, has_access, endpoint)
         request_proc.call
         expect(response.status).to eq(403)
+      end
+    end
+
+    it 'returns normal code when jwt auth is disabled' do
+      Rails.application.config.use_jwt_auth = false
+
+      @scenarios.each do |scenario|
+        group_id, has_access, endpoint = scenario.values_at(:group_id, :has_access, :endpoint)
+        stub_anno_auth(group_id, has_access, endpoint)
+        request_proc.call
+        expect(response.status).to eq(normal_status)
       end
     end
   end
 
   context 'when Post is called' do
     describe 'POST annotation json' do
-      
+
       ANNO_ATTR = {
         "resource" => Array,
         "motivation" => Array,
         "on" => Hash
       }
-
-      before(:each) do
-        sign_in @user
-      end
 
       it 'returns a 201 ("created") response' do
         post_to_create(@annotation)
@@ -230,10 +171,7 @@ RSpec.describe AnnotationsController, :type => :controller do
         let(:request_proc) do
           ->() { post_to_create(@annotation) }
         end
-      end
-
-      after(:each) do
-        sign_out @user
+        let(:normal_status) { 201 }
       end
     end
   end
@@ -251,7 +189,6 @@ RSpec.describe AnnotationsController, :type => :controller do
       }
 
       before(:each) do
-        # sign_in @user
         @annotation["resource"] << @tag1
         @annotation["resource"] << @tag2
         post_to_create(@annotation)
@@ -285,10 +222,6 @@ RSpec.describe AnnotationsController, :type => :controller do
         get :show, {format: :json, id: get_anno_id(anno)}
         expect(JSON.parse(response.body)['resource']).to eq(@annotation['resource'])
       end
-
-      after(:each) do
-        sign_out @user
-      end
     end
   end
 
@@ -311,7 +244,6 @@ RSpec.describe AnnotationsController, :type => :controller do
           )
         new_tag = { "@type" => "oa:Tag", "chars" => "chapter10" }
         @new_annotation["resource"] << new_tag
-        sign_in @user
 
         @another_annotation = {
           "@type": "oa:annotation",
@@ -404,10 +336,7 @@ RSpec.describe AnnotationsController, :type => :controller do
         let(:request_proc) do
           ->() {  put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json" }
         end
-      end
-
-      after(:each) do
-        sign_out @user
+        let(:normal_status) { 200 }
       end
     end
   end
@@ -466,42 +395,15 @@ RSpec.describe AnnotationsController, :type => :controller do
       it_behaves_like 'invalid annotation auth' do
         let(:request_proc) do
           ->() {
+            post_to_create(@annotation)
             annotation_id = Annotation.last.annotation_id
             delete :destroy, format: :json, id: annotation_id
            }
         end
-      end
-
-      after(:each) do
-        sign_out @user
+        let(:normal_status) { 204 }
       end
     end
   end
-
-  after(:each) do
-    @webAcl1.destroy
-    @webAcl2.destroy
-    @webAcl3.destroy
-    @webAcl4.destroy
-    @webAcl5.destroy
-    @webAcl6.destroy
-    @webAcl7.destroy
-    @webAcl8.destroy
-    @webAcl9.destroy
-    @webAcl10.destroy
-    @webAcl11.destroy
-    @webAcl12.destroy
-    @webAcl13.destroy
-    @webAcl14.destroy
-    @webAcl15.destroy
-    @webAcl16.destroy
-    @webAclList1.destroy
-    @group.destroy
-    @annotation_list1.destroy
-    @annotation_list2.destroy
-    @user.destroy
-  end
-
 end
 
 def post_to_create(annotation)

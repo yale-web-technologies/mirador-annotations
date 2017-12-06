@@ -3,7 +3,7 @@
 # ENV['RAILS_ENV'] ||= 'test'
 
 # Setting RAILS_ENV explicitly to test. We don't want the possibility
-# of being set to other values inadvertently, especially production or 
+# of being set to other values inadvertently, especially production or
 # develoment.
 ENV['RAILS_ENV'] = 'test'
 
@@ -11,8 +11,6 @@ ENV['RAILS_ENV'] = 'test'
 # IIIF_HOST_URL. Need to set it to the same value here as the tests
 # use for there expectations, etc.
 ENV['IIIF_HOST_URL'] = 'localhost'
-
-ENV['USE_JWT_AUTH'] = 'Y'
 
 require 'spec_helper'
 require File.expand_path('../../config/environment', __FILE__)
