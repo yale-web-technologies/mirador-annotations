@@ -1,7 +1,8 @@
 language: ruby
-rvm:
- - "2.1.5"
+
+script:
+  - rake spec
 
 notifications:
-  email:
-    - roy.lechich@yale.edu
+  slack: yaleits-cct:30ydDArus5pyk5mXEHLG3zSN
+
