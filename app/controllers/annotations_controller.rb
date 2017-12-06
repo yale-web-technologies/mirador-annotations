@@ -707,10 +707,14 @@ end
       parsed_tags << tag
     end
     parsed_tags
-  end 
+  end
 
   def check_anno_auth(request, annotation)
-    AnnoAuthValidator.authorize(request.headers['Authorization'], getTargetingAnnosCanvas(annotation))
+    if Rails.application.config.use_jwt_auth
+      AnnoAuthValidator.authorize(request.headers['Authorization'], getTargetingAnnosCanvas(annotation))
+    else
+      true
+    end
   end
 
   def render_forbidden(message)
