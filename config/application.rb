@@ -31,14 +31,12 @@ module MiradorAnnotationsServer
         'Access-Control-Allow-Methods' => 'POST, PUT, DELETE, GET, OPTIONS',
         'Access-Control-Allow-Headers' => 'Origin, X-Requested-With, Content-Type, Accept, Authorization, tgtoken, tgToken, bearer-token',
         'Content-Type' => 'application/json'
-
-    #config.action_dispatch.default_headers.merge!('Content-Type' => 'application/json')
-
     }
 
     config.autoload_paths += Dir["#{config.root}/app/models/", "#{config.root}/lib/**/"]
 
     config.iiif_collections_host = ENV['IIIF_COLLECTIONS_HOST']
     config.s3_download_prefix = ENV['S3_PUBLIC_DOWNLOAD_PREFIX']
+    config.use_jwt_auth = ENV['USE_JWT_AUTH'] == 'Y'
   end
 end

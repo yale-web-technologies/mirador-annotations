@@ -12,6 +12,8 @@ ENV['RAILS_ENV'] = 'test'
 # use for there expectations, etc.
 ENV['IIIF_HOST_URL'] = 'localhost'
 
+ENV['USE_JWT_AUTH'] = 'Y'
+
 require 'spec_helper'
 require File.expand_path('../../config/environment', __FILE__)
 require 'rspec/rails'
