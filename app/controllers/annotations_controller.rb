@@ -163,22 +163,22 @@ class AnnotationsController < ApplicationController
       handleRequiredListMultipleOn
       @annotationOut['canvas'] = setMultipleCanvas
     end
-   
+
     p "in CreateAnno: @annotationOut['canvas'] = #{@annotationOut['canvas']}"
     p "in CreateAnno: about to setMap: @annotationIn['within'] = #{@annotationIn['within']}"
     ListAnnotationsMap.setMap @annotationIn['within'], @annotation_id
     create_annotation_acls_via_parent_lists @annotation_id
     @annotation = Annotation.new(@annotationOut)
-    
+
     unless check_anno_auth(request, @annotation)
       return render_forbidden("There was an error creating the annotation")
     end
 
     # associate the tags
     tags.each do |tag|
-      @annotation.annotation_tags << tag 
+      @annotation.annotation_tags << tag
     end
-    
+
     #authorize! :create, @annotation
     request.format = "json"
     p 'about to respond in create'
@@ -238,7 +238,7 @@ class AnnotationsController < ApplicationController
                :status => :unprocessable_entity
       end
 
-      if updateLists 
+      if updateLists
         p "updating lists for anno: #{@annotation.annotation_id}"
         list_id =  constructRequiredListId @layerIdIn, @annotation.canvas
         canvas_id = getTargetingAnnosCanvas(@annotation)
@@ -707,10 +707,14 @@ end
       parsed_tags << tag
     end
     parsed_tags
-  end 
+  end
 
   def check_anno_auth(request, annotation)
-    AnnoAuthValidator.authorize(request.headers['Authorization'], getTargetingAnnosCanvas(annotation))
+    if Rails.application.config.use_jwt_auth
+      AnnoAuthValidator.authorize(request.headers['Authorization'], getTargetingAnnosCanvas(annotation))
+    else
+      true
+    end
   end
 
   def render_forbidden(message)
