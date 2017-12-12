@@ -1,10 +1,23 @@
+env:
+  - DATABASE_TEST=annotations_test
+  - DB_USERNAME_TEST=postgres
+  - DB_DB_PASSWORD_DEV=
+
 language: ruby
+
 rvm:
   - 2.2.4
+
+cache: bundler
 
 script:
   - bundle exec rake spec
 
+before_script:
+  - psql -c 'create database annotations_test;' -U postgres
+
+services:
+  - postgresql
+
 notifications:
   slack: yaleits-cct:30ydDArus5pyk5mXEHLG3zSN
-
