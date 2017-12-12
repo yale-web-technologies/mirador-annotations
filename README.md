@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/yale-web-technologies/mirador-annotations.svg?branch=master)](https://travis-ci.org/yale-web-technologies/mirador-annotations) [![Dependency Status](https://gemnasium.com/badges/github.com/yale-web-technologies/mirador-annotations.svg)](https://gemnasium.com/github.com/yale-web-technologies/mirador-annotations)
+
 # Mirador-Annotations
 ## Purpose
 Provide a simple International Image Interoperability Framework (IIIF) Annotations server. Intended to be paired with Mirador, but can be used as a standalone deployment.
@@ -32,7 +34,7 @@ For troubleshooting tips on on developing with docker check the wiki.
 
 
 ## Usage Notes
-Mirador-Annotations receives new annotations in IIIF format and will save to whichever relational database is configured. It will also return requested annotations in IIIF format.  
+Mirador-Annotations receives new annotations in IIIF format and will save to whichever relational database is configured. It will also return requested annotations in IIIF format.
 
 Allows both standard annotations which are bound to a canvas, and "targeting" annotations which are bound to another annotation.
 
