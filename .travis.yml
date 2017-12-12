@@ -1,7 +1,5 @@
 env:
   - DATABASE_TEST=annotations_test
-  - DB_USERNAME_TEST=postgres
-  - DB_DB_PASSWORD_DEV=
 
 language: ruby
 
