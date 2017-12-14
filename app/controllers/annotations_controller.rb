@@ -26,33 +26,30 @@ class AnnotationsController < ApplicationController
       end
     end
 
+  def get_annotations_for_canvas
+    canvas = Canvas.where(id: params['canvas_id']).first
+    canvas.annotations
+  end
+
   def getAnnotationsForCanvasViaLists
     annosForCanvas = ''
     @canvas = params['canvas_id']
     if Rails.application.config.useRedis == 'Y'
-      p "redis.get(@canvas: #{@canvas}"
       annosForCanvas = @redis.get(@canvas)
       if !annosForCanvas.nil?
-        p "YES: found response in redis for #{params['canvas_id']} :  #{annosForCanvas[1..100]}"
       else
         annosForCanvas = buildMemAnnosForCanvas @canvas
-        p "NO: Just added redis record for annos on #{@canvas}"
       end
       annoWLayerArrayUniq = annosForCanvas
     else
       host_url_prefix = Rails.application.config.hostUrl
-      p "host url = #{host_url_prefix}"
 
       bearerToken = ''
-      p 'in getAnnotationsForCanvasViaLists: params = ' + params.inspect
 
       lists = AnnotationList.where("list_id like ? and list_id like ? and list_id like ?", "#{host_url_prefix}%", "%#{params['canvas_id']}%", "%/lists/%")
 
       annoWLayerArray = Array.new
       annoWLayerArrayUniq = Array.new
-      p "just initted unique array"
-
-      p  "in getAnnotationsForCanvasViaLists: lists.count = #{lists.count}"
 
       lists.each do |list|
         layer_id = getLayerFromListName list.list_id
@@ -86,10 +83,8 @@ class AnnotationsController < ApplicationController
       index1 = listName.index('lists/') + 6
       index2 = listName.index('_')
       layer_id = listName[index1, index2-index1]
-      p "non-iiif layer_id: #{layer_id}"
       layer_id
     else
-      #return if match.nil?
       layer_id = match[0]
       layer_id =layer_id[1...-2]
       layer_id = "No layer" if (layer_id.nil?)
@@ -120,8 +115,6 @@ class AnnotationsController < ApplicationController
 
   # POST /annotation
   def create
-    p "AnnotationsController#create params: #{params.inspect}"
-    p "hostUrl: #{Rails.application.config.hostUrl}"
 
     @layer_id = params['layer_id']
     @annotationIn = params['annotation']
@@ -131,7 +124,6 @@ class AnnotationsController < ApplicationController
     @ru = Rails.application.config.hostUrl
     @ru += '/' if !@ru.end_with? '/'
     @annotation_id = "#{@ru}annotations/#{SecureRandom.uuid}"
-    p "annotation_id: #{@annotation_id}"
 
     @annotationOut = Hash.new
     @annotationOut['annotation_id'] = @annotation_id
@@ -155,19 +147,14 @@ class AnnotationsController < ApplicationController
     # and create as needed (if this is the first annotation for this layer/canvas)
     # Deal with possibility of 'on' being multiple canvases (or annotations); in this case 'on' will look like an array, which will mean multiple lists
     if !@annotationIn['on'].to_s.start_with?("[")
-    #if @annotationIn['on'].kind_of?(Array)
-
+      # Checks that the list exists
       handleRequiredList
       @annotationOut['canvas'] = @annotationIn['on']['full']
     else
       handleRequiredListMultipleOn
       @annotationOut['canvas'] = setMultipleCanvas
     end
-
-    p "in CreateAnno: @annotationOut['canvas'] = #{@annotationOut['canvas']}"
-    p "in CreateAnno: about to setMap: @annotationIn['within'] = #{@annotationIn['within']}"
-    ListAnnotationsMap.setMap @annotationIn['within'], @annotation_id
-    create_annotation_acls_via_parent_lists @annotation_id
+   
     @annotation = Annotation.new(@annotationOut)
 
     unless check_anno_auth(request, @annotation)
@@ -178,10 +165,12 @@ class AnnotationsController < ApplicationController
     tags.each do |tag|
       @annotation.annotation_tags << tag
     end
+    
+    # create the annotation/lists association
+    associate_lists(@annotationIn)
+    create_annotation_acls_via_parent_lists @annotation_id
 
-    #authorize! :create, @annotation
     request.format = "json"
-    p 'about to respond in create'
     respond_to do |format|
       if @annotation.save
         format.json { render json: @annotation.to_iiif, status: :created, content_type: "application/json"} #, location: @annotation }
@@ -203,17 +192,14 @@ class AnnotationsController < ApplicationController
     #use @annotationIn['within'] to determine if the anno already belongs to this layer, if so set updateLists = false
     updateLists = true
     @annotationIn['within'].each do |list_id|
-      p "updateTest: is passed in layer #{@layerIdIn} in [within]"
-      layersForList = LayerListsMap.getLayersForList list_id
-      layersForList.each do |layerForList|
-      p "withinList #{list_id} has layer #{layerForList}"
-        if layerForList == @layerIdIn
+      layers_for_list = Annotation.where("annotation_id": @annotationIn["@id"]).first.annotation_layers 
+      layers_for_list.each do |layer_for_list|
+        if layer_for_list["layer_id"] == @layerIdIn
           updateLists = false
           break
         end
       end
     end
-    p "updateLists = #{updateLists}"
 
     @problem = ''
     @annotation = Annotation.where(annotation_id: @annotationIn['@id']).first
@@ -223,7 +209,6 @@ class AnnotationsController < ApplicationController
     end
 
     #-------
-    p 'just searched for this annotation: id = ' + @annotation.annotation_id
     if @annotation.nil?
       # No annotation found
       format.json { render json: nil, status: :ok }
@@ -238,20 +223,20 @@ class AnnotationsController < ApplicationController
                :status => :unprocessable_entity
       end
 
-      if updateLists
-        p "updating lists for anno: #{@annotation.annotation_id}"
+      if updateLists 
         list_id =  constructRequiredListId @layerIdIn, @annotation.canvas
         canvas_id = getTargetingAnnosCanvas(@annotation)
-        p "updating lists: constructed list = #{list_id}"
-        checkListExists list_id, @layerIdIn, canvas_id
+        checkListExists(list_id, @layerIdIn, canvas_id)
 
         @annotationIn['within'] = Array.new
         @annotationIn['within'].push(list_id)
 
-        ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
-        p "******* just deleted list_anno_maps for #{ @annotation.annotation_id} *************"
-        p "******* within =  #{ @annotationIn['within'].to_s }************"
-        ListAnnotationsMap.setMap @annotationIn['within'], @annotation.annotation_id
+        @annotation.annotation_lists.each do |list|
+          delete_annotation_list_association(@annotation.annotation_id, list.list_id)
+        end
+
+        # Then reassociate lists and the annotation
+        associate_lists(@annotationIn)
       end
 
       newVersion = @annotation.version + 1
@@ -285,14 +270,11 @@ end
   # DELETE /annotation/1
   # DELETE /annotation/1.json
   def destroy
-    p 'in annotation_controller:destroy'
     request.format = "json"
-    puts "\ndelete params: #{params.to_s}"
 
     @annotation = Annotation.where("annotation_id like ? ", "%#{params['id']}").first
 
     if @annotation.nil?
-      p 'did not find @annotation for destroy: ' + params['id']
       format.json { render json: nil, status: :ok }
     else
 
@@ -300,8 +282,6 @@ end
         return render_forbidden("There was an error deleting the annotation")
       end
 
-      p 'just retrieved @annotation for destroy: ' + @annotation.annotation_id
-      #authorize! :delete, @annotation
       if @annotation.version.nil? ||  @annotation.version < 1
         @annotation.version = 1
       end
@@ -310,10 +290,8 @@ end
         render :json => { :error => errMsg },
                :status => :unprocessable_entity
       end
-      ListAnnotationsMap.deleteAnnotationFromList @annotation.annotation_id
       @annotation.destroy
       respond_to do |format|
-        p "about to respond in delete"
         format.html { redirect_to annotation_layers_url }
         format.json { head :no_content }
       end
@@ -371,19 +349,16 @@ end
 #########################################################
 
   def handleRequiredList
-    p 'in HandleRequiredList'
     @canvas_id =  @annotationIn['on']['full']
-    p "on-full = #{@annotationIn['on']['full']}"
     if (!@annotationIn['on']['full'].to_s.include?('/canvas/'))
       @annotation = Annotation.where(annotation_id:@annotationIn['on']['full']).first
       @canvas_id = getTargetingAnnosCanvas(@annotation)
     end
     @required_list_id = constructRequiredListId @layer_id, @canvas_id
-    checkListExists @required_list_id, @layer_id, @canvas_id
+    checkListExists(@required_list_id, @layer_id, @canvas_id)
   end
 
   def handleRequiredListMultipleOn
-    #p 'in HandleRequiredListMultipleOn:'
     #****************************************************
     # multiple "on's" will be an array
     #****************************************************
@@ -398,7 +373,7 @@ end
           end
         end
         @required_list_id = constructRequiredListId @layer_id, @canvas_id if !@canvas_id.nil?
-        checkListExists @required_list_id, @layer_id, @canvas_id  if !@canvas_id.nil?
+        checkListExists(@required_list_id, @layer_id, @canvas_id)  if !@canvas_id.nil?
         #====================================
     end
   end
@@ -412,22 +387,17 @@ end
   end
 
   def constructRequiredListId layer_id, canvas_id
-    puts "AnnotationsController#constructRequiredListId layer_id: #{layer_id}, canvas_id: #{canvas_id}"
     @ru = Rails.application.config.hostUrl
     @ru += '/'   if !@ru.end_with? '/'
-    puts "\n"
-    p "in constructRequiredListId: layer_id = #{layer_id}  and canvas_id = #{canvas_id}"
-    puts "\n"
     list_id = @ru + "lists/" + layer_id + "_" + canvas_id
   end
 
-  def checkListExists list_id, layer_id, canvas_id
-    @annotation_list = AnnotationList.where(list_id: list_id).first
+  def checkListExists(list_id, layer_id, canvas_id)
     #loosen the match to allow any (previous) list with the passed in layer_id and canvas_id
     @annotation_list = AnnotationList.where(list_id: list_id).first
 
     if @annotation_list.nil?
-      createAnnotationListForMap(list_id, layer_id, canvas_id)
+      create_annotation_list(list_id, layer_id, canvas_id)
     end
     # add to within if necessary
     if @annotationIn['within'].nil?
@@ -445,26 +415,26 @@ end
     end
   end
 
-  def createAnnotationListForMap list_id, layer_id, canvas_id
-    @list = Hash.new
-    @list['list_id'] = list_id
-    @list['list_type'] = "sc:annotationlist"
-    @list['label'] = "Annotation List for: #{canvas_id}"
-    @list['description'] = ""
-    @list['version'] = 1
-    @within = Array.new
-    @within.push(layer_id)
-    LayerListsMap.setMap @within,@list['list_id']
-    create_list_acls_via_parent_layers @list['list_id']
-    @annotation_list = AnnotationList.create(@list)
+  def create_annotation_list(list_id, layer_id, canvas_id)
+    list = Hash.new
+    list['list_id'] = list_id
+    list['list_type'] = "sc:annotationlist"
+    list['label'] = "Annotation List for: #{canvas_id}"
+    list['description'] = ""
+    list['version'] = 1
+    within = Array.new
+    within.push(layer_id)
+    @annotation_list = AnnotationList.create(list)
+    # Layer must already exist -- client selects it from dropdown
+    layer = AnnotationLayer.where(layer_id: layer_id).first
+    layer.annotation_lists << @annotation_list
+    create_list_acls_via_parent_layers(list_id)
   end
-
 ##############################################
 
   def  getTargetingAnnos inputAnnos
     return if (inputAnnos.nil?)
     inputAnnos.each do |anno|
-      p 'getTargetingAnnos: anno_id = ' + anno.annotation_id
       targetingAnnotations = Annotation.where(canvas:anno.annotation_id)
       getTargetingAnnos targetingAnnotations
       @annotation += targetingAnnotations if !targetingAnnotations.nil?
@@ -475,10 +445,7 @@ end
   def getTargetedAnno inputAnno
     return if inputAnno.nil?
     onN = inputAnno.on
-    p "inputAnno_id = #{inputAnno.annotation_id}"
-    p "on string = #{inputAnno.on}"
     onN.gsub!(/=>/,':')
-    p "onN = #{onN}"
     onJSON = JSON.parse(onN)
     targetAnnotation = Annotation.where(annotation_id:onJSON['full']).first
     return(targetAnnotation) if (targetAnnotation.on.to_s.include?("oa:SvgSelector"))
@@ -490,16 +457,12 @@ end
   def getTargetingAnnosCanvas inputAnno
     return if inputAnno.nil?
     return(inputAnno.canvas) if (inputAnno.canvas.to_s.include?('/canvas/'))
-    p "in getTargetingAnnosCanvas: inputAnno.canvas = #{inputAnno.canvas}"
-    p "getTargetingAnnosCanvas:                        anno_id = #{inputAnno.annotation_id}  and canvas = #{inputAnno.canvas}"
     targetAnnotation = Annotation.where("annotation_id like ? ", "%#{inputAnno.canvas}%").first
 
 
     if targetAnnotation.nil?
-      p "in getTargetingAnnosCanvas: got nil annotation from canvas and returning nil"
       return
     else
-    p "just got targetAnnotation based on that canvas: anno_id = #{targetAnnotation.annotation_id}  and canvas = #{targetAnnotation.canvas} "
     getTargetingAnnosCanvas targetAnnotation
     end
   end
@@ -539,14 +502,11 @@ end
   def updateSvg
     annotation_id = params['id']
     svg = params['svg']
-    p 'svg passed in: #{svg}'
     annotation = Annotation.where(annotation_id: annotation_id).first
     on = JSON.parse(annotation.on)
-    p "on = #{on.to_json}"
     svg = on["selector"]["value"]
     new_svg = "... " + svg
     on["selector"]["value"] = new_svg
-    p "new svg = #{new_svg}"
 
     request.format = "json"
   end
@@ -555,9 +515,7 @@ end
     annotation_id = params['id']
     annotation = Annotation.where(annotation_id: annotation_id).first
     on = JSON.parse(annotation.on)
-    p "on = #{on.to_json}"
     svg = on["selector"]["value"]
-    p "svg = #{svg}"
     render json: on
   end
 
@@ -618,7 +576,6 @@ end
     @redis.set("royKey", '{"royKey":"Roys Key"}')
     royKey = @redis.get("royKey")
     royKey = JSON.parse(@redis.get("royKey"))
-    p "royKey = #{royKey}"
     respond_with do |format|
       format.text {render :text => royKey, content_type: "application/json"}
       format.json {render :text => royKey, content_type: "application/json"}
@@ -626,7 +583,6 @@ end
   end
 
   def set_redis
-    p 'in set_redis'
     if !ENV["REDIS_URL"].nil?
       @redis = Redis.new
     else
@@ -637,16 +593,11 @@ end
   def buildMemAnnosForCanvas canvas_id
     host_url_prefix = Rails.application.config.hostUrl
     host_url_prefix = 'localhost:5000/'
-    p "host url = #{host_url_prefix}"
-    p "buildMemAnnosForCanvas: canvas = #{canvas_id}"
 
-    ###!!!! change back so second query is active
-    #lists = AnnotationList.where("list_id like ? and list_id like ?", "%#{canvas_id}%", "%/lists/%")
     lists = AnnotationList.where("list_id like ? and list_id like ? and list_id like ?", "#{host_url_prefix}%", "%#{canvas_id}%", "%/lists/%")
 
     annoWLayerArray = Array.new
 
-    p  "in buildMemAnnosForCanvas: lists for this canvas: #{lists.count}"
     lists.each do |list|
       layer_id = getLayerFromListName list.list_id
       if !layer_id.nil?
@@ -674,10 +625,6 @@ end
     else
       urlForRedisKey  = Rails.application.config.hostUrl + "/getAnnotationsViaList/?canvas_id=#{@canvasKey}"
     end
-
-    p "setRedisKeys: env[redis_url'] = #{ENV['REDIS_URL']}"
-    p "setRedisKeys: about to set redisKey for #{@canvasKey}"
-    p "setRedisKeys: urlForRedisKey = #{urlForRedisKey}"
 
     redisValue = open(urlForRedisKey).read
     redisValue.gsub!(/=>/,":")
@@ -721,4 +668,29 @@ end
     render  status: :forbidden, json: { message: message }.to_json
   end
 
+  def get_lists(anno)
+    # parses the within field to determine what lists to associate
+    within = anno['within']
+    return [] if within.nil?
+    lists = []
+    within.each do |list_id|
+      list = AnnotationList.where(list_id: list_id).first
+      list = AnnotationList.create(list_id: list_id) if list.nil?
+      lists << list unless list.nil?
+    end
+    lists
+  end
+
+  def associate_lists(anno_in)
+    lists = get_lists(anno_in)
+    lists.each do |list|
+      @annotation.annotation_lists << list
+    end
+  end
+
+  def delete_annotation_list_association(annotation_id, list_id)
+    anno = Annotation.where(annotation_id: annotation_id).first
+    list = anno.annotation_lists.where(list_id: list_id).first
+    anno.annotation_lists.delete(list) if list
+  end
 end

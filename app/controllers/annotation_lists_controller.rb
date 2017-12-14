@@ -25,11 +25,8 @@ class AnnotationListsController < ApplicationController
   # GET /list/1
   # GET /list/1.json
   def show
-    puts "AnnotationListsController#show params: #{params.inspect}"
-
     @ru = request.original_url
     #@ru = request.protocol + request.host_with_port + "/lists/#{params['id']}"
-    p "in lists#show: @ru: [#{@ru}]"
     @annotation_list = AnnotationList.where(list_id: @ru).first
     #authorize! :show, @annotation_list
     respond_to do |format|
@@ -41,12 +38,10 @@ class AnnotationListsController < ApplicationController
   # POST /list
   # POST /list.json
   def create
-    puts "AnnotationListsController#create params: #{params.inspect}"
     @annotationListIn = params
     @problem = ''
     if !validate_annotationList @annotationListIn
       errMsg = "AnnotationList record not valid and could not be updated: " + @problem
-      puts "ERROR AnnotationListController#create #{errMsg}"
       render :json => { :error => errMsg },
              :status => :unprocessable_entity
     else
@@ -156,10 +151,7 @@ class AnnotationListsController < ApplicationController
     annotation_ids = paramsIn['annotation_ids']
     @list = AnnotationList.where("list_id like ? and list_id like ? and list_id like ?", "%#{canvas_id}%", "%#{layer_id}%", "%/lists/%").first
     if @list.nil?
-      p "list not found to resequence: #{layer_id} and #{canvas_id}"
       return
-    else
-      p "resequencing list: #{@list.list_id}"
     end
     list_id = @list.list_id
     within = Array.new
@@ -170,7 +162,6 @@ class AnnotationListsController < ApplicationController
 
     # Now rewrite the maps for this list based on annotation_ids array passed in
     annotation_ids.each do |anno_id|
-      p "in resequence_id: anno_id = #{anno_id}"
       #anno_id.gsub!(/"/,'').strip!
       ListAnnotationsMap.setMap within, anno_id
     end

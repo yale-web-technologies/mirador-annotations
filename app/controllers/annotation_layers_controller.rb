@@ -13,8 +13,6 @@ class AnnotationLayersController < ApplicationController
     else
       @annotation_layers = AnnotationLayer.order('order_weight')
     end
-    p "index: params.inspect " +      params.inspect
-    p "index: params[id] = #{params['id']}"
     respond_to do |format|
       format.html #index.html.erb
       iiif = []
@@ -29,17 +27,13 @@ class AnnotationLayersController < ApplicationController
   # GET /layer/1
   # GET /layer/1.json
   def show
-    p "show: params.inspect " +  params.inspect
-    p "show: params[id] = #{params['id']}"
     #@ru = request.original_url
     @ru = request.protocol + request.host_with_port + "/layers/#{params['id']}"
     #@ru = params['id']
-    p "@ru for get = #{@ru}"
     @annotation_layer = AnnotationLayer.where(layer_id: @ru).first
 
     # replace @ru with hostUrl environment variable
     host_url_prefix = Rails.application.config.hostUrl
-    p "host url = #{Rails.application.config.hostUrl}"
 
 
     #authorize! :show, @annotation_layer
@@ -105,24 +99,19 @@ class AnnotationLayersController < ApplicationController
 
     # now check group exists; create if needed
     groups = Group.where(:group_id => params['group_id'])
-    p "checked for group: result count = #{groups.count}"
     if groups.count == 0
-      p "creating group for #{params['group_id']}"
       group = Group.create(
           group_id: params['group_id'],
           group_description: "test",
           roles: "",
           permissions: @permissions
       )
-      p "group #{params['group_id']} created"
       else group = groups.first
     end
 
     # now push user to groups via has-and-belongs-to-many relationship which uses the groups_users table
     @annotation_layer.groups << group
-    p "group #{group.group_id} pushed to layer.groups"
     group.annotation_layers << @annotation_layer
-    p "annotation #{@annotation_layer.layer_id} pushed to group.layers"
 
     respond_to do |format|
       if @annotation_layer.save
@@ -139,13 +128,11 @@ class AnnotationLayersController < ApplicationController
   # PUT /layer/1.json
 
   def update
-    puts "AnnotationLayersController#update params: #{params.inspect}"
     @annotationLayerIn = params['annotationLayer']
 
     @problem = ''
     if !validate_annotationLayer(@annotationLayerIn)
       errMsg = "Annotation Layer not valid and could not be updated: " + @problem
-      puts "ERROR: #{errMsg}"
       render :json => { :error => errMsg },
              :status => :unprocessable_entity
     else
@@ -211,11 +198,9 @@ class AnnotationLayersController < ApplicationController
   def remove_layer_from_group
     layer = AnnotationLayer.where(layer_id: params[:layer_id]).first
 
-    p "found layer has layer_id: #{layer.layer_id} and id: #{layer.id.to_s} and parameter group_id = #{params['group_id']}"
     group = layer.groups.where(group_id: params[:group_id]).first
 
     if group
-      p "found matching group #{group.group_id}"
       layer.groups.delete(group)
     end
     respond_to do |format|
@@ -234,16 +219,13 @@ class AnnotationLayersController < ApplicationController
 
     # check that group exists; if not create it so we can push these layers to it
     groups = Group.where(:group_id => group_id)
-    p "checked for group: result count = #{groups.count}"
     if groups.count == 0
-      p "creating group for #{group_id}"
       group = Group.create(
           group_id: group_id,
           group_description: group_description,
           roles: "",
       #permissions: @permissions
       )
-      p "group #{group_id} created"
     else
       group = groups.first
     end
@@ -251,13 +233,10 @@ class AnnotationLayersController < ApplicationController
     # get the layers for this group
     @layerIds = Array.new
     layersIn.each do |layerIn|
-      p "layerIn = #{layerIn}"
       @layerIds.push(layerIn['layer_id'])
 
       layers =  AnnotationLayer.where(:layer_id => layerIn['layer_id'])
-      p "checked for layer #{layerIn['layer_id']}: result count = #{layers.count}"
       if layers.count == 0
-        p "creating layer for #{layerIn['layer_id']}"
         @layer = Hash.new
         @layer['layer_id'] = layerIn['layer_id']
         @layer['label'] = layerIn['label']
@@ -268,14 +247,12 @@ class AnnotationLayersController < ApplicationController
         @layer['version'] = 1
         @annotation_layer = AnnotationLayer.new(@layer)
         @annotation_layer.save
-        p "layer #{layerIn['layer_id']} created"
         # push layer to groups via has-and-belongs-to-many relationship which uses the annotation_layers_groups table
         #@annotation_layer.groups << group
         #p "group #{group.group_id} pushed to layer.groups"
       else
         @annotation_layer = layers.first
         # update the existing record in case they just resent this layer with a different label
-        p "existing label:  #{@annotation_layer.label} and new layerIn['label']: #{layerIn['label']}"
         if @annotation_layer.label != layerIn['label']
           @annotation_layer.update_attributes(
             :label =>layerIn['label'])
@@ -285,32 +262,23 @@ class AnnotationLayersController < ApplicationController
       # push layer to groups via has-and-belongs-to-many relationship which uses the annotation_layers_groups table
       if !(@annotation_layer.groups.map(&:group_id).include?(group_id))
         @annotation_layer.groups << group
-        p "group #{group.group_id} pushed to layer.groups for layer #{@annotation_layer.layer_id}"
       end
     end
 
     # check all current group-layers ; delete any that are not in the current params.
     layersForGroup = group.annotation_layers
 
-    p "layersForGroup.count = #{layersForGroup.count} for group: #{group.group_id}"
 
     layersForGroup.each do |layerForGroup|
-      p "first spin: in cleanup: group_id = #{group.group_id} and layer_id = #{layerForGroup.layer_id} and id = #{layerForGroup.id}"
     end
 
-    p "layerIds passed in: "
     @layerIds.each do |layerId|
-        p layerId.to_s
     end
     layersForGroup.each do |layerForGroup|
-      p "in cleanup: group_id = #{group.group_id} and layer_id = #{layerForGroup.layer_id} and id = #{layerForGroup.id.to_s}"
       #if !@layerIds.include? layerForGroup.layer_id
       if !@layerIds.include? layerForGroup.layer_id
-        p 'no match!'
         #start here monday
         group.annotation_layers.delete(layerForGroup)
-      else
-        p 'match!'
       end
     end
 

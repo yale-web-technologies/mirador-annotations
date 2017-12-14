@@ -58,6 +58,11 @@ RSpec.describe AnnotationsController, :type => :controller do
       "@type" => "oa:Tag",
       "chars" => "scene1"
     }
+
+    @layer1 = AnnotationLayer.create(layer_id: 'layer/1', layer_type: "sc:layer", motivation: "[oa:commenting]")
+    @layer3 = AnnotationLayer.create(layer_id: 'layer/3', layer_type: "sc:layer", motivation: "[oa:translating]")
+    @layer4 = AnnotationLayer.create(layer_id: 'layer/4', layer_type: "sc:layer", motivation: "[oa:translating]")
+
   end
 
   shared_examples 'invalid annotation auth' do
@@ -143,15 +148,14 @@ RSpec.describe AnnotationsController, :type => :controller do
       end
 
       it 'belongs to correct list' do
-        # Check the active record and the field is correct
         post_to_create(@annotation)
-        actual_lists = get_lists(Annotation.last)
-        expected_lists = ["#{ENV['IIIF_HOST_URL']}/lists/list1", "#{ENV['IIIF_HOST_URL']}/lists/list2", "#{ENV['IIIF_HOST_URL']}/lists/layer/1_https://whatever.fake.edu/canvas/1"]
+        # sort to avoid intermittent failures
+        actual_lists = get_lists(Annotation.last).sort
+        expected_lists = ["#{ENV['IIIF_HOST_URL']}/lists/layer/1_https://whatever.fake.edu/canvas/1", "#{ENV['IIIF_HOST_URL']}/lists/list1", "#{ENV['IIIF_HOST_URL']}/lists/list2"].sort
         expect(actual_lists).to eq(expected_lists)
       end
 
       it 'belongs to correct layer' do
-        # Check the active record and the field is correct
         post_to_create(@annotation)
         layers = get_layers(Annotation.last)
         expect(layers).to eq(["layer/1"])
@@ -227,6 +231,7 @@ RSpec.describe AnnotationsController, :type => :controller do
 
 
   context 'when Put is called' do
+    # Layer must be an array when posting to update
     describe 'Put annotation json' do
       before(:each) do
         # Need to update tags and text (resource chars)
@@ -275,50 +280,49 @@ RSpec.describe AnnotationsController, :type => :controller do
       end
 
       it 'returns a 200 response' do
-        put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
+        put_to_update(@new_annotation, 'layer/1')
         expect(response.status).to eq(200)
       end
 
       it 'does not change the record count' do
-        put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
+        put_to_update(@new_annotation, 'layer/1')
         expect(Annotation.all.count).to eq(1)
       end
 
 
       it 'updates the motivation field' do
         @new_annotation['motivation'] = 'yale:transliterating'
-        put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
+        put_to_update(@new_annotation, 'layer/1')
         responseJSON = JSON.parse(response.body)
         expect(responseJSON['motivation']).to eq(["yale:transliterating"])
       end
 
       it 'updates the resource field' do
-        put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
+        put_to_update(@new_annotation, 'layer/1')
         expect(Annotation.last['resource']).to_not eq(@annotation['resource'])
       end
 
       it 'updates tags' do
         num_old_tags = Annotation.last.annotation_tags.count
-        put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
+        put_to_update(@new_annotation, 'layer/1')
         expect(Annotation.last.annotation_tags.count).to_not match_array(num_old_tags)
       end
 
       it 'updates version' do
-        put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
+        put_to_update(@new_annotation, 'layer/1')
         expect(Annotation.last.version).to eq(2)
       end
 
       it 'updates layer' do
-        # layer must be a list, but it will only read the first entry
-        new_layer = ["layer/3"]
-        put :update, { annotation: @new_annotation, layer_id: new_layer}, :format => "json"
+        new_layer = "layer/3"
+        put_to_update(@new_annotation, new_layer)
         layers = get_layers(Annotation.last)
-        expect(layers).to eq(new_layer)
+        expect(layers).to eq([new_layer])
       end
 
       it 'updates list' do
         old_lists = get_lists(Annotation.last).freeze
-        put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json"
+        put_to_update(@new_annotation, 'layer/4')
         actual_lists = get_lists(Annotation.last)
         expect(actual_lists).to_not eq(old_lists)
       end
@@ -327,14 +331,14 @@ RSpec.describe AnnotationsController, :type => :controller do
       ATTRS = %w(@type @context resource within motivation on @id)
       ATTRS.each do |attr|
         it 'updates #{attr}' do
-          put :update, { annotation: @another_annotation, layer_id: 'layer/1'}, :format => "json"
+          put_to_update(@another_annotation, 'layer/1')
           expect(get_last_anno[attr]).to eq(@another_annotation[attr])
         end
       end
 
       it_behaves_like 'invalid annotation auth' do
         let(:request_proc) do
-          ->() {  put :update, { annotation: @new_annotation, layer_id: 'layer/1'}, :format => "json" }
+          ->() { put_to_update(@new_annotation, 'layer/1') }
         end
         let(:normal_status) { 200 }
       end
@@ -377,7 +381,7 @@ RSpec.describe AnnotationsController, :type => :controller do
         expect(AnnotationTagMap.all).to_not eq(tag_map_count)
       end
 
-      it 'detelets the list_annotations map' do
+      it 'deletes the list_annotations map' do
         # the list it belonged to no longer has this annotation ID
         annotation_id = Annotation.last.annotation_id
         delete :destroy, format: :json, id: annotation_id
@@ -420,16 +424,22 @@ def get_last_anno
 end
 
 def get_layers(anno)
-  anno_id = "#{ENV['IIIF_HOST_URL']}/annotations/" + get_anno_id(anno)
-  lists = ListAnnotationsMap.getListsForAnnotation(anno_id)
   layers = []
-  lists.each do |list|
-    layers << LayerListsMap.getLayersForList(list)
+  anno.annotation_layers.each do |layer|
+    layers << layer["layer_id"]
   end
-  layers.flatten!
+  layers
 end
 
 def get_lists(anno)
-  anno_id = "#{ENV['IIIF_HOST_URL']}/annotations/" + get_anno_id(anno)
-  ListAnnotationsMap.getListsForAnnotation(anno_id)
+  list_ids = []
+  anno.annotation_lists.each do |list|
+    list_ids << list["list_id"]
+  end
+  list_ids
+end
+
+def put_to_update(annotation, layer)
+  # layer_id has to be an array when posting to update
+  put :update, { annotation: annotation, layer_id: [layer]}, :format => "json"
 end

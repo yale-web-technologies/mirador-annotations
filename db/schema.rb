@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171024144617) do
+ActiveRecord::Schema.define(version: 20171107193813) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -53,11 +53,15 @@ ActiveRecord::Schema.define(version: 20171024144617) do
     t.string   "list_type"
     t.string   "label"
     t.string   "description"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
     t.integer  "version"
+    t.integer  "annotation_layer_id"
+    t.integer  "canvas_id"
   end
 
+  add_index "annotation_lists", ["annotation_layer_id"], name: "index_annotation_lists_on_annotation_layer_id", using: :btree
+  add_index "annotation_lists", ["canvas_id"], name: "index_annotation_lists_on_canvas_id", using: :btree
   add_index "annotation_lists", ["list_id"], name: "index_annotation_lists_on_list_id", using: :btree
 
   create_table "annotation_tag_maps", force: :cascade do |t|
@@ -100,6 +104,11 @@ ActiveRecord::Schema.define(version: 20171024144617) do
     t.string   "new_canvas_id"
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
+  end
+
+  create_table "canvases", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "collections", force: :cascade do |t|
@@ -228,4 +237,6 @@ ActiveRecord::Schema.define(version: 20171024144617) do
     t.datetime "updated_at",  null: false
   end
 
+  add_foreign_key "annotation_lists", "annotation_layers"
+  add_foreign_key "annotation_lists", "canvases"
 end

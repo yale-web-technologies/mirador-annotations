@@ -5,6 +5,10 @@ class AnnotationLayer < ActiveRecord::Base
 
   has_many :webacls, foreign_key: "resource_id"
 
+  has_many :annotation_lists, through: :layer_lists_maps
+
+  has_many :layer_lists_maps, foreign_key: :layer_id, primary_key: :layer_id
+
   attr_accessible :layer_id,
                   :layer_type,
                   :label,

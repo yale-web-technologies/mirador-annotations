@@ -96,7 +96,6 @@ RSpec.describe AnnotationLayersController, type: :controller do
           params = @params.merge('@id' => @old_id, 'label' => 'New Label')
           put :update, id: 0, annotationLayer: params, :format => :json
           layer = JSON.parse(response.body)
-          puts "tototo #{layer.inspect}"
           expect(layer['label']).to eq("New Label")
         end
 
