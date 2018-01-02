@@ -1,4 +1,4 @@
-class CreateLayerMappings < ActiveRecord::Migration
+class CreateLayerMappings < ActiveRecord::Migration[4.2]
   def change
     create_table :layer_mappings do |t|
       t.string :layer_id

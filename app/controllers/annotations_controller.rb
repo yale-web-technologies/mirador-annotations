@@ -148,7 +148,7 @@ class AnnotationsController < ApplicationController
     # Deal with possibility of 'on' being multiple canvases (or annotations); in this case 'on' will look like an array, which will mean multiple lists
     if !@annotationIn['on'].to_s.start_with?("[")
       # Checks that the list exists
-      handleRequiredList
+      list_id = handleRequiredList
       @annotationOut['canvas'] = @annotationIn['on']['full']
     else
       handleRequiredListMultipleOn
@@ -167,12 +167,12 @@ class AnnotationsController < ApplicationController
     end
 
     # create the annotation/lists association
-    associate_lists(@annotationIn)
     create_annotation_acls_via_parent_lists @annotation_id
 
     request.format = "json"
     respond_to do |format|
-      if @annotation.save
+      if @annotation.save!
+        associate_lists(@annotation, list_id)
         format.json { render json: @annotation.to_iiif, status: :created, content_type: "application/json"} #, location: @annotation }
       else
         format.json { render json: @annotation.errors, status: :unprocessable_entity, content_type: "application/json" }
@@ -236,7 +236,7 @@ class AnnotationsController < ApplicationController
         end
 
         # Then reassociate lists and the annotation
-        associate_lists(@annotationIn)
+        associate_lists_from_within(@annotation, @annotationIn['within'])
       end
 
       newVersion = @annotation.version + 1
@@ -328,6 +328,7 @@ end
       valid = false
     end
 
+    puts "ERROR w/ validation: #{@problem}" unless valid
     valid
   end
 
@@ -356,6 +357,7 @@ end
     end
     @required_list_id = constructRequiredListId @layer_id, @canvas_id
     checkListExists(@required_list_id, @layer_id, @canvas_id)
+    @required_list_id
   end
 
   def handleRequiredListMultipleOn
@@ -416,12 +418,17 @@ end
   end
 
   def create_annotation_list(list_id, layer_id, canvas_id)
+    canvas = Canvas.where(iiif_canvas_id: canvas_id).first
+    unless canvas
+      canvas = Canvas.create(iiif_canvas_id: canvas_id)
+    end
     list = Hash.new
     list['list_id'] = list_id
     list['list_type'] = "sc:annotationlist"
     list['label'] = "Annotation List for: #{canvas_id}"
     list['description'] = ""
     list['version'] = 1
+    list['canvas_id'] = canvas.id
     within = Array.new
     within.push(layer_id)
     @annotation_list = AnnotationList.create(list)
@@ -625,10 +632,15 @@ end
     lists
   end
 
-  def associate_lists(anno_in)
-    lists = get_lists(anno_in)
-    lists.each do |list|
-      @annotation.annotation_lists << list
+  def associate_lists(anno, list_id)
+    # lists = get_lists(anno_in)
+    list = AnnotationList.where(list_id: list_id).first
+    anno.annotation_lists << list unless @annotation.annotation_lists.include?(list)
+  end
+
+  def associate_lists_from_within(anno, within)
+    within.each do |list_id|
+      associate_lists(anno, list_id)
     end
   end
 

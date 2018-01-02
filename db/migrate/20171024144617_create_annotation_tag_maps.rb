@@ -1,4 +1,4 @@
-class CreateAnnotationTagMaps < ActiveRecord::Migration
+class CreateAnnotationTagMaps < ActiveRecord::Migration[4.2]
   def change
     create_table :annotation_tag_maps do |t|
       t.belongs_to :annotation

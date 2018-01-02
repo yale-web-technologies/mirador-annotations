@@ -1,4 +1,4 @@
-class CreateAnnotationLists < ActiveRecord::Migration
+class CreateAnnotationLists < ActiveRecord::Migration[4.2]
   def change
     create_table :annotation_lists do |t|
       t.string :list_id

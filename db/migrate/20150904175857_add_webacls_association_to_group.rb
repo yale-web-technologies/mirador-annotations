@@ -1,4 +1,4 @@
-class AddWebaclsAssociationToGroup < ActiveRecord::Migration
+class AddWebaclsAssociationToGroup < ActiveRecord::Migration[4.2]
   def change
     def self.up
       add_column :webacls, :group_id, :integer

@@ -1,28 +1,13 @@
 include Magick
 
 class Annotation < ActiveRecord::Base
-  attr_accessible :annotation_id,
-                  :annotation_type,
-                  :motivation,
-                  :description,
-                  :on,
-                  :label,
-                  :canvas,
-                  :manifest,
-                  :resource,
-                  :version,
-                  :annotated_by,
-                  :active,
-                  :version,
-                  :service_block,
-                  :order_weight
   has_many :webacls, foreign_key: "resource_id"
   has_many :annotation_tag_maps, dependent: :delete_all
   has_many :annotation_tags, through: :annotation_tag_maps
 
-  has_many :annotation_lists, through: :list_annotations_map
   has_many :list_annotations_map, foreign_key: :annotation_id, primary_key: :annotation_id, dependent: :destroy
-  has_many :canvases, through: :annotation_lists
+  has_many :annotation_lists, through: :list_annotations_map
+  # has_many :canvases, through: :annotation_lists
 
   def to_iiif
     #return if (label.startsWith?=='Tibetan')

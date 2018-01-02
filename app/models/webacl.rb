@@ -1,8 +1,5 @@
 class Webacl < ActiveRecord::Base
   belongs_to :group
-  attr_accessible :resource_id,
-                  :acl_mode,
-                  :group_id
 
   def self.getAclsByResource resource_id
     @webAcls = Webacl.where(resource_id:resource_id)

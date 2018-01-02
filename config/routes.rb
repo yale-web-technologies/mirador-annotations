@@ -1,12 +1,18 @@
+# TenThousandRooms::Application.routes.draw do
 MiradorAnnotationsServer::Application.routes.draw do
+# Rails.application.routes.draw do
+  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+  devise_for :users, :controllers => { :omniauth_callbacks => "users/omniauth_callbacks"}
+
+  #get "welcome/index"
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
-  devise_for :users, :controllers => { :omniauth_callbacks => "users/omniauth_callbacks"}
 
-  root 'annotation_layers#index', path: 'layers', defaults: {format: :json}
-  resources :annotation_layers, path: 'layers', defaults: {format: :json}
-  resources :annotation_lists, path: 'lists', defaults: {format: :json}
+  root to: 'annotation_layers#index', defaults: {format: :json}
+
+  resources :annotation_layers, path: 'layers',defaults: {format: :json}
+  resources :annotation_lists, path: 'lists',defaults: {format: :json}
   get '/lists/*url' => 'annotation_lists#show', :format => false
   resources :annotation_lists, path: 'lists', :format => false
   resources :annotations, path: 'annotations',defaults: {format: :json}, :except => [:update]

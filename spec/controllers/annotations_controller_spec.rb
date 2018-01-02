@@ -5,7 +5,6 @@ require './spec/support/anno_auth_helper'
 
 include Warden::Test::Helpers
 Warden.test_mode!
-include Devise::TestHelpers
 
 RSpec.configure do |c|
   c.include AnnoAuthHelper
@@ -151,7 +150,7 @@ RSpec.describe AnnotationsController, :type => :controller do
         post_to_create(@annotation)
         # sort to avoid intermittent failures
         actual_lists = get_lists(Annotation.last).sort
-        expected_lists = ["#{ENV['IIIF_HOST_URL']}/lists/layer/1_https://whatever.fake.edu/canvas/1", "#{ENV['IIIF_HOST_URL']}/lists/list1", "#{ENV['IIIF_HOST_URL']}/lists/list2"].sort
+        expected_lists = ["#{ENV['IIIF_HOST_URL']}/lists/layer/1_https://whatever.fake.edu/canvas/1"].sort
         expect(actual_lists).to eq(expected_lists)
       end
 
@@ -214,7 +213,7 @@ RSpec.describe AnnotationsController, :type => :controller do
       it 'has within' do
         get_last_anno
         body = JSON.parse(response.body)
-        expected_within = ["#{ENV['IIIF_HOST_URL']}/lists/list1", "#{ENV['IIIF_HOST_URL']}/lists/list2", "#{ENV['IIIF_HOST_URL']}/lists/layer/1_https://whatever.fake.edu/canvas/1"]
+        expected_within = ["#{ENV['IIIF_HOST_URL']}/lists/layer/1_https://whatever.fake.edu/canvas/1"]
         expect(body["within"]).to eq(expected_within)
       end
 
@@ -223,7 +222,7 @@ RSpec.describe AnnotationsController, :type => :controller do
         @annotation["resource"] << @tag2
         post_to_create(@annotation)
         anno = Annotation.last
-        get :show, {format: :json, id: get_anno_id(anno)}
+        get_to_show(get_anno_id(anno))
         expect(JSON.parse(response.body)['resource']).to eq(@annotation['resource'])
       end
     end
@@ -357,41 +356,41 @@ RSpec.describe AnnotationsController, :type => :controller do
 
       it 'returns a 204 ("deleted") response' do
         annotation_id = Annotation.last.annotation_id
-        delete :destroy, format: :json, id: annotation_id
+        delete_to_destroy(annotation_id)
         expect(response.status).to eq(204)
       end
 
       it 'decreases the Annotation record count' do
         annotation_id = Annotation.last.annotation_id
-        expect { delete :destroy, format: :json, id: annotation_id }
+        expect { delete_to_destroy(annotation_id) }
           .to change(Annotation, :count).by(-1)
       end
 
       it 'does not delete tags' do
         annotation_id = Annotation.last.annotation_id
         tag_count = Annotation.last.annotation_tags.count
-        delete :destroy, format: :json, id: annotation_id
+        delete_to_destroy(annotation_id)
         expect(AnnotationTag.all.count).to eq(tag_count)
       end
 
       it 'deletes tag mapping' do
         annotation_id = Annotation.last.annotation_id
         tag_map_count = Annotation.last.annotation_tag_maps.count
-        delete :destroy, format: :json, id: annotation_id
+        delete_to_destroy(annotation_id)
         expect(AnnotationTagMap.all).to_not eq(tag_map_count)
       end
 
       it 'deletes the list_annotations map' do
         # the list it belonged to no longer has this annotation ID
         annotation_id = Annotation.last.annotation_id
-        delete :destroy, format: :json, id: annotation_id
+        delete_to_destroy(annotation_id)
         lists = ListAnnotationsMap.getListsForAnnotation annotation_id
         expect(lists).to eq([])
       end
 
       it 'versions the deletion' do
         annotation_id = Annotation.last.annotation_id
-        delete :destroy, format: :json, id: annotation_id
+        delete_to_destroy(annotation_id)
         archived_anno = JSON.parse(AnnoListLayerVersion.last["all_content"])
         expect(archived_anno["@id"]).to eq(annotation_id)
       end
@@ -401,7 +400,7 @@ RSpec.describe AnnotationsController, :type => :controller do
           ->() {
             post_to_create(@annotation)
             annotation_id = Annotation.last.annotation_id
-            delete :destroy, format: :json, id: annotation_id
+            delete_to_destroy(annotation_id)
            }
         end
         let(:normal_status) { 204 }
@@ -410,17 +409,13 @@ RSpec.describe AnnotationsController, :type => :controller do
   end
 end
 
-def post_to_create(annotation)
-  post :create, { annotation: annotation, layer_id: 'layer/1' }, :format => 'json'
-end
-
 def get_anno_id(anno)
   anno.annotation_id.split('annotations/').last
 end
 
 def get_last_anno
   anno = Annotation.last
-  get :show, {format: :json, id: get_anno_id(anno)}
+  get_to_show(get_anno_id(anno))
 end
 
 def get_layers(anno)
@@ -439,7 +434,19 @@ def get_lists(anno)
   list_ids
 end
 
+def get_to_show(annotation_id)
+  get :show, params: { id: annotation_id }
+end
+
+def post_to_create(annotation)
+  post :create, params: { annotation: annotation, layer_id: 'layer/1', :format => 'json' }
+end
+
 def put_to_update(annotation, layer)
   # layer_id has to be an array when posting to update
-  put :update, { annotation: annotation, layer_id: [layer]}, :format => "json"
+  put :update, params: { annotation: annotation, layer_id: [layer], :format => "json" }
+end
+
+def delete_to_destroy(anno_id)
+  delete :destroy, params: { id: anno_id, format: 'json' }
 end

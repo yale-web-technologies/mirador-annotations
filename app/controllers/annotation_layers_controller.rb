@@ -1,5 +1,4 @@
 class AnnotationLayersController < ApplicationController
-  skip_before_action :verify_authenticity_token
   respond_to :html, :json
 
   # GET /layer
@@ -46,7 +45,7 @@ class AnnotationLayersController < ApplicationController
   # POST /layer
   # POST /layer.json
   def create
-    @layerIn = JSON.parse(params.to_json)
+    @layerIn = params['annotation_layer']
     @layer = Hash.new
     #@ru = request.original_url
     @ru = request.original_url.split('?').first

@@ -2,9 +2,6 @@ include AclCreator
 require "json"
 
 class AnnotationListsController < ApplicationController
-
-  skip_before_action :verify_authenticity_token
-
   respond_to :json #; :html, :json
 
   # GET /list
@@ -25,8 +22,7 @@ class AnnotationListsController < ApplicationController
   # GET /list/1
   # GET /list/1.json
   def show
-    @ru = request.original_url
-    #@ru = request.protocol + request.host_with_port + "/lists/#{params['id']}"
+    @ru = request.original_url.sub(/https?:\/\/.+?\//, "#{Rails.application.config.hostUrl}/")
     @annotation_list = AnnotationList.where(list_id: @ru).first
     #authorize! :show, @annotation_list
     respond_to do |format|

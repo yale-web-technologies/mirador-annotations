@@ -3,41 +3,46 @@ require "cancan/matchers"
 
 include Warden::Test::Helpers
 Warden.test_mode!
-include Devise::TestHelpers
 
 RSpec.describe AnnotationLayersController, type: :controller do
 
     context 'when Post is called' do
       describe 'POST annotation json' do
         before(:each) do
-          @annoLayerString ='{"label": "Layer 2", "motivation": "yale:transcribing", "license": "http://creativecommons.org/licenses/by/4.0/", "@type": "sc:Layer", "@context": "http://iiif.io/api/presentation/2/context.json", "otherContent": "http://localhost:5000/lists/1"}'
+          @layer = {
+            '@context' => 'http://iiif.io/api/presentation/2/context.json',
+            '@type' => 'sc:Layer',
+            'label' => 'Layer 2',
+            'otherContent' => [ 'http://localhost:5000/lists/1' ]
+          }
         end
         it 'returns a 201 ("created") response' do
-          post :create, JSON.parse(@annoLayerString), :format => 'json', :Content_Type => 'application/json', :Accept => 'application/json'
+          post_to_create(@layer)
           expect(response.status).to eq(201)
         end
 
         it 'creates a new Layer' do
-          expect { post :create, JSON.parse(@annoLayerString) }.to change(AnnotationLayer, :count).by(1)
+          expect { post_to_create(@layer) }.to change(AnnotationLayer, :count).by(1)
         end
 
         it 'creates an @id for the returned layer' do
-          post :create, JSON.parse(@annoLayerString)
+          post_to_create(@layer)
+
           expect(response.status).to eq(201)
           json = JSON.parse(response.body)
           expect(json['@id']).to be_truthy
         end
 
         it 'assigns the version' do
-          post :create, JSON.parse(@annoLayerString)
+          post_to_create(@layer)
           @annotationLayer = AnnotationLayer.last()
           expect(@annotationLayer['version']).to eq (1)
         end
 
         it 'does not fail validation if otherContent is nil' do
-          json = JSON.parse(@annoLayerString)
-          json['otherContent'] = nil
-          post :create, json
+          layer = @layer
+          layer[:otherContent] = nil
+          post_to_create(layer)
           expect(response.status).to eq(201)
         end
       end
@@ -47,24 +52,20 @@ RSpec.describe AnnotationLayersController, type: :controller do
     context 'when Get is called' do
       describe 'GET annotation json' do
         before(:each) do
-          @annoLayerString ='{"label": "Layer 2", "motivation": "yale:transcribing", "license": "http://creativecommons.org/licenses/by/4.0/", "@type": "sc:Layer", "@context": "http://iiif.io/api/presentation/2/context.json", "otherContent": "http://localhost:5000/lists/1"}'
+          @layer = {
+            '@context': 'http://iiif.io/api/presentation/2/context.json',
+            '@type': 'sc:Layer',
+            label: 'Layer 2',
+            otherContent: [ 'http://localhost:5000/lists/1' ]
+          }
         end
 
         it 'returns a 200 response' do
-          post :create, JSON.parse(@annoLayerString)
+          post_to_create(@layer)
           @layer = AnnotationLayer.last()
           @layerUID = @layer.layer_id.split('layers/').last
-          get :show, {format: :json, id: @layerUID}
+          get_to_show(@layerUID)
           expect(response.status).to eq(200)
-        end
-
-        it 'retrieves motivation correctly' do
-          post :create, JSON.parse(@annoLayerString)
-          @layer = AnnotationLayer.last()
-          @layerUID = @layer.layer_id.split('layers/').last
-          get :show, {format: :json, id: @layerUID}
-          responseJSON = JSON.parse(response.body)
-          expect(responseJSON['motivation']).to eq("yale:transcribing")
         end
       end
     end
@@ -82,33 +83,32 @@ RSpec.describe AnnotationLayersController, type: :controller do
 
         it 'does not change the record count' do
           params = @params.merge('@id' => @old_id, 'label' => 'New Label')
-          expect { put :update, id: 0, annotationLayer: params, format: :json }
-          .to change(AnnotationLayer, :count).by(0)
+          expect { put_to_update(params) }.to change(AnnotationLayer, :count).by(0)
         end
 
         it 'returns a 200 response' do
           params = @params.merge('@id' => @old_id, 'label' => 'New Label')
-          put :update, id: 0, annotationLayer: params, :format => :json
+          put_to_update(params)
           expect(response.status).to eq(200)
         end
 
         it 'updates the label field' do
           params = @params.merge('@id' => @old_id, 'label' => 'New Label')
-          put :update, id: 0, annotationLayer: params, :format => :json
+          put_to_update(params)
           layer = JSON.parse(response.body)
           expect(layer['label']).to eq("New Label")
         end
 
         it 'fails validation correctly' do
-          params = @params.merge('@id' => @old_id, 'label' => nil)
-          put :update, id: 0, annotationLayer: params, :format => :json
+          params = @params.clone
+          params.delete('label')
+          put_to_update(params)
           expect(response.status).to eq(422)
         end
 
-
         it 'creates a version correctly' do
           params = @params.merge('@id' => @old_id, 'label' => 'New Layer')
-          put :update, id: 0, annotationLayer: params, :format => :json
+          put_to_update(params)
           layer = AnnotationLayer.last()
           version = AnnoListLayerVersion.last()
           expect(layer.version).to eq(2)
@@ -122,36 +122,57 @@ RSpec.describe AnnotationLayersController, type: :controller do
     context 'when Delete is called' do
       describe 'Delete annotation' do
         before(:each) do
-          @layerString ='{"label": "Layer 2", "motivation": "yale:transcribing", "license": "http://creativecommons.org/licenses/by/4.0/", "@type": "sc:Layer", "@context": "http://iiif.io/api/presentation/2/context.json", "otherContent": "http://localhost:5000/lists/1"}'
-          post :create, JSON.parse(@layerString)
+          params = {
+            label: 'Layer 2',
+            '@type': 'sc:Layer',
+            '@context': 'http://iiif.io/api/presentation/2/context.json',
+            otherContent: ['http://localhost:5000/lists/1']
+          }
+          post_to_create(params)
           @layer = AnnotationLayer.last()
-          @layerUID = @layer.layer_id.split('layers/').last
+          @layer_uid = @layer.layer_id.split('layers/').last
         end
 
         it 'returns a 201 ("created") response' do
-          delete :destroy, format: :json, id: @layerUID
+          delete_to_destroy(@layer_uid)
           expect(response.status).to eq(204)
         end
 
         it 'decreases the Layer record count' do
-          expect {delete :destroy, {format: :json, id: @layerUID} }.to change(AnnotationLayer, :count).by(-1)
+          delete_to_destroy(@layer_uid)
         end
 
         it 'deletes the Layer record' do
-          delete :destroy, format: :json, id: @layerUID
+          delete_to_destroy(@layer_uid)
           expect(@layerDeleted = AnnotationLayer.where(layer_id: @layer.layer_id).first).to eq(nil)
         end
 
         it 'creates a version correctly' do
-          delete :destroy, format: :json, id: @layerUID
+          delete_to_destroy(@layer_uid)
           @version = AnnoListLayerVersion.last()
           expect(@layer.version).to eq(1)
           expect(@version.all_id).to eq(@layer.layer_id)
-          expect(@version.all_type.downcase).to eq("sc:layer")
+          expect(@version.all_type).to eq("sc:Layer")
           expect(@version.all_version).to eq(@layer.version)
         end
 
       end
     end
 
+    def get_to_show(layer_id)
+      get :show, params: { id: layer_id }
+    end
+
+    def post_to_create(layer)
+      post :create, params: { annotation_layer: layer, format: 'json' }
+    end
+
+    def put_to_update(layer)
+      # Setting id to 0 is just to match a route; the value is ignored by the server code.
+      put :update, params: { id: 0, annotationLayer: layer, format: 'json' }
+    end
+
+    def delete_to_destroy(layer_id)
+      delete :destroy, params: { id: layer_id, format: 'json' }
+    end
 end

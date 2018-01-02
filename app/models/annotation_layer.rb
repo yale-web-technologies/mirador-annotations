@@ -5,24 +5,24 @@ class AnnotationLayer < ActiveRecord::Base
 
   has_many :webacls, foreign_key: "resource_id"
 
+  has_many :layer_lists_maps, foreign_key: :layer_id, primary_key: :layer_id
   has_many :annotation_lists, through: :layer_lists_maps
 
-  has_many :layer_lists_maps, foreign_key: :layer_id, primary_key: :layer_id
-
-  attr_accessible :layer_id,
-                  :layer_type,
-                  :label,
-                  :motivation,
-                  :description,
-                  :license,
-                  :version
-
   def self.create_from_iiif(json_obj)
-    params = json_obj.merge(layer_id: json_obj['@id'],
-      layer_type: json_obj['@type'])
-    params.delete('@id')
-    params.delete('@type')
-    params.delete('@context')
+    # params = json_obj.merge(layer_id: json_obj['@id'],
+    #   layer_type: json_obj['@type'])
+    # params.delete('@id')
+    # params.delete('@type')
+    # params.delete('@context')
+    # self.create(params)
+
+    params = {
+      layer_id: json_obj['@id'],
+      layer_type: json_obj['@type'] || 'sc:Layer',
+      label: json_obj['label'] || '',
+      description: json_obj['description'] || '',
+      version: json_obj['version'] || 1
+    }
     self.create(params)
   end
 

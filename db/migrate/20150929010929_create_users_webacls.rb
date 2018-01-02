@@ -1,4 +1,4 @@
-class CreateUsersWebacls < ActiveRecord::Migration
+class CreateUsersWebacls < ActiveRecord::Migration[4.2]
   def change
     #create_table :users_webacls, id: :false do |t|
     create_table :users_webacls do |t|

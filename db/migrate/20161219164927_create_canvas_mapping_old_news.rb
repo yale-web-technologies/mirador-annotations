@@ -1,4 +1,4 @@
-class CreateCanvasMappingOldNews < ActiveRecord::Migration
+class CreateCanvasMappingOldNews < ActiveRecord::Migration[4.2]
   def change
     create_table :canvas_mapping_old_news do |t|
       t.string :old_canvas_id

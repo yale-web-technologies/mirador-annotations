@@ -1,4 +1,4 @@
-class CreateCanvases < ActiveRecord::Migration
+class CreateCanvases < ActiveRecord::Migration[4.2]
   def change
     create_table :canvases do |t|
 

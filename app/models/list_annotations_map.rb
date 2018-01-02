@@ -1,10 +1,6 @@
 class ListAnnotationsMap < ActiveRecord::Base
   belongs_to :annotation_list, foreign_key: "list_id", primary_key: "list_id"
   belongs_to :annotation, foreign_key: "annotation_id", primary_key: "annotation_id"
-  attr_accessible  :list_id,
-                   :sequence,
-                   :annotation_id,
-                   :updated_at
 
   def self.setMap within, anno_id
     if !within.nil?

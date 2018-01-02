@@ -8,15 +8,6 @@ class User < ActiveRecord::Base
          :recoverable #, :rememberable, :trackable, :validatable
   devise :omniauthable, :omniauth_providers => [:cas]
 
-  # Omniauth
-  attr_accessible :provider,
-                  :uid,
-                  :password,
-                  :email,
-                  :encrypted_password,
-                  :tgToken,
-                  :bearerToken
-
   def self.getUsersResourceIds user
     groupIds = Array.new
     user.groups.each do |group|

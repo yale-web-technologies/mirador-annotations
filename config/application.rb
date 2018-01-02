@@ -1,4 +1,4 @@
-require File.expand_path('../boot', __FILE__)
+require_relative 'boot'
 
 require 'rails/all'
 
@@ -8,6 +8,9 @@ Bundler.require(*Rails.groups)
 
 module MiradorAnnotationsServer
   class Application < Rails::Application
+    # Initialize configuration defaults for originally generated Rails version.
+    config.load_defaults 5.1
+
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
@@ -20,9 +23,6 @@ module MiradorAnnotationsServer
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
 
-    # Do not swallow errors in after_commit/after_rollback callbacks.
-    config.active_record.raise_in_transactional_callbacks = true
-
     config.action_dispatch.default_headers = {
         # Set CORS headers for public access
         'Access-Control-Allow-Origin' => '*',
@@ -32,7 +32,8 @@ module MiradorAnnotationsServer
         'Content-Type' => 'application/json'
     }
 
-    config.autoload_paths += Dir["#{config.root}/app/models/", "#{config.root}/lib/**/"]
+    # config.autoload_paths += Dir["#{config.root}/app/models/", "#{config.root}/lib/**/"]
+    config.eager_load_paths += %W(#{config.root}/app/models #{config.root}/lib/modules)
 
     config.iiif_collections_host = ENV['IIIF_COLLECTIONS_HOST']
     config.s3_download_prefix = ENV['S3_PUBLIC_DOWNLOAD_PREFIX']
