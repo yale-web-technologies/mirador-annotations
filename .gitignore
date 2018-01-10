@@ -45,7 +45,6 @@ pickle-email-*.html
 .env
 .rvmrc
 .ruby-gemset
-.ruby-version
 
 *.swp
 local_env
