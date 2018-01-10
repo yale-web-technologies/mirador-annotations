@@ -1,6 +1,6 @@
 
 source 'https://rubygems.org'
-ruby '2.2.4'
+ruby '2.4.1'
 
 # Use unicorn as the app server
 #gem 'unicorn'
@@ -16,14 +16,14 @@ gem 'sprockets', '2.12.3'
 
 gem 'pg', '0.15.1'
 
-gem 'json'
+gem 'json', '~> 2.1.0'
 
 gem 'therubyracer'
 gem 'devise', '~> 3.4.0'   # or later
-gem 'omniauth'
-gem 'omniauth-cas'
-gem 'uuid'
-#gem 'cancan'
+gem 'omniauth', '~> 1.3.1'
+gem 'omniauth-cas', '~> 1.1.1'
+gem 'uuid', '~> 2.3.8'
+
 gem 'cancancan', "~> 1.10"
 gem 'rack-cors', :require => 'rack/cors'
 
@@ -41,36 +41,31 @@ gem 'coffee-rails', '~> 4.0.0'
 # gem 'therubyracer',  platforms: :ruby
 
 # Use jquery as the JavaScript library
-gem 'jquery-rails'
-gem 'jquery-ui-rails'
+gem 'jquery-rails', '~> 4.2.1'
+gem 'jquery-ui-rails', '~> 5.0.5'
 # Turbolinks makes following links in your web application faster. Read more: https://github.com/rails/turbolinks
-gem 'turbolinks'
+gem 'turbolinks', '~> 5.0.1'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.0'
-# bundle exec rake doc:rails generates the API under doc/api.
-gem 'sdoc', '~> 0.4.0',          group: :doc
-
-# Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
-gem 'spring',        group: :development
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
 # Use dropzone gem instead of having the javascript and css in /assets [jrl]
-gem 'dropzonejs-rails'
+gem 'dropzonejs-rails', '~> 0.7.3'
 
 #gem "bootstrap-sass", "~> 2.2.0"
 
-gem 'protected_attributes'
+gem 'protected_attributes', '~> 1.1.3'
 
-gem 'rsolr'
-gem 'rmagick'
-gem 'redis', '~>3.2'
+gem 'rsolr', '~> 1.1.2'
+gem 'rmagick', '~> 2.16.0'
+gem 'redis', '~> 3.2'
 #gem 'aws/s3'
 gem 'aws-sdk', '~> 2'
-gem 'aws-sdk-rails'
+gem 'aws-sdk-rails', '~> 1.0.1'
 
-gem 'jwt'
+gem 'jwt', '~> 2.1.0'
 
 #gem 'mirador-annotation-solr-loader', :path => "~/rails_projects/mirador-annotation-solr-loader/"
 #gem 'annotation_solr_loader', github: 'ydc2/annotation-solr-loader', tag: 'v1.5'
@@ -89,16 +84,27 @@ group :production do
 end
 
 group :development, :test do
-  gem 'pry-byebug'
-  gem 'pry-rails'
-  gem 'database_cleaner'
+  gem 'pry-byebug', '~> 3.5.0'
+  gem 'pry-rails', '~> 0.3.6'
+  gem 'database_cleaner', '~> 1.6.2'
   gem 'factory_girl_rails', '~> 4.2.0'
   gem 'simplecov', :require => false, :group => :test
   gem 'rubocop', require: false
-  gem 'rspec'
-  gem 'rspec-rails'
-  gem 'shoulda'
-  gem 'shoulda-matchers'
-  gem 'single_test'
-  gem 'webmock'
+  gem 'rspec-rails', '~> 3.5.2'
+  gem 'shoulda', '~> 3.5.0'
+  gem 'shoulda-matchers', '~> 2.8.0'
+  gem 'single_test', '~> 0.6.0'
+  gem 'webmock', '~> 3.1.0'
+end
+
+group :development do
+  # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
+  gem 'spring', '~> 2.0.0', group: :development
+
+  gem 'jekyll', '~> 3.3.1'
+
+  group :jekyll_plugins do
+    gem 'jekyll-seo-tag', '~> 2.1.0'
+    gem 'jekyll-sitemap', '~> 0.12.0'
+  end
 end
