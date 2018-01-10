@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" >
+
+		<link rel="stylesheet" href="/css/style.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+		<script src="/js/main.js"></script>
+
+		
+	</head>
+	<body>
+		<header>
+			<h1>
+			  Annopolis
+				<button type="button" class="open-nav" id="open-nav"></button>
+			</h1>
+
+			<form action="/search/" method="get">
+				<input type="text" name="q" id="search-input" placeholder="Search">
+				<input type="submit" value="Search" style="display: none;">
+			</form>
+
+			<div id="sidebar" class="sidebar">
+	
+	
+		
+	
+		
+			<section>
+				<h6>Documentation</h6>
+				<ul>
+					
+					
+						<li>
+							<a href="/#documentationgetting_started">
+								Getting Started
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#documentationannotation">
+								Annotation
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#documentationauthentication">
+								Authentication
+								
+							</a>
+						</li>
+					
+				</ul>
+			</section>
+		
+	
+		
+			<section>
+				<h6>APIs</h6>
+				<ul>
+					
+					
+						<li>
+							<a href="/#apiannotations_list">
+								/getAnnotationsViaList
+								<span class="endpoint get"></span>
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#apiannotation_create">
+								/annotations
+								<span class="endpoint post"></span>
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#apiannotation_update">
+								/annotations
+								<span class="endpoint put"></span>
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#apiannotation_delete">
+								/annotations
+								<span class="endpoint delete"></span>
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#apilayers_get">
+								/layers
+								<span class="endpoint get"></span>
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#apiresequenceList">
+								/resequenceList
+								<span class="endpoint put"></span>
+							</a>
+						</li>
+					
+				</ul>
+			</section>
+		
+	
+		
+			<section>
+				<h6>Rake tasks</h6>
+				<ul>
+					
+					
+				</ul>
+			</section>
+		
+	
+</div>
+
+
+			<p class="copyright">
+				<a href="https://cloudcannon.com/">
+					Template by CloudCannon
+				</a>
+			</p>
+		</header>
+		<div class="main">
+			<div class="search-page">
+	<h2>Search Results</h2>
+	
+	<p><span id="search-process">Loading</span> results <span id="search-query-container" style="display: none;">for "<strong id="search-query"></strong>"</span></p>
+	<ul id="search-results"></ul>
+</div>
+
+<script>
+	window.data = {
+		
+			
+				
+					
+						
+						
+						"api-annotation-create": {
+							"id": "api-annotation-create",
+							"title": "/annotations",
+							"category": "api",
+							"description": "Create an annotation",
+		  				"type": "post",
+							"url": "/#apiannotation_create",
+							"content": "Payload:\n\n {\n  \"layer_id\": \"&lt;Layer ID&gt;\",\n  \"annotation\": \"&lt;See Documentation/Annotation section&gt;\"\n}\n\n\n\nannotation[\"@id\"] is not required because it will be created by the server and included in response."
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
+						"api-annotation-delete": {
+							"id": "api-annotation-delete",
+							"title": "/annotations",
+							"category": "api",
+							"description": "Delete annotation",
+		  				"type": "delete",
+							"url": "/#apiannotation_delete",
+							"content": "The whole URL of the request is identical to the IIIF style annotation ID, e.g.,\nhttp://annotations.ten-thousand-rooms.yale.edu/annotations/76d24e36-e255-41db-883f-64606c4ff08e"
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
+						"api-annotation-update": {
+							"id": "api-annotation-update",
+							"title": "/annotations",
+							"category": "api",
+							"description": "Update annotation",
+		  				"type": "put",
+							"url": "/#apiannotation_update",
+							"content": "Payload:\n\n {\n  \"layer_id\": [ \"&lt;Layer ID&gt;\" ],\n  \"annotation\": \"&lt;See Documentation/Annotation section&gt;\"\n}"
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
+						"api-annotations-list": {
+							"id": "api-annotations-list",
+							"title": "/getAnnotationsViaList",
+							"category": "api",
+							"description": "Get annotations on the canvas",
+		  				"type": "get",
+							"url": "/#apiannotations_list",
+							"content": "canvas_id\n  ID of canvas\ne.g. http://example.org/iiif/canvas/1\n(required)\n\n\nReturns all annotations (along with the IDs of the layers to which they belong)\nthat are associated with the canvas transitively,\ni.e., recursively including annotations that target those annotations, thus indirectly targeting the canvas.\n\n[\n  {\n    \"layer_id\" : \"&lt;Layer ID&gt;\",\n    \"annotation\": \"&lt;See Documentation/Annotation section&gt;\"\n  },\n  ...\n]\n\n\n\njQuery.ajax({\n  url: \"https://mirador-annotations-lotb-stg.herokuapp.com/getAnnotationsViaList?canvas_id=http%3A%2F%2Fmanifests.ydc2.yale.edu%2FLOTB%2Fcanvas%2Fpanel_01\",\n  type: 'GET',\n  dataType: 'json',\n  contentType: 'application/json; charset=utf-8',\n  success: (data, textStatus, jqXHR) =&gt; {\n    console.log('Success', data);\n  },\n  error: (jqXHR, textStatus, errorThrown) =&gt; {\n    console.log('Error', jqXHR);\n  }\n});"
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
+						"api-layers-get": {
+							"id": "api-layers-get",
+							"title": "/layers",
+							"category": "api",
+							"description": "Get annotation layers",
+		  				"type": "get",
+							"url": "/#apilayers_get",
+							"content": "group_id\n  Group ID of current user. \nWhen specified, returns list of layers that are defined for the group (or project).\n(optional - currently used for Ten Thousand Rooms only.)\n\n\n[\n  {\n    \"@context\": \"http://iiif.io/api/presentation/2/context.json\",\n    \"@id\": \"http://manifest.tenthousandrooms.yale.edu/layers/16\",\n    \"@type\": \"sc:Layer\",\n    \"label\": \"Transcription\"\n  },\n  ...\n]"
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
+						"api-resequencelist": {
+							"id": "api-resequencelist",
+							"title": "/resequenceList",
+							"category": "api",
+							"description": "Re-order annotations in a list",
+		  				"type": "put",
+							"url": "/#apiresequenceList",
+							"content": "Payload:\n\n {\n  \"canvas_id\": \"&lt;Canvas ID&gt;\",\n  \"layer_id\": \"&lt;Layer ID&gt;\",\n  \"annotation_ids\": [ \"&lt;AnnotationID&gt;\", ... ]\n}"
+						}
+						
+					
+				
+			
+		
+			
+				
+					
+						,
+						
+						"documentation-annotation": {
+							"id": "documentation-annotation",
+							"title": "Annotation",
+							"category": "documentation",
+							"description": "",
+		  				"type": "",
+							"url": "/#documentationannotation",
+							"content": "Annotations returned by the API either by themselves or embedded in a parent object,\nshould be in the following format.\n\nThe annotation server tries to keep output format close to the format of Mirador-created annotations. In the examples below,\nthe “Canonical” tab shows the format from the current version of Mirador. The “old” format is still supported as of Mirador v2.6.\n\nThe main difference is the “on” field. In the new format, “on” is an array, and the selector is of type “oa:Choice” and contains both rectagular boundary and the SVG shape. The old format has “on” as a single object and selector doesn’t contain the rectangular boundary.\n\n{\n  \"@id\": \"http://annotations.ten-thousand-rooms.yale.edu/annotations/e8a459bb-119c-4f46-87a3-93edc2cd22c1\",\n  \"@type\": \"oa:Annotation\",\n  \"@context\": \"http://iiif.io/api/presentation/2/context.json\",\n  \"resource\": [\n    {\n      \"@type\": \"dctypes:Text\",\n      \"format\": \"text/html\",\n      \"chars\": \"&lt;p&gt;Test #1&lt;/p&gt;\"\n    },\n    {\n      \"@type\": \"oa:Tag\",\n      \"chars\": \"mytag\"\n    }\n  ],\n  \"within\": [\n    \"http://annotations.ten-thousand-rooms.yale.edu/lists/http://manifest.tenthousandrooms.yale.edu/layers/16_http://manifest.tenthousandrooms.yale.edu/node/311/canvas/14116\"\n  ],\n  \"motivation\": [\n    \"oa:commenting\"\n  ],\n  \"on\": [\n    {\n      \"@type\": \"oa:SpecificResource\",\n      \"full\": \"http://manifest.tenthousandrooms.yale.edu/node/311/canvas/14116\",\n      \"selector\": {\n        \"@type\": \"oa:Choice\",\n        \"default\": {\n          \"@type\": \"oa:FragmentSelector\",\n          \"value\": \"xywh=54,248,179,219\"\n        },\n        \"item\": {\n          \"@type\": \"oa:SvgSelector\",\n          \"value\": \"&lt;svg xmlns='http://www.w3.org/2000/svg'&gt;&lt;path xmlns=\\\"http://www.w3.org/2000/svg\\\" d=\\\"M53.93942,248.15395h89.65346v0h89.65346v109.58331v109.58331h-89.65346h-89.65346v-109.58331z\\\" data-paper-data=\\\"{&amp;quot;strokeWidth&amp;quot;:1,&amp;quot;rotation&amp;quot;:0,&amp;quot;deleteIcon&amp;quot;:null,&amp;quot;rotationIcon&amp;quot;:null,&amp;quot;group&amp;quot;:null,&amp;quot;editable&amp;quot;:true,&amp;quot;annotation&amp;quot;:null}\\\" id=\\\"rectangle_f95e7e02-7a2b-495e-8dc4-d47f1c0fba9d\\\" fill-opacity=\\\"0\\\" fill=\\\"#00bfff\\\" fill-rule=\\\"nonzero\\\" stroke=\\\"#00bfff\\\" stroke-width=\\\"1\\\" stroke-linecap=\\\"butt\\\" stroke-linejoin=\\\"miter\\\" stroke-miterlimit=\\\"10\\\" stroke-dasharray=\\\"\\\" stroke-dashoffset=\\\"0\\\" font-family=\\\"none\\\" font-weight=\\\"none\\\" font-size=\\\"none\\\" text-anchor=\\\"none\\\" style=\\\"mix-blend-mode: normal\\\"/&gt;&lt;/svg&gt;\"\n        }\n      },\n      \"within\": {\n        \"@id\": \"http://manifest.tenthousandrooms.yale.edu/node/311/manifest\",\n        \"@type\": \"sc:Manifest\"\n      }\n    }\n  ],\n  \"layerId\": \"http://manifest.tenthousandrooms.yale.edu/layers/16\"\n}\n\n\n\n{\n  \"@id\": \"http://annotations.ten-thousand-rooms.yale.edu/annotations/215bc9b4-ca41-4467-a823-4440c420eb8e\",\n  \"@type\": \"oa:annotation\",\n  \"@context\": \"http://iiif.io/api/presentation/2/context.json\",\n  \"resource\": [\n    {\n      \"@type\": \"dctypes:Text\",\n      \"format\": \"text/html\",\n      \"chars\": \"&lt;p&gt;《孔子集語》&amp;nbsp;&lt;/p&gt;\"\n    }\n  ],\n  \"within\": [\n    \"http://annotations.ten-thousand-rooms.yale.edu/lists/http://manifest.tenthousandrooms.yale.edu/layers/16_http://manifest.tenthousandrooms.yale.edu/node/311/canvas/14116\",\n    \"http://annotations.tenkr.yale.edu/annotations/lists/http://ten-thousand-rooms.herokuapp.com/layers/5557c1c3-53d5-4af5-bfc8-990008826fcc_http://manifest.tenthousandrooms.yale.edu/node/311/canvas/14116\"\n  ],\n  \"motivation\": [\n    \"oa:commenting\"\n  ],\n  \"on\": {\n    \"@type\": \"oa:SpecificResource\",\n    \"full\": \"http://manifest.tenthousandrooms.yale.edu/node/311/canvas/14116\",\n    \"selector\": {\n      \"@type\": \"oa:SvgSelector\",\n      \"value\": \"&lt;svg xmlns='http://www.w3.org/2000/svg'&gt;&lt;path xmlns=\\\"http://www.w3.org/2000/svg\\\" d=\\\"M292.21935,122.21566l109.99409,0l109.99409,0l0,476.64106l0,476.64106l-109.99409,0l-109.99409,0l0,-476.64106z\\\" data-paper-data=\\\"{&amp;quot;rotation&amp;quot;:0,&amp;quot;annotation&amp;quot;:null}\\\" id=\\\"rectangle_647a69af-6014-412d-8c28-6e561ec82dde\\\" fill-opacity=\\\"0\\\" fill=\\\"#00bfff\\\" stroke=\\\"#00bfff\\\" stroke-width=\\\"1.74594\\\" stroke-linecap=\\\"butt\\\" stroke-linejoin=\\\"miter\\\" stroke-miterlimit=\\\"10\\\" stroke-dasharray=\\\"\\\" stroke-dashoffset=\\\"0\\\" font-family=\\\"sans-serif\\\" font-weight=\\\"normal\\\" font-size=\\\"12\\\" text-anchor=\\\"start\\\" mix-blend-mode=\\\"normal\\\"/&gt;&lt;/svg&gt;\"\n    }\n  },\n  \"layerId\": \"http://manifest.tenthousandrooms.yale.edu/layers/16\"\n}"
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
+						"documentation-authentication": {
+							"id": "documentation-authentication",
+							"title": "Authentication",
+							"category": "documentation",
+							"description": "",
+		  				"type": "",
+							"url": "/#documentationauthentication",
+							"content": "payload"
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
+						"documentation-getting-started": {
+							"id": "documentation-getting-started",
+							"title": "Getting Started",
+							"category": "documentation",
+							"description": "",
+		  				"type": "",
+							"url": "/#documentationgetting_started",
+							"content": ""
+						}
+						
+					
+				
+			
+		
+			
+		
+			
+		
+	};
+</script>
+<script src="/js/lunr.min.js"></script>
+<script src="/js/search.js"></script>
+
+		</div>
+		<script>
+			document.getElementById("open-nav").addEventListener("click", function () {
+				document.body.classList.toggle("nav-open");
+			});
+		</script>
+	</body>
+</html>

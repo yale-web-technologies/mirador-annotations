@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" >
+
+		<link rel="stylesheet" href="/css/style.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+		<script src="/js/main.js"></script>
+
+		
+	</head>
+	<body>
+		<header>
+			<h1>
+			  Annopolis
+				<button type="button" class="open-nav" id="open-nav"></button>
+			</h1>
+
+			<form action="/search/" method="get">
+				<input type="text" name="q" id="search-input" placeholder="Search">
+				<input type="submit" value="Search" style="display: none;">
+			</form>
+
+			<div id="sidebar" class="sidebar">
+	
+	
+		
+	
+		
+			<section>
+				<h6>Documentation</h6>
+				<ul>
+					
+					
+						<li>
+							<a href="#documentationgetting_started">
+								Getting Started
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="#documentationannotation">
+								Annotation
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="#documentationauthentication">
+								Authentication
+								
+							</a>
+						</li>
+					
+				</ul>
+			</section>
+		
+	
+		
+			<section>
+				<h6>APIs</h6>
+				<ul>
+					
+					
+						<li>
+							<a href="#apiannotations_list">
+								/getAnnotationsViaList
+								<span class="endpoint get"></span>
+							</a>
+						</li>
+					
+						<li>
+							<a href="#apiannotation_create">
+								/annotations
+								<span class="endpoint post"></span>
+							</a>
+						</li>
+					
+						<li>
+							<a href="#apiannotation_update">
+								/annotations
+								<span class="endpoint put"></span>
+							</a>
+						</li>
+					
+						<li>
+							<a href="#apiannotation_delete">
+								/annotations
+								<span class="endpoint delete"></span>
+							</a>
+						</li>
+					
+						<li>
+							<a href="#apilayers_get">
+								/layers
+								<span class="endpoint get"></span>
+							</a>
+						</li>
+					
+						<li>
+							<a href="#apiresequenceList">
+								/resequenceList
+								<span class="endpoint put"></span>
+							</a>
+						</li>
+					
+				</ul>
+			</section>
+		
+	
+		
+			<section>
+				<h6>Rake tasks</h6>
+				<ul>
+					
+					
+				</ul>
+			</section>
+		
+	
+</div>
+
+
+			<p class="copyright">
+				<a href="https://cloudcannon.com/">
+					Template by CloudCannon
+				</a>
+			</p>
+		</header>
+		<div class="main">
+			
+
+	
+	
+
+	
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="documentationgetting_started">
+						Getting Started
+						
+					</a>
+				</h3>
+				
+
+				
+
+			</section>
+
+			
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="documentationannotation">
+						Annotation
+						
+					</a>
+				</h3>
+				
+
+				<p>Annotations returned by the API either by themselves or embedded in a parent object,
+should be in the following format.</p>
+
+<p>The annotation server tries to keep output format close to the format of Mirador-created annotations. In the examples below,
+the “Canonical” tab shows the format from the current version of Mirador. The “old” format is still supported as of Mirador v2.6.</p>
+
+<p>The main difference is the “on” field. In the new format, “on” is an array, and the selector is of type “oa:Choice” and contains both rectagular boundary and the SVG shape. The old format has “on” as a single object and selector doesn’t contain the rectangular boundary.</p>
+
+<div title="Canonical" class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://annotations.ten-thousand-rooms.yale.edu/annotations/e8a459bb-119c-4f46-87a3-93edc2cd22c1"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"oa:Annotation"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"@context"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://iiif.io/api/presentation/2/context.json"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"resource"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dctypes:Text"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"text/html"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"chars"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;p&gt;Test #1&lt;/p&gt;"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"oa:Tag"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"chars"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mytag"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nt">"within"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"http://annotations.ten-thousand-rooms.yale.edu/lists/http://manifest.tenthousandrooms.yale.edu/layers/16_http://manifest.tenthousandrooms.yale.edu/node/311/canvas/14116"</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nt">"motivation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"oa:commenting"</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nt">"on"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"oa:SpecificResource"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"full"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://manifest.tenthousandrooms.yale.edu/node/311/canvas/14116"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"selector"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"oa:Choice"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"default"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"oa:FragmentSelector"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xywh=54,248,179,219"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nt">"item"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"oa:SvgSelector"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;svg xmlns='http://www.w3.org/2000/svg'&gt;&lt;path xmlns=\"http://www.w3.org/2000/svg\" d=\"M53.93942,248.15395h89.65346v0h89.65346v109.58331v109.58331h-89.65346h-89.65346v-109.58331z\" data-paper-data=\"{&amp;quot;strokeWidth&amp;quot;:1,&amp;quot;rotation&amp;quot;:0,&amp;quot;deleteIcon&amp;quot;:null,&amp;quot;rotationIcon&amp;quot;:null,&amp;quot;group&amp;quot;:null,&amp;quot;editable&amp;quot;:true,&amp;quot;annotation&amp;quot;:null}\" id=\"rectangle_f95e7e02-7a2b-495e-8dc4-d47f1c0fba9d\" fill-opacity=\"0\" fill=\"#00bfff\" fill-rule=\"nonzero\" stroke=\"#00bfff\" stroke-width=\"1\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke-miterlimit=\"10\" stroke-dasharray=\"\" stroke-dashoffset=\"0\" font-family=\"none\" font-weight=\"none\" font-size=\"none\" text-anchor=\"none\" style=\"mix-blend-mode: normal\"/&gt;&lt;/svg&gt;"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nt">"within"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://manifest.tenthousandrooms.yale.edu/node/311/manifest"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sc:Manifest"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nt">"layerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://manifest.tenthousandrooms.yale.edu/layers/16"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<div title="Old" class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://annotations.ten-thousand-rooms.yale.edu/annotations/215bc9b4-ca41-4467-a823-4440c420eb8e"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"oa:annotation"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"@context"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://iiif.io/api/presentation/2/context.json"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"resource"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dctypes:Text"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"format"</span><span class="p">:</span><span class="w"> </span><span class="s2">"text/html"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"chars"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;p&gt;《孔子集語》&amp;nbsp;&lt;/p&gt;"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nt">"within"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"http://annotations.ten-thousand-rooms.yale.edu/lists/http://manifest.tenthousandrooms.yale.edu/layers/16_http://manifest.tenthousandrooms.yale.edu/node/311/canvas/14116"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"http://annotations.tenkr.yale.edu/annotations/lists/http://ten-thousand-rooms.herokuapp.com/layers/5557c1c3-53d5-4af5-bfc8-990008826fcc_http://manifest.tenthousandrooms.yale.edu/node/311/canvas/14116"</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nt">"motivation"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"oa:commenting"</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nt">"on"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"oa:SpecificResource"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"full"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://manifest.tenthousandrooms.yale.edu/node/311/canvas/14116"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"selector"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"oa:SvgSelector"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;svg xmlns='http://www.w3.org/2000/svg'&gt;&lt;path xmlns=\"http://www.w3.org/2000/svg\" d=\"M292.21935,122.21566l109.99409,0l109.99409,0l0,476.64106l0,476.64106l-109.99409,0l-109.99409,0l0,-476.64106z\" data-paper-data=\"{&amp;quot;rotation&amp;quot;:0,&amp;quot;annotation&amp;quot;:null}\" id=\"rectangle_647a69af-6014-412d-8c28-6e561ec82dde\" fill-opacity=\"0\" fill=\"#00bfff\" stroke=\"#00bfff\" stroke-width=\"1.74594\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke-miterlimit=\"10\" stroke-dasharray=\"\" stroke-dashoffset=\"0\" font-family=\"sans-serif\" font-weight=\"normal\" font-size=\"12\" text-anchor=\"start\" mix-blend-mode=\"normal\"/&gt;&lt;/svg&gt;"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"layerId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://manifest.tenthousandrooms.yale.edu/layers/16"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+
+			</section>
+
+			
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="documentationauthentication">
+						Authentication
+						
+					</a>
+				</h3>
+				
+
+				<h3 id="payload">payload</h3>
+
+			</section>
+
+			
+		</section>
+	
+
+	
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="apiannotations_list">
+						/getAnnotationsViaList
+						
+							<span class="endpoint get"></span>
+						
+					</a>
+				</h3>
+				
+					<p class="description">Get annotations on the canvas</p>
+				
+
+				<h6>Parameters</h6><dl>
+  <dt>canvas_id</dt>
+  <dd>ID of canvas<br />
+e.g. <code class="highlighter-rouge">http://example.org/iiif/canvas/1</code><br />
+(required)</dd>
+</dl>
+
+<p>Returns all annotations (along with the IDs of the layers to which they belong)
+that are associated with the canvas transitively,
+i.e., recursively including annotations that target those annotations, thus indirectly targeting the canvas.</p>
+
+<div title="Response" class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"layer_id"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;Layer ID&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"annotation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;See Documentation/Annotation section&gt;"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre>
+</div>
+
+<div title="jQuery example" class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">jQuery</span><span class="p">.</span><span class="nx">ajax</span><span class="p">({</span>
+  <span class="na">url</span><span class="p">:</span> <span class="s2">"https://mirador-annotations-lotb-stg.herokuapp.com/getAnnotationsViaList?canvas_id=http%3A%2F%2Fmanifests.ydc2.yale.edu%2FLOTB%2Fcanvas%2Fpanel_01"</span><span class="p">,</span>
+  <span class="na">type</span><span class="p">:</span> <span class="s1">'GET'</span><span class="p">,</span>
+  <span class="na">dataType</span><span class="p">:</span> <span class="s1">'json'</span><span class="p">,</span>
+  <span class="na">contentType</span><span class="p">:</span> <span class="s1">'application/json; charset=utf-8'</span><span class="p">,</span>
+  <span class="na">success</span><span class="p">:</span> <span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">textStatus</span><span class="p">,</span> <span class="nx">jqXHR</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Success'</span><span class="p">,</span> <span class="nx">data</span><span class="p">);</span>
+  <span class="p">},</span>
+  <span class="na">error</span><span class="p">:</span> <span class="p">(</span><span class="nx">jqXHR</span><span class="p">,</span> <span class="nx">textStatus</span><span class="p">,</span> <span class="nx">errorThrown</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'Error'</span><span class="p">,</span> <span class="nx">jqXHR</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</code></pre>
+</div>
+
+			</section>
+
+			
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="apiannotation_create">
+						/annotations
+						
+							<span class="endpoint post"></span>
+						
+					</a>
+				</h3>
+				
+					<p class="description">Create an annotation</p>
+				
+
+				<h6 id="payload">Payload:</h6>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="w"> </span><span class="p">{</span><span class="w">
+  </span><span class="nt">"layer_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;Layer ID&gt;"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"annotation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;See Documentation/Annotation section&gt;"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p class="success"><code class="highlighter-rouge">annotation["@id"]</code> is not required because it will be created by the server and included in response.</p>
+
+			</section>
+
+			
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="apiannotation_update">
+						/annotations
+						
+							<span class="endpoint put"></span>
+						
+					</a>
+				</h3>
+				
+					<p class="description">Update annotation</p>
+				
+
+				<h6 id="payload">Payload:</h6>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="w"> </span><span class="p">{</span><span class="w">
+  </span><span class="nt">"layer_id"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"&lt;Layer ID&gt;"</span><span class="w"> </span><span class="p">],</span><span class="w">
+  </span><span class="nt">"annotation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;See Documentation/Annotation section&gt;"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+			</section>
+
+			
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="apiannotation_delete">
+						/annotations
+						
+							<span class="endpoint delete"></span>
+						
+					</a>
+				</h3>
+				
+					<p class="description">Delete annotation</p>
+				
+
+				<p>The whole URL of the request is identical to the IIIF style annotation ID, e.g.,
+<code class="highlighter-rouge">http://annotations.ten-thousand-rooms.yale.edu/annotations/76d24e36-e255-41db-883f-64606c4ff08e</code></p>
+
+			</section>
+
+			
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="apilayers_get">
+						/layers
+						
+							<span class="endpoint get"></span>
+						
+					</a>
+				</h3>
+				
+					<p class="description">Get annotation layers</p>
+				
+
+				<h6>Parameters</h6><dl>
+  <dt>group_id</dt>
+  <dd>Group ID of current user. <br />
+When specified, returns list of layers that are defined for the group (or project).<br />
+(optional - currently used for Ten Thousand Rooms only.)</dd>
+</dl>
+
+<div title="Response" class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"@context"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://iiif.io/api/presentation/2/context.json"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"@id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://manifest.tenthousandrooms.yale.edu/layers/16"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sc:Layer"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"label"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Transcription"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="err">...</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre>
+</div>
+
+<div title="jQuery example" class="language-javascript highlighter-rouge"><pre class="highlight"><code></code></pre>
+</div>
+
+			</section>
+
+			
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="apiresequenceList">
+						/resequenceList
+						
+							<span class="endpoint put"></span>
+						
+					</a>
+				</h3>
+				
+					<p class="description">Re-order annotations in a list</p>
+				
+
+				<h6 id="payload">Payload:</h6>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="w"> </span><span class="p">{</span><span class="w">
+  </span><span class="nt">"canvas_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;Canvas ID&gt;"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"layer_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;Layer ID&gt;"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"annotation_ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"&lt;AnnotationID&gt;"</span><span class="p">,</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+			</section>
+
+			
+		</section>
+	
+
+	
+	
+
+
+		</div>
+		<script>
+			document.getElementById("open-nav").addEventListener("click", function () {
+				document.body.classList.toggle("nav-open");
+			});
+		</script>
+	</body>
+</html>
