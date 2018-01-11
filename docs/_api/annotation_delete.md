@@ -1,6 +1,6 @@
 ---
 title: /annotations
-position: 1.4
+position: 1.04
 type: delete
 description: Delete annotation
 ---

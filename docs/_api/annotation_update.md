@@ -1,6 +1,6 @@
 ---
 title: /annotations
-position: 1.3
+position: 1.03
 type: put
 description: Update annotation
 ---

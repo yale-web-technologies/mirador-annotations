@@ -106,6 +106,34 @@
 							</a>
 						</li>
 					
+						<li>
+							<a href="#apiexport">
+								/export
+								<span class="endpoint get"></span>
+							</a>
+						</li>
+					
+						<li>
+							<a href="#apiexport_check_status">
+								/export/check_status
+								<span class="endpoint get"></span>
+							</a>
+						</li>
+					
+						<li>
+							<a href="#apiset_redis">
+								/setRedisKeys
+								<span class="endpoint get"></span>
+							</a>
+						</li>
+					
+						<li>
+							<a href="#apiset_layers">
+								/setCurrentLayers
+								<span class="endpoint post"></span>
+							</a>
+						</li>
+					
 				</ul>
 			</section>
 		
@@ -266,7 +294,7 @@ the “Canonical” tab shows the format from the current version of Mirador. Th
 				</h3>
 				
 
-				<h3 id="payload">payload</h3>
+				
 
 			</section>
 
@@ -354,7 +382,7 @@ i.e., recursively including annotations that target those annotations, thus indi
 </span></code></pre>
 </div>
 
-<p class="success"><code class="highlighter-rouge">annotation["@id"]</code> is not required because it will be created by the server and included in response.</p>
+<p class="info"><code class="highlighter-rouge">annotation["@id"]</code> is not required because it will be created by the server and included in response.</p>
 
 			</section>
 
@@ -475,6 +503,126 @@ When specified, returns list of layers that are defined for the group (or projec
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 </div>
+
+<p class="info"><code class="highlighter-rouge">canvas_id</code> and <code class="highlighter-rouge">layer_id</code> together determines the list the user wants to change.</p>
+
+<p class="info"><code class="highlighter-rouge">annotation_ids</code> is a list of annotation IDs that are arranged in the new updated order.</p>
+
+			</section>
+
+			
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="apiexport">
+						/export
+						
+							<span class="endpoint get"></span>
+						
+					</a>
+				</h3>
+				
+					<p class="description">Export data for project</p>
+				
+
+				<h6>Parameters</h6><dl>
+  <dt>user_id</dt>
+  <dd>ID of user</dd>
+  <dt>project_id</dt>
+  <dd>ID of project</dd>
+</dl>
+
+			</section>
+
+			
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="apiexport_check_status">
+						/export/check_status
+						
+							<span class="endpoint get"></span>
+						
+					</a>
+				</h3>
+				
+					<p class="description">Get current status of offline export job</p>
+				
+
+				<h6>Parameters</h6><dl>
+  <dt>job_id</dt>
+  <dd>ID of the Delayed::Job job</dd>
+</dl>
+
+<p class="info">Used by the export page to check the progress of the offline export task.
+It should initiate download when the status indicates the job is complete.</p>
+
+			</section>
+
+			
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="apiset_redis">
+						/setRedisKeys
+						
+							<span class="endpoint get"></span>
+						
+					</a>
+				</h3>
+				
+					<p class="description">Export data for project</p>
+				
+
+				<h6>Parameters</h6><dl>
+  <dt>canvas_id</dt>
+  <dd>Canvas ID</dd>
+</dl>
+
+<p>Save all annotations associated with the canvas in Redis. <code class="highlighter-rouge">canvas_id</code> is the key.
+Subsequent calls to <code class="highlighter-rouge">/getAnnotationsViaList</code> will return saved values from the Redis cache.</p>
+
+<p class="warning">Then environment variable <code class="highlighter-rouge">USE_REDIS</code> must be set to <code class="highlighter-rouge">N</code> when this runs.</p>
+
+			</section>
+
+			
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="apiset_layers">
+						/setCurrentLayers
+						
+							<span class="endpoint post"></span>
+						
+					</a>
+				</h3>
+				
+
+				<p>Sets layers for the group</p>
+
+<h6 id="payload">Payload:</h6>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="w"> </span><span class="p">{</span><span class="w">
+  </span><span class="nt">"group_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;Group ID&gt;"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"group_description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;Description&gt;"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"layers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w"> </span><span class="nt">"layer_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;Layer ID&gt;"</span><span class="p">,</span><span class="w"> </span><span class="nt">"label"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;Label&gt;"</span><span class="w"> </span><span class="p">},</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p class="info">Currently called from the Ten Thousand Rooms portal, for example.</p>
 
 			</section>
 

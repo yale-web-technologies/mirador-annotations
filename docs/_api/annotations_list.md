@@ -1,6 +1,6 @@
 ---
 title: /getAnnotationsViaList
-position: 1.1
+position: 1.01
 type: get
 description: Get annotations on the canvas
 ---

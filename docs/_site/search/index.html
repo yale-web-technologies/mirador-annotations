@@ -106,6 +106,34 @@
 							</a>
 						</li>
 					
+						<li>
+							<a href="/#apiexport">
+								/export
+								<span class="endpoint get"></span>
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#apiexport_check_status">
+								/export/check_status
+								<span class="endpoint get"></span>
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#apiset_redis">
+								/setRedisKeys
+								<span class="endpoint get"></span>
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#apiset_layers">
+								/setCurrentLayers
+								<span class="endpoint post"></span>
+							</a>
+						</li>
+					
 				</ul>
 			</section>
 		
@@ -213,6 +241,40 @@
 					
 						,
 						
+						"api-export": {
+							"id": "api-export",
+							"title": "/export",
+							"category": "api",
+							"description": "Export data for project",
+		  				"type": "get",
+							"url": "/#apiexport",
+							"content": "user_id\n  ID of user\n  project_id\n  ID of project"
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
+						"api-export-check-status": {
+							"id": "api-export-check-status",
+							"title": "/export/check_status",
+							"category": "api",
+							"description": "Get current status of offline export job",
+		  				"type": "get",
+							"url": "/#apiexport_check_status",
+							"content": "job_id\n  ID of the Delayed::Job job\n\n\nUsed by the export page to check the progress of the offline export task.\nIt should initiate download when the status indicates the job is complete."
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
 						"api-layers-get": {
 							"id": "api-layers-get",
 							"title": "/layers",
@@ -237,7 +299,41 @@
 							"description": "Re-order annotations in a list",
 		  				"type": "put",
 							"url": "/#apiresequenceList",
-							"content": "Payload:\n\n {\n  \"canvas_id\": \"&lt;Canvas ID&gt;\",\n  \"layer_id\": \"&lt;Layer ID&gt;\",\n  \"annotation_ids\": [ \"&lt;AnnotationID&gt;\", ... ]\n}"
+							"content": "Payload:\n\n {\n  \"canvas_id\": \"&lt;Canvas ID&gt;\",\n  \"layer_id\": \"&lt;Layer ID&gt;\",\n  \"annotation_ids\": [ \"&lt;AnnotationID&gt;\", ... ]\n}\n\n\n\ncanvas_id and layer_id together determines the list the user wants to change.\n\nannotation_ids is a list of annotation IDs that are arranged in the new updated order."
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
+						"api-set-layers": {
+							"id": "api-set-layers",
+							"title": "/setCurrentLayers",
+							"category": "api",
+							"description": "",
+		  				"type": "post",
+							"url": "/#apiset_layers",
+							"content": "Sets layers for the group\n\nPayload:\n\n {\n  \"group_id\": \"&lt;Group ID&gt;\",\n  \"group_description\": \"&lt;Description&gt;\",\n  \"layers\": [\n    { \"layer_id\": \"&lt;Layer ID&gt;\", \"label\": \"&lt;Label&gt;\" },\n    ...\n  ]\n}\n\n\n\nCurrently called from the Ten Thousand Rooms portal, for example."
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
+						"api-set-redis": {
+							"id": "api-set-redis",
+							"title": "/setRedisKeys",
+							"category": "api",
+							"description": "Export data for project",
+		  				"type": "get",
+							"url": "/#apiset_redis",
+							"content": "canvas_id\n  Canvas ID\n\n\nSave all annotations associated with the canvas in Redis. canvas_id is the key.\nSubsequent calls to /getAnnotationsViaList will return saved values from the Redis cache.\n\nThen environment variable USE_REDIS must be set to N when this runs."
 						}
 						
 					
@@ -273,7 +369,7 @@
 							"description": "",
 		  				"type": "",
 							"url": "/#documentationauthentication",
-							"content": "payload"
+							"content": ""
 						}
 						
 					

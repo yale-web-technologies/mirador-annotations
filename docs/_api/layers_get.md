@@ -1,6 +1,6 @@
 ---
 title: /layers
-position: 1.5
+position: 1.05
 type: get
 description: Get annotation layers
 ---
