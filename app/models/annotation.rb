@@ -106,24 +106,36 @@ class Annotation < ActiveRecord::Base
 
   #==========================================================================
 
-  def self.get_xywh_from_svg(svg_paths, width, height)
+  def self.get_xywh_from_svg(svg_paths, image_width, image_height)
     begin
-      bbox = get_bounding_box(svg_paths, width, height)
+      bbox = get_bounding_box(svg_paths, image_width, image_height)
     rescue Exception => e
         puts "ERROR calculating bounding box from paths #{svg_paths} - #{e}"
         xywh = "-99,-99,-99,-99"
     else
-      x = bbox[:x]
-      y = bbox[:y]
-      width = bbox[:width]
-      height = bbox[:height]
-
-      # force square
-      width = [width, height].min
-      height = width
-
+      x, y, width, height = force_square(bbox, image_width, image_height)
       xywh = [x.to_s, y.to_s, width.to_s, height.to_s].join(',')
     end
+  end
+
+  def self.force_square(bbox, image_width, image_height)
+    box_x = bbox[:x]
+    box_y = bbox[:y]
+    box_width = bbox[:width]
+    box_height = bbox[:height]
+
+    thumb_width = [box_width, box_height].max
+    thumb_height = thumb_width
+
+    if box_x + thumb_width > image_width
+      box_x -= box_x + thumb_width - image_width
+    end
+
+    if box_y + thumb_height > image_height
+      box_y -= box_y + thumb_height - image_height
+    end
+
+    [box_x, box_y, thumb_width, thumb_height]
   end
 
   def self.get_bounding_box(paths, max_width, max_height)

@@ -94,18 +94,10 @@ namespace :feed_for_search do
     target = targets.first
 
     if target['selector'] && target['selector']['@type'] == 'oa:SvgSelector'
-      # get svgpath from "d" attribute in the svg selector value
       svg_paths = get_svg_paths(target['selector']['value'])
       unless svg_paths.empty?
-        #p "svg_path: #{svg_path}"
-        #svg_path.gsub!(/<g>/,'')
-        #p "svg_path(1,30): #{svg_path[0..30]}"
         firstComma = svg_paths[0].index(',')
-        #p "firstComma = #{firstComma.to_s}"
-        svg_x = svg_paths[0][1..firstComma-1].to_i + 5000
-        #xywh = Annotation.get_xywh_from_svg svg_paths,svg_x,10000
         xywh = Annotation.get_xywh_from_svg(svg_paths, max_width, max_height)
-        #p "svg: #{xywh}"
       end
     else
       puts "ERROR invalid target #{target.inspect} for annotation #{annotation.annotation_id}"
@@ -117,45 +109,12 @@ namespace :feed_for_search do
   end
 
   def get_svg_paths(svg)
-    # dStart =  svg.index('d=') + 2
-    # dEnd =  svg.index('data-paper-data') - 1
-    # svg_path =svg[dStart..dEnd]
-
     svg_paths = []
 
     svg.scan(/\Wd=["']([^"']*)['"]/) do |match|
       svg_paths << match[0]
     end
 
-    # begin
-    #   svg_hash = Hash.from_xml(svg)
-    # rescue
-    #   p 'error creating svg hash from json-parsed anno'
-    #   p "svg = #{svg.to_s}"
-    #   svg_path = ''
-    # else
-    #   begin
-    #     svg_path = svg_hash["svg"]["path"]["d"]
-    #   rescue Exception => e
-    #     p "svgHash parsing failed for svg_path: #{svg} - #{e.inspect}"
-    #     svg_path = ''
-    #   end
-    # end
     svg_paths
-  end
-
-  def getTargetedAnno inputAnno
-    #return if inputAnno.nil?
-    p "in Rake:getTargetedAnno: annoId = #{inputAnno.annotation_id}"
-    onN = inputAnno.on
-    p "onN = " + onN
-    p ""
-    onN = onN.gsub!(/=>/,':') if onN.include?("=>")
-    p "onN now = " + onN.to_s
-    onJSON = JSON.parse(onN)
-    targetAnnotation = Annotation.where(annotation_id:onJSON['full']).first
-    return if targetAnnotation.nil?
-    return(targetAnnotation) if (targetAnnotation.on.to_s.include?("oa:SvgSelector"))
-    getTargetedAnno targetAnnotation
   end
 end
