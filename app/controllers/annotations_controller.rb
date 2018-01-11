@@ -6,7 +6,7 @@ require "redis"
 require 'open-uri'
 
 class AnnotationsController < ApplicationController
-  before_action :set_redis , only: [:create, :edit, :update, :destroy, :doRedis, :getAnnotationsForCanvasViaLists]
+  before_action :set_redis , only: [:create, :edit, :update, :destroy, :getAnnotationsForCanvasViaLists]
 
   include CanCan::ControllerAdditions
   respond_to :json, :text, :csv
@@ -154,7 +154,7 @@ class AnnotationsController < ApplicationController
       handleRequiredListMultipleOn
       @annotationOut['canvas'] = setMultipleCanvas
     end
-   
+
     @annotation = Annotation.new(@annotationOut)
 
     unless check_anno_auth(request, @annotation)
@@ -165,7 +165,7 @@ class AnnotationsController < ApplicationController
     tags.each do |tag|
       @annotation.annotation_tags << tag
     end
-    
+
     # create the annotation/lists association
     associate_lists(@annotationIn)
     create_annotation_acls_via_parent_lists @annotation_id
@@ -192,7 +192,7 @@ class AnnotationsController < ApplicationController
     #use @annotationIn['within'] to determine if the anno already belongs to this layer, if so set updateLists = false
     updateLists = true
     @annotationIn['within'].each do |list_id|
-      layers_for_list = Annotation.where("annotation_id": @annotationIn["@id"]).first.annotation_layers 
+      layers_for_list = Annotation.where("annotation_id": @annotationIn["@id"]).first.annotation_layers
       layers_for_list.each do |layer_for_list|
         if layer_for_list["layer_id"] == @layerIdIn
           updateLists = false
@@ -223,7 +223,7 @@ class AnnotationsController < ApplicationController
                :status => :unprocessable_entity
       end
 
-      if updateLists 
+      if updateLists
         list_id =  constructRequiredListId @layerIdIn, @annotation.canvas
         canvas_id = getTargetingAnnosCanvas(@annotation)
         checkListExists(list_id, @layerIdIn, canvas_id)
@@ -524,62 +524,6 @@ end
     svg = on["selector"]["value"]
     svgHash = Hash.from_xml(svg)
     svg_path = svgHash["svg"]["path"]["d"]
-  end
-
-  # six feeds designed for use by Drupal portal/project mgmg site
-  # initial loads for annotations
-  # ongoing loads for annotations (updated/created within last 7 days)
-  #   both of these will, for convenience:
-  #   split for annotations (sans resources) and resources only (plus anno id and a concocted resource id)
-  # so:
-  # 1a) all annos sans resource
-  # 1b) delta annos sans resource last 7
-  # 2a) all annos resource only
-  # 2b) delta annos resource only last 7
-  # 1a & 1b, and 2a & 2b are combined via use of a paramter
-  # 3) all layers with same label text as gets sent from the getAnnotationsForCanvas api's
-  # 4) all annotation_id's to use as a cross reference for consumer to synchronize deletions
-
-  def feedAllAnnoIds
-    @annotation = Annotation.all
-    allAnnoIds = CSV.generate do |csv|
-      headers = "annotation_id"
-      csv << [headers]
-      @annotation.each do |annotation|
-        csv << [annotation.annotation_id]
-      end
-    end
-    respond_with do |format|
-      format.json {render :text => allAnnoIds}
-      format.text {render :text => allAnnoIds}
-    end
-  end
-
-  def feedAllLayers
-    @layer = AnnotationLayer.all
-    allLayers = CSV.generate do |csv|
-      headers = "layer_label"
-      csv << [headers]
-      @layer.each do |layer|
-        csv << [layer.label]
-      end
-    end
-    response.content_type ='xml'
-
-    respond_with do |format|
-      format.text {render :text => allLayers, :content_type => Mime::TEXT.to_s}
-    end
-  end
-
-  # simple Redis test
-  def doRedis
-    @redis.set("royKey", '{"royKey":"Roys Key"}')
-    royKey = @redis.get("royKey")
-    royKey = JSON.parse(@redis.get("royKey"))
-    respond_with do |format|
-      format.text {render :text => royKey, content_type: "application/json"}
-      format.json {render :text => royKey, content_type: "application/json"}
-    end
   end
 
   def set_redis
