@@ -1,6 +1,6 @@
 ---
 title: Annotation
-position: 2
+position: 4
 ---
 
 Annotations returned by the API either by themselves or embedded in a parent object,

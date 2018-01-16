@@ -41,8 +41,8 @@
 						</li>
 					
 						<li>
-							<a href="#documentationannotation">
-								Annotation
+							<a href="#documentationenvironment">
+								Environment
 								
 							</a>
 						</li>
@@ -50,6 +50,27 @@
 						<li>
 							<a href="#documentationauthentication">
 								Authentication
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="#documentationannotation">
+								Annotation
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="#documentationsearch">
+								Search
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="#documentationdependency">
+								Dependency
 								
 							</a>
 						</li>
@@ -144,6 +165,55 @@
 				<ul>
 					
 					
+						<li>
+							<a href="#taskfeed_for_search_bounding_boxes">
+								feed_for_search:bounding_boxes
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="#taskfeed_for_search_annos_no_resource">
+								feed_for_search:annos_no_resource
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="#taskfeed_for_search_annos_resource_only">
+								feed_for_search:annos_resource_only
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="#taskexport_clean_s3">
+								export:clean_s3
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="#taskdelete_chapter_from_list_annotations_maps">
+								delete:chapter_from_list_annotations_maps
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="#taskmigrate_annotation_tags_migrate">
+								migrate_annotation_tag:migrate
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="#tasktodo">
+								TODO
+								
+							</a>
+						</li>
+					
 				</ul>
 			</section>
 		
@@ -170,6 +240,93 @@
 				<h3>
 					<a id="documentationgetting_started">
 						Getting Started
+						
+					</a>
+				</h3>
+				
+
+				
+
+			</section>
+
+			
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="documentationenvironment">
+						Environment
+						
+					</a>
+				</h3>
+				
+
+				<h5 id="environment-variables">Environment Variables</h5>
+
+<table>
+  <tbody>
+    <tr>
+      <td>IIIF_HOST_URL</td>
+      <td>Entity IDs will be prefixed with this URL</td>
+    </tr>
+    <tr>
+      <td>USE_REDIS</td>
+      <td>If <code class="highlighter-rouge">Y</code>, /getAnnotationsList is served from the Redis cache</td>
+    </tr>
+    <tr>
+      <td>S3_Bucket</td>
+      <td>URL of the S3 bucket to which export and search feed files are uploaded</td>
+    </tr>
+    <tr>
+      <td>S3_Bucket_Folder</td>
+      <td>Folder name under the said S3 bucket</td>
+    </tr>
+    <tr>
+      <td>S3_Key</td>
+      <td>S3 credential</td>
+    </tr>
+    <tr>
+      <td>S3_Secret</td>
+      <td>S3 credential</td>
+    </tr>
+    <tr>
+      <td>S3_PUBLIC_DOWNLOAD_PREFIX</td>
+      <td>URL prefix from which to download exported CSV files</td>
+    </tr>
+    <tr>
+      <td>IIIF_COLLECTIONS_HOST</td>
+      <td>URL of host that provides the collection information for exports</td>
+    </tr>
+    <tr>
+      <td>USE_JWT_AUTH</td>
+      <td>If ‘Y’, authenticate the REST API using JWT tokens</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>For local development only:</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>DB_HOST_DEV
+DATABASE_DEV
+DB_USERNAME_DEV
+DB_PASSWORD_DEV
+DB_HOST_TEST
+DATABASE_TEST
+DB_USERNAME_TEST
+DB_PASSWORD_TEST
+</code></pre>
+</div>
+
+			</section>
+
+			
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="documentationauthentication">
+						Authentication
 						
 					</a>
 				</h3>
@@ -287,14 +444,38 @@ the “Canonical” tab shows the format from the current version of Mirador. Th
 		<section class="doc-content">
 			<section class="left-docs">
 				<h3>
-					<a id="documentationauthentication">
-						Authentication
+					<a id="documentationsearch">
+						Search
 						
 					</a>
 				</h3>
 				
 
 				
+
+			</section>
+
+			
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="documentationdependency">
+						Dependency
+						
+					</a>
+				</h3>
+				
+
+				<h4 id="getting-collection-info-for-exports">Getting collection info for exports</h4>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>${IIIF_COLLECTIONS_HOST}/node/${project_id}/collection?user_id=${user_id}
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">IIIF_COLLECTIONS_HOST</code> is an environment variable that has to be set.
+For Ten Thousand Rooms project, it is the URL of the Drupal portal.</p>
 
 			</section>
 
@@ -631,6 +812,164 @@ Subsequent calls to <code class="highlighter-rouge">/getAnnotationsViaList</code
 	
 
 	
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="taskfeed_for_search_bounding_boxes">
+						feed_for_search:bounding_boxes
+						
+					</a>
+				</h3>
+				
+
+				<p>Calculates bounding boxes of all annotations and saves them to <code class="highlighter-rouge">annotations.service_block</code> column.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>bundle <span class="nb">exec </span>rake feed_for_search:bounding_boxes
+</code></pre>
+</div>
+
+			</section>
+
+			
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="taskfeed_for_search_annos_no_resource">
+						feed_for_search:annos_no_resource
+						
+					</a>
+				</h3>
+				
+
+				<p>Exports annotations data to a CSV and uploads it to S3.
+“Resource” data are not included</p>
+
+<h5 id="header">Header:</h5>
+<div class="highlighter-rouge"><pre class="highlight"><code>annotation_id,annotation_type,context,on,canvas,motivation,layers,bounding_box,panel,chapter,scene,display_name
+</code></pre>
+</div>
+
+			</section>
+
+			
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="taskfeed_for_search_annos_resource_only">
+						feed_for_search:annos_resource_only
+						
+					</a>
+				</h3>
+				
+
+				<p>Exports annotations data (the resource field) to a CSV and uploads it to S3.</p>
+
+<h5 id="header">Header:</h5>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>annotation_id,resource_id,type,format,chars
+</code></pre>
+</div>
+
+			</section>
+
+			
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="taskexport_clean_s3">
+						export:clean_s3
+						
+					</a>
+				</h3>
+				
+
+				<p>Delete old export files from S3.</p>
+
+<p class="warning">Incomplete</p>
+
+			</section>
+
+			
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="taskdelete_chapter_from_list_annotations_maps">
+						delete:chapter_from_list_annotations_maps
+						
+					</a>
+				</h3>
+				
+
+				<h6>Parameters</h6><dl>
+  <dt>chapter</dt>
+  <dd>Chapter number</dd>
+</dl>
+
+<p>For Life of the Buddha project only. Deletes all annotations and annotation/list join table entries for the given chapter.</p>
+
+			</section>
+
+			
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="taskmigrate_annotation_tags_migrate">
+						migrate_annotation_tag:migrate
+						
+					</a>
+				</h3>
+				
+
+				<p>Copies tag data from Annotations to a separate table.</p>
+
+<p class="warning">One time script after refactoring</p>
+
+			</section>
+
+			
+		</section>
+	
+		<section class="doc-content">
+			<section class="left-docs">
+				<h3>
+					<a id="tasktodo">
+						TODO
+						
+					</a>
+				</h3>
+				
+
+				<p>The following files need to be examined further to determine if they are functional, to be fixed, or obsolete.</p>
+
+<ul>
+  <li>addChapSceneSeqTags.rake</li>
+  <li>checkData.rake</li>
+  <li>import.rake</li>
+  <li>importLotB.rake</li>
+  <li>importLotBCheck.rake</li>
+  <li>importLotBReload.rake</li>
+  <li>importLotBReload.rake.old</li>
+  <li>migrate_annotation_tags.rake</li>
+  <li>rebuildAnnoStructure.rake</li>
+  <li>rebuildFix.rak</li>
+  <li>updateSvg.rake</li>
+</ul>
+
+			</section>
+
+			
+		</section>
 	
 
 

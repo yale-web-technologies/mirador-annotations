@@ -41,8 +41,8 @@
 						</li>
 					
 						<li>
-							<a href="/#documentationannotation">
-								Annotation
+							<a href="/#documentationenvironment">
+								Environment
 								
 							</a>
 						</li>
@@ -50,6 +50,27 @@
 						<li>
 							<a href="/#documentationauthentication">
 								Authentication
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#documentationannotation">
+								Annotation
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#documentationsearch">
+								Search
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#documentationdependency">
+								Dependency
 								
 							</a>
 						</li>
@@ -143,6 +164,55 @@
 				<h6>Rake tasks</h6>
 				<ul>
 					
+					
+						<li>
+							<a href="/#taskfeed_for_search_bounding_boxes">
+								feed_for_search:bounding_boxes
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#taskfeed_for_search_annos_no_resource">
+								feed_for_search:annos_no_resource
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#taskfeed_for_search_annos_resource_only">
+								feed_for_search:annos_resource_only
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#taskexport_clean_s3">
+								export:clean_s3
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#taskdelete_chapter_from_list_annotations_maps">
+								delete:chapter_from_list_annotations_maps
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#taskmigrate_annotation_tags_migrate">
+								migrate_annotation_tag:migrate
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#tasktodo">
+								TODO
+								
+							</a>
+						</li>
 					
 				</ul>
 			</section>
@@ -379,6 +449,40 @@
 					
 						,
 						
+						"documentation-dependency": {
+							"id": "documentation-dependency",
+							"title": "Dependency",
+							"category": "documentation",
+							"description": "",
+		  				"type": "",
+							"url": "/#documentationdependency",
+							"content": "Getting collection info for exports\n\n${IIIF_COLLECTIONS_HOST}/node/${project_id}/collection?user_id=${user_id}\n\n\n\nIIIF_COLLECTIONS_HOST is an environment variable that has to be set.\nFor Ten Thousand Rooms project, it is the URL of the Drupal portal."
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
+						"documentation-environment": {
+							"id": "documentation-environment",
+							"title": "Environment",
+							"category": "documentation",
+							"description": "",
+		  				"type": "",
+							"url": "/#documentationenvironment",
+							"content": "Environment Variables\n\n\n  \n    \n      IIIF_HOST_URL\n      Entity IDs will be prefixed with this URL\n    \n    \n      USE_REDIS\n      If Y, /getAnnotationsList is served from the Redis cache\n    \n    \n      S3_Bucket\n      URL of the S3 bucket to which export and search feed files are uploaded\n    \n    \n      S3_Bucket_Folder\n      Folder name under the said S3 bucket\n    \n    \n      S3_Key\n      S3 credential\n    \n    \n      S3_Secret\n      S3 credential\n    \n    \n      S3_PUBLIC_DOWNLOAD_PREFIX\n      URL prefix from which to download exported CSV files\n    \n    \n      IIIF_COLLECTIONS_HOST\n      URL of host that provides the collection information for exports\n    \n    \n      USE_JWT_AUTH\n      If ‘Y’, authenticate the REST API using JWT tokens\n    \n  \n\n\nFor local development only:\nDB_HOST_DEV\nDATABASE_DEV\nDB_USERNAME_DEV\nDB_PASSWORD_DEV\nDB_HOST_TEST\nDATABASE_TEST\nDB_USERNAME_TEST\nDB_PASSWORD_TEST"
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
 						"documentation-getting-started": {
 							"id": "documentation-getting-started",
 							"title": "Getting Started",
@@ -392,9 +496,145 @@
 					
 				
 			
+				
+					
+						,
+						
+						"documentation-search": {
+							"id": "documentation-search",
+							"title": "Search",
+							"category": "documentation",
+							"description": "",
+		  				"type": "",
+							"url": "/#documentationsearch",
+							"content": ""
+						}
+						
+					
+				
+			
 		
 			
 		
+			
+				
+					
+						,
+						
+						"task-delete-chapter-from-list-annotations-maps": {
+							"id": "task-delete-chapter-from-list-annotations-maps",
+							"title": "delete:chapter_from_list_annotations_maps",
+							"category": "task",
+							"description": "",
+		  				"type": "",
+							"url": "/#taskdelete_chapter_from_list_annotations_maps",
+							"content": "chapter\n  Chapter number\n\n\nFor Life of the Buddha project only. Deletes all annotations and annotation/list join table entries for the given chapter."
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
+						"task-export-clean-s3": {
+							"id": "task-export-clean-s3",
+							"title": "export:clean_s3",
+							"category": "task",
+							"description": "",
+		  				"type": "",
+							"url": "/#taskexport_clean_s3",
+							"content": "Delete old export files from S3.\n\nIncomplete"
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
+						"task-feed-for-search-annos-no-resource": {
+							"id": "task-feed-for-search-annos-no-resource",
+							"title": "feed_for_search:annos_no_resource",
+							"category": "task",
+							"description": "",
+		  				"type": "",
+							"url": "/#taskfeed_for_search_annos_no_resource",
+							"content": "Exports annotations data to a CSV and uploads it to S3.\n“Resource” data are not included\n\nHeader:\nannotation_id,annotation_type,context,on,canvas,motivation,layers,bounding_box,panel,chapter,scene,display_name"
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
+						"task-feed-for-search-annos-resource-only": {
+							"id": "task-feed-for-search-annos-resource-only",
+							"title": "feed_for_search:annos_resource_only",
+							"category": "task",
+							"description": "",
+		  				"type": "",
+							"url": "/#taskfeed_for_search_annos_resource_only",
+							"content": "Exports annotations data (the resource field) to a CSV and uploads it to S3.\n\nHeader:\n\nannotation_id,resource_id,type,format,chars"
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
+						"task-feed-for-search-bounding-boxes": {
+							"id": "task-feed-for-search-bounding-boxes",
+							"title": "feed_for_search:bounding_boxes",
+							"category": "task",
+							"description": "",
+		  				"type": "",
+							"url": "/#taskfeed_for_search_bounding_boxes",
+							"content": "Calculates bounding boxes of all annotations and saves them to annotations.service_block column.\n\nbundle exec rake feed_for_search:bounding_boxes"
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
+						"task-migrate-annotation-tags-migrate": {
+							"id": "task-migrate-annotation-tags-migrate",
+							"title": "migrate_annotation_tag:migrate",
+							"category": "task",
+							"description": "",
+		  				"type": "",
+							"url": "/#taskmigrate_annotation_tags_migrate",
+							"content": "Copies tag data from Annotations to a separate table.\n\nOne time script after refactoring"
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
+						"task-todo": {
+							"id": "task-todo",
+							"title": "TODO",
+							"category": "task",
+							"description": "",
+		  				"type": "",
+							"url": "/#tasktodo",
+							"content": "The following files need to be examined further to determine if they are functional, to be fixed, or obsolete.\n\n\n  addChapSceneSeqTags.rake\n  checkData.rake\n  import.rake\n  importLotB.rake\n  importLotBCheck.rake\n  importLotBReload.rake\n  importLotBReload.rake.old\n  migrate_annotation_tags.rake\n  rebuildAnnoStructure.rake\n  rebuildFix.rak\n  updateSvg.rake"
+						}
+						
+					
+				
 			
 		
 	};

@@ -1,4 +1,4 @@
 ---
 title: Authentication
-position: 2
+position: 3
 ---
