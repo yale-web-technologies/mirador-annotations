@@ -378,12 +378,15 @@ end
     end
   end
 
+  # XXX Seong: it still sets a single canvas. Supporting multiple canvas targets requires a wholesale refactoring.
   def setMultipleCanvas
-    @annotationIn['canvas'] = '|'
-    @annotationIn['on'].each do |on|
-     @annotationIn['canvas'] +=  on['full'] + '|'
-    end
-    return @annotationIn['canvas']
+    # @annotationIn['canvas'] = '|'
+    # @annotationIn['on'].each do |on|
+    #  @annotationIn['canvas'] +=  on['full'] + '|'
+    # end
+    # return @annotationIn['canvas']
+
+    @annotationIn['on'][0]['full']
   end
 
   def constructRequiredListId layer_id, canvas_id
