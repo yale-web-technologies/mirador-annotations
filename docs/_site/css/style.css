@@ -343,7 +343,7 @@ header {
   right: 0;
   overflow-x: hidden;
   z-index: 1;
-  background-color: #f5f5f5; }
+  background-color: whitesmoke; }
   header h1 {
     height: 60px;
     box-sizing: border-box;
@@ -439,7 +439,7 @@ code .c {
 /* Comment */
 code .err {
   color: #F00000;
-  background-color: #F0A0A0; }
+  background-color: #f0a0a0; }
 
 /* Error */
 code .k {
@@ -540,7 +540,7 @@ code .s {
 
 /* Literal.String */
 code .na {
-  color: #1e90ff; }
+  color: dodgerblue; }
 
 /* Name.Attribute */
 code .nb {

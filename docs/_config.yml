@@ -4,7 +4,7 @@
 title: Annopolis
 description: Annotation Server
 url: https://github.com/yale-web-technologies/mirador-annotations
-baseurl: https://gigamorph.github.io/gp-test
+baseurl: /mirador-annotations
 
 google_analytics_key:
 permalink: pretty
@@ -14,10 +14,10 @@ collections:
     title: Documentation
     position: 1
   api:
-    title: APIs
+    title: API
     position: 2
-  task:
-    title: Rake tasks
+  tasks:
+    title: Offline tasks
     position: 3
 
 exclude:
