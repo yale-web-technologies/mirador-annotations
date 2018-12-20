@@ -4,9 +4,9 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" >
 
-		<link rel="stylesheet" href="/css/style.css">
+		<link rel="stylesheet" href="/mirador-annotations/css/style.css">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-		<script src="/js/main.js"></script>
+		<script src="/mirador-annotations/js/main.js"></script>
 
 		
 	</head>
@@ -34,13 +34,6 @@
 					
 					
 						<li>
-							<a href="/#documentationgetting_started">
-								Getting Started
-								
-							</a>
-						</li>
-					
-						<li>
 							<a href="/#documentationannotation">
 								Annotation
 								
@@ -54,19 +47,47 @@
 							</a>
 						</li>
 					
+						<li>
+							<a href="/#documentationdependencies">
+								Dependencies
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#documentationenvironment">
+								Environment
+								
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#documentationlife_of_the_buddha">
+								Life of the Buddha
+								
+							</a>
+						</li>
+					
 				</ul>
 			</section>
 		
 	
 		
 			<section>
-				<h6>APIs</h6>
+				<h6>API</h6>
 				<ul>
 					
 					
 						<li>
 							<a href="/#apiannotations_list">
 								/getAnnotationsViaList
+								<span class="endpoint get"></span>
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#apiannotation_get">
+								/annotations/&lt;id>
 								<span class="endpoint get"></span>
 							</a>
 						</li>
@@ -106,15 +127,43 @@
 							</a>
 						</li>
 					
+						<li>
+							<a href="/#apiexport">
+								/export
+								<span class="endpoint get"></span>
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#apiexport__check_status">
+								/export/check_status
+								<span class="endpoint get"></span>
+							</a>
+						</li>
+					
+						<li>
+							<a href="/#apisetCurrentLayers">
+								/setCurrentLayers
+								<span class="endpoint post"></span>
+							</a>
+						</li>
+					
 				</ul>
 			</section>
 		
 	
 		
 			<section>
-				<h6>Rake tasks</h6>
+				<h6>Offline tasks</h6>
 				<ul>
 					
+					
+						<li>
+							<a href="/#tasksfeed_for_search">
+								Feed for search
+								
+							</a>
+						</li>
 					
 				</ul>
 			</section>
@@ -179,6 +228,23 @@
 					
 						,
 						
+						"api-annotation-get": {
+							"id": "api-annotation-get",
+							"title": "/annotations/&amp;lt;id&gt;",
+							"category": "api",
+							"description": "Get a specific annotation",
+		  				"type": "get",
+							"url": "/#apiannotation_get",
+							"content": "Example: http://example.org/annotations/215bc9b4-ca41-4467-a823-4440c420eb8e"
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
 						"api-annotation-update": {
 							"id": "api-annotation-update",
 							"title": "/annotations",
@@ -213,6 +279,40 @@
 					
 						,
 						
+						"api-export": {
+							"id": "api-export",
+							"title": "/export",
+							"category": "api",
+							"description": "Export annotations",
+		  				"type": "get",
+							"url": "/#apiexport",
+							"content": "user_id\n  User ID from drupal\n(required)\n  project_id\n  Project ID from drupal\n(required)"
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
+						"api-export-check-status": {
+							"id": "api-export-check-status",
+							"title": "/export/check_status",
+							"category": "api",
+							"description": "Called by client-side JavaScript in intervals to update the status of the export job -- whether it is in progress or complete.",
+		  				"type": "get",
+							"url": "/#apiexport__check_status",
+							"content": "job_id\n  ID of the Delayed::Job job\n\n\nUsed by the export page to check the progress of the offline export task.\nIt should initiate download when the status indicates the job is complete."
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
 						"api-layers-get": {
 							"id": "api-layers-get",
 							"title": "/layers",
@@ -237,7 +337,24 @@
 							"description": "Re-order annotations in a list",
 		  				"type": "put",
 							"url": "/#apiresequenceList",
-							"content": "Payload:\n\n {\n  \"canvas_id\": \"&lt;Canvas ID&gt;\",\n  \"layer_id\": \"&lt;Layer ID&gt;\",\n  \"annotation_ids\": [ \"&lt;AnnotationID&gt;\", ... ]\n}"
+							"content": "Payload:\n\n {\n  \"canvas_id\": \"&lt;Canvas ID&gt;\",\n  \"layer_id\": \"&lt;Layer ID&gt;\",\n  \"annotation_ids\": [ \"&lt;AnnotationID&gt;\", ... ]\n}\n\n\n\ncanvas_id and layer_id together determines the list the user wants to change.\n\nannotation_ids is a list of annotation IDs that are arranged in the new updated order."
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
+						"api-setcurrentlayers": {
+							"id": "api-setcurrentlayers",
+							"title": "/setCurrentLayers",
+							"category": "api",
+							"description": "Set layers (called from drupal)",
+		  				"type": "post",
+							"url": "/#apisetCurrentLayers",
+							"content": "Payload:\n\n {\n  \"group_id\": \"&lt;Group ID&gt;\",\n  \"group_description\": \"&lt;Node title&gt;\",\n  \"layers\": [\n    {\n      \"layer_id\": \"&lt;Layer ID&gt;\",\n      \"label\": \"&lt;label&gt;\"\n    },\n    ...\n  ]\n}"
 						}
 						
 					
@@ -273,7 +390,7 @@
 							"description": "",
 		  				"type": "",
 							"url": "/#documentationauthentication",
-							"content": "payload"
+							"content": "Authentication for create, update, and delete operations are handled through\nJWT tokens. Mirador is initialized with a token for the project and the user\nfrom the Drupal portal and passes it to annotation server along with its\najax requests. The annotation server decodes the token using a shared key\nand queries the portal to see if the user is allowed to perform the operation."
 						}
 						
 					
@@ -283,14 +400,48 @@
 					
 						,
 						
-						"documentation-getting-started": {
-							"id": "documentation-getting-started",
-							"title": "Getting Started",
+						"documentation-dependencies": {
+							"id": "documentation-dependencies",
+							"title": "Dependencies",
 							"category": "documentation",
 							"description": "",
 		  				"type": "",
-							"url": "/#documentationgetting_started",
-							"content": ""
+							"url": "/#documentationdependencies",
+							"content": "API dependencies\n\n  ${drupal_portal_url}/has-canvas-access?canvas_id=${canvas_id}&amp;user_id=${user_id} - to check if the user ID (extracted from the JWT token) has permission for the canvas. In Drupal, this API is impemented as a view with a contextual filter.\n  ${drupal_portal_url}/node/#{project_id}/collection?user_id=#{user_id} - to get collection information for exporting annotations data for the project.\n\n\nImagemagick\n\n  The feed_for_search:bounding_boxes rake task depends on the rmagick gem, which in turn depends on the native installation of Imagemagick (note: version 6, not 7)."
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
+						"documentation-environment": {
+							"id": "documentation-environment",
+							"title": "Environment",
+							"category": "documentation",
+							"description": "",
+		  				"type": "",
+							"url": "/#documentationenvironment",
+							"content": "Environment Variables\n\n\n  \n    \n      IIIF_HOST_URL\n      Entity IDs will be prefixed with this URL\n    \n    \n      USE_REDIS\n      If Y, /getAnnotationsList is served from the Redis cache\n    \n    \n      S3_Bucket\n      URL of the S3 bucket to which export and search feed files are uploaded\n    \n    \n      S3_Bucket_Folder\n      Folder name under the said S3 bucket\n    \n    \n      S3_Key\n      S3 credential\n    \n    \n      S3_Secret\n      S3 credential\n    \n    \n      S3_PUBLIC_DOWNLOAD_PREFIX\n      URL prefix from which to download exported CSV files\n    \n    \n      IIIF_COLLECTIONS_HOST\n      URL of host that provides the collection information for exports\n    \n    \n      USE_JWT_AUTH\n      If ‘Y’, authenticate the REST API using JWT tokens\n    \n  \n\n\nFor local development only:\nDB_HOST_DEV\nDATABASE_DEV\nDB_USERNAME_DEV\nDB_PASSWORD_DEV\nDB_HOST_TEST\nDATABASE_TEST\nDB_USERNAME_TEST\nDB_PASSWORD_TEST"
+						}
+						
+					
+				
+			
+				
+					
+						,
+						
+						"documentation-life-of-the-buddha": {
+							"id": "documentation-life-of-the-buddha",
+							"title": "Life of the Buddha",
+							"category": "documentation",
+							"description": "",
+		  				"type": "",
+							"url": "/#documentationlife_of_the_buddha",
+							"content": "The features unique to the Life of the Buddha project have been omitted from this\ndocumentation.\n\nAPI\n\n  /setRedisKeys - reload redis cache\n\n\nOffline tasks\nVarious tasks that import annotations data from Google Docs."
 						}
 						
 					
@@ -299,6 +450,23 @@
 		
 			
 		
+			
+				
+					
+						,
+						
+						"tasks-feed-for-search": {
+							"id": "tasks-feed-for-search",
+							"title": "Feed for search",
+							"category": "tasks",
+							"description": "",
+		  				"type": "",
+							"url": "/#tasksfeed_for_search",
+							"content": "Exports annotations data into csv files and uploads them to S3 so the drupal portal will consume them to feed the Solr search engine.\n\nRake tasks\n\n  feed_for_search:bounding_boxes\n  feed_for_search:annos_no_resource\n  feed_for_search:annos_resource_only"
+						}
+						
+					
+				
 			
 		
 	};

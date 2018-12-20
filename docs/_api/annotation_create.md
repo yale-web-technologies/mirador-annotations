@@ -1,6 +1,6 @@
 ---
 title: /annotations
-position: 1.2
+position: 1.3
 type: post
 description: Create an annotation
 ---
@@ -15,4 +15,4 @@ description: Create an annotation
 ~~~
 
 `annotation["@id"]` is not required because it will be created by the server and included in response.
-{: .success }
+{: .info }
