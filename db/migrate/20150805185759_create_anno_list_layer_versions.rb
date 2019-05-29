@@ -1,4 +1,4 @@
-class CreateAnnoListLayerVersions < ActiveRecord::Migration
+class CreateAnnoListLayerVersions < ActiveRecord::Migration[4.2]
   def change
     create_table :anno_list_layer_versions do |t|
       t.string :all_id

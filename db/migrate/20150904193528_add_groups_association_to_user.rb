@@ -1,4 +1,4 @@
-class AddGroupsAssociationToUser < ActiveRecord::Migration
+class AddGroupsAssociationToUser < ActiveRecord::Migration[4.2]
   def change
     def self.up
       add_column :groups, :user_id, :integer

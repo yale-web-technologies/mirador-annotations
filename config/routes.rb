@@ -1,21 +1,14 @@
-#TenThousandRooms::Application.routes.draw do
-MiradorAnnotationsServer::Application.routes.draw do
-  devise_for :users, :controllers => { :omniauth_callbacks => "users/omniauth_callbacks"}
-
-  #get "welcome/index"
-  # The priority is based upon order of creation: first created -> highest priority.
-  # See how all your routes lay out with "rake routes".
-
-  root 'annotation_layers#index', path: 'layers',defaults: {format: :json}
+# MiradorAnnotationsServer::Application.routes.draw do
+Rails.application.routes.draw do
+  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+  root 'annotation_layers#index', to: 'layers',defaults: {format: :json}
   resources :annotation_layers, path: 'layers',defaults: {format: :json}
   resources :annotation_lists, path: 'lists',defaults: {format: :json}
   get '/lists/*url' => 'annotation_lists#show', :format => false
   resources :annotation_lists, path: 'lists', :format => false
-  #get '/annotations/*url' => 'annotation_lists#show', :format => false
   resources :annotations, path: 'annotations',defaults: {format: :json}, :except => [:update]
   put '/annotations', to: 'annotations#update'
 
-  #get '/getAll', to: 'services#getAllCanvasesLayersLists'
   get '/getCanvasData', to: 'services#getLayersListsForCanvas'
   get '/getAnnotations', to: 'annotations#getAnnotationsForCanvas'
   get '/getAnnotationsViaList', to: 'annotations#getAnnotationsForCanvasViaLists'
@@ -26,7 +19,6 @@ MiradorAnnotationsServer::Application.routes.draw do
   get '/getCanvasForAnno', to: 'annotations#getTargetingAnnosCanvasFromID', defaults: {format: :json}
   get '/getLayersForAnnotation', to: 'annotations#getLayersForAnnotation', defaults: {format: :json}
 
-
   post '/setCurrentLayers', to: 'annotation_layers#setCurrentLayers',  defaults: {format: :json}
   post '/createLayerWithGroup', to: 'annotation_layers#createWithGroup', defaults: {format: :json}
   delete 'removeLayerFromGroup', to: 'annotation_layers#remove_layer_from_group', defaults: {format: :json}
@@ -35,9 +27,7 @@ MiradorAnnotationsServer::Application.routes.draw do
   get '/feedAllLayers', to: 'annotations#feedAllLayers', defaults: {format: :text}
 
   get 'getAccessToken', to: "application#get_access_token", defaults: {format: :json}
-  #get 'loginToServer', to: "application#login"
   get 'loginToServer', to: "authn#userLogin"
-  #put 'loginToServer', to: "authn#userLogin"
 
   get 'getAccessToken', to: "application#get_access_token", defaults: {format: :json}
   get 'loginToServer', to: "application#login"

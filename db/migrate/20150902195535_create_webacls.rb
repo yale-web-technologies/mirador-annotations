@@ -1,4 +1,4 @@
-class CreateWebacls < ActiveRecord::Migration
+class CreateWebacls < ActiveRecord::Migration[4.2]
   def change
     create_table :webacls do |t|
       t.string :resource_id

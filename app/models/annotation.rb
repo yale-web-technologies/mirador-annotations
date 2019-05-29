@@ -1,21 +1,6 @@
 include Magick
 
-class Annotation < ActiveRecord::Base
-  attr_accessible :annotation_id,
-                  :annotation_type,
-                  :motivation,
-                  :description,
-                  :on,
-                  :label,
-                  :canvas,
-                  :manifest,
-                  :resource,
-                  :version,
-                  :annotated_by,
-                  :active,
-                  :version,
-                  :service_block,
-                  :order_weight
+class Annotation < ApplicationRecord
   has_many :webacls, foreign_key: "resource_id"
 
   def to_iiif
@@ -180,7 +165,3 @@ class Annotation < ActiveRecord::Base
     target_annos
   end
 end
-
-
-
-

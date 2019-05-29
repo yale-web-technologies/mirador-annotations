@@ -1,17 +1,9 @@
-class AnnotationLayer < ActiveRecord::Base
+class AnnotationLayer < ApplicationRecord
   validates :layer_id, uniqueness: true
 
   has_and_belongs_to_many :groups
 
   has_many :webacls, foreign_key: "resource_id"
-
-  attr_accessible :layer_id,
-                  :layer_type,
-                  :label,
-                  :motivation,
-                  :description,
-                  :license,
-                  :version
 
   def to_iiif
     iiif = Hash.new
@@ -40,4 +32,3 @@ class AnnotationLayer < ActiveRecord::Base
   end
 
 end
-

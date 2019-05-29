@@ -1,2 +1,2 @@
-class GroupLayer < ActiveRecord::Base
+class GroupLayer < ApplicationRecord
 end

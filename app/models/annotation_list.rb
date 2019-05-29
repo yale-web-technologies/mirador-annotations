@@ -1,10 +1,4 @@
-class AnnotationList < ActiveRecord::Base
-  attr_accessible  :list_id,
-                   :list_type,
-                   :label,
-                   :description,
-                   :version
-
+class AnnotationList < ApplicationRecord
   has_many :list_annotations_maps
   has_many :webacls, foreign_key: "resource_id"
 

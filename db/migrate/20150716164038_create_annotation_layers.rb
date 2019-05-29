@@ -1,4 +1,4 @@
-class CreateAnnotationLayers < ActiveRecord::Migration
+class CreateAnnotationLayers < ActiveRecord::Migration[4.2]
   def change
     create_table :annotation_layers do |t|
       t.string :layer_id

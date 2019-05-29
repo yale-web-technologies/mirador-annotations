@@ -1,9 +1,6 @@
-class LayerListsMap < ActiveRecord::Base
+class LayerListsMap < ApplicationRecord
   belongs_to :annotation_layer
 
-  attr_accessible  :layer_id,
-                   :sequence,
-                   :list_id
   def self.setMap within, list_id
     if !within.nil?
       within.each do |layer_id|

@@ -1,2 +1,2 @@
-class LayerMapping < ActiveRecord::Base
+class LayerMapping < ApplicationRecord
 end
