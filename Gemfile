@@ -16,7 +16,7 @@ gem 'sprockets', '2.12.3'
 
 gem 'pg', '0.15.1'
 
-gem 'json', '~> 2.1.0'
+gem 'json', '~> 2.3.1'
 
 gem 'therubyracer'
 gem 'devise', '~> 3.4.0'   # or later
