@@ -20,7 +20,7 @@ gem 'json', '~> 2.1.0'
 
 gem 'therubyracer'
 gem 'devise', '~> 3.4.0'   # or later
-gem 'omniauth', '~> 1.3.1'
+gem 'omniauth', '~> 1.9.2'
 gem 'omniauth-cas', '~> 1.1.1'
 gem 'uuid', '~> 2.3.8'
 
